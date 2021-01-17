@@ -1,0 +1,9 @@
+{
+  "name": "chess-tournament-swiss",
+  "description": "A service to manage a chess tournament using the Swiss pairing method",
+  "version": "0.0.2-alpha.1",
+  "main": "index.js",
+  "repository": "git@github.com:RodrigoMattosoSilveira/chess-tournament-swiss.git",
+  "author": "Rodrigo Silveira <r3850365@gmail.com>",
+  "license": "MIT"
+}

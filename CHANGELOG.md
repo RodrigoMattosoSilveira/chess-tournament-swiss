@@ -3,13 +3,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
-## [0.0.1] - Underway
+## [0.0.2] - Underway
+### Feature
+* Create infrastructure / Node / Express / Typescript
+## [0.0.1] - 2021 01 17
 ### Feature
 * Create Documents
 
 # Outstanding Tasks
 ## Short term
-1. Create documents
+1. ~~Create documents~~
 1. Create infrastructure / Node / Express / Typescript
 1. Add Swiss pairing method to pair next round using hard coded data
 
