@@ -1,6 +1,6 @@
 import app from '../src/index';
 // import * as supertest from 'supertest';
-var supertest = require("supertest");
+let supertest = require("supertest");
 
 describe('app', () => {
 	let request: any;
