@@ -68,3 +68,8 @@ All I had to do was to change request declaration:
 	let request: any;
 ````
 
+# Implemented the HTTP management
+I'm using the [Create an Express Server Using TypeScript](https://medium.com/better-programming/create-an-express-server-using-typescript-dec8a51e7f8d) blog as a guideline.
+
+## Duplicate identifier Typescript error message
+I got this from the IntelliJ Lint. The solution was to include the ` "skipLibCheck": true` configuration option in `tscoonfig.compilerOptions`, as suggested in this [SO](https://stackoverflow.com/questions/31322525/confusing-duplicate-identifier-typescript-error-message) post.
