@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [0.0.2] - Underway
 ### Feature
 * Create infrastructure / Node / Express / Typescript
+* Use Cucumber for unit tests and live documentation
 ## [0.0.1] - 2021 01 17
 ### Feature
 * Create Documents
