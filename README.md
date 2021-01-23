@@ -31,6 +31,10 @@ The [FIDE](https://handbook.fide.com/chapter/C0401#:~:text=The%20following%20rul
     1. If colours are already balanced, then, in general, the player is given the colour that alternates from the last one with which he played.
 1. The pairing rules must be such transparent that the person who is in charge for the pairing can explain them.
 
+The Sensei Library provides additional suggestions regarding how to increase the chance of 
+
+The Swiss Pairing method is a good choice to decide who ends up at the top spot; it is not always clear who should get the 2nd and third place prize; The [Sensei Library](https://senseis.xmp.net/?SwissPairing#:~:text=Swiss%20Pairing%20is%20a%20TournamentFormat,%20i.e.%20a%20method,go%20tournaments,%20notably%20the%20World%20Amateur%20Go%20Championship) provides additional suggestions, which are out of the scope of this experiment. 
+
 # 0.0.2 New Structure
 I decided to refactor the work I did on round-swiss-pairing branch, starting from the point where the basic framework was in place. The new structure will be:
 * rest
