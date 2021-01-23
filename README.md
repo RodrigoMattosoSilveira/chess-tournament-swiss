@@ -8,7 +8,13 @@ TBD
 ## Build status
 TBD
 # Introduction
-This is a playground to implement a service to manager a chess tournament using Swiss Pairing, just because I'm curious. I will keep the technology stack as simple as possible using Node.js / Express / Typescript stack, which I'm familiar with. I'll experiment with one technology components, Cucumber, because I'm interested in learning about Live Documentation. 
+This is a playground to implement a service to manage a chess tournament using Swiss Pairing, just because I'm curious. I will keep the technology stack as simple as possible by using Node.js / Express / Typescript stack, which I'm familiar with; I'll experiment with one technology components, Cucumber, because I'm interested in learning about Live Documentation. I'll use unit tests for validation, and `cURL` as my UI!
+
+Possible technological improvements:
+1. Add a MongoDB data storage; I could use a RDBS, but my teams use Mongo and I need to learn it;
+1. Replace Node / Express / Typescript with SpringBoot / Java; 
+1. Add a React / Redux or Angular / Redux UI;
+1. Expand the service handle a plurarity of use cases;
 
 ## Swiss Pairing
 Swiss Pairing is a method of pairing players in a tournament, requiring a relatively small number of rounds, involving all tournament players, to determine the winner(s); it was used for the first time in Switzerland in 1895, and today tournament organizers use it primarily for chess tournaments. The Swiss Paring method addresses significant problems of round robin and single elimination tournaments:
