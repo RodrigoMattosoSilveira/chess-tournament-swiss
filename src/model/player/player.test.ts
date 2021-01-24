@@ -1,4 +1,6 @@
 import {Player, Players} from "./player";
+import app from "../../index";
+let supertest = require("supertest");
 
 const seedPlayers: Array<Player> = require('../../seed-data/players-seed.json');
 
@@ -9,6 +11,7 @@ describe('Player', () => {
 	let rating = 1567;
 	let player: Player;
 	let players: Players;
+	let request: any;
 	describe('Given a set of valid attributes', () => {
 		test("The player constructor returns a valid record", () => {
 			let player = new Player(id, firstName, lastName, rating);
@@ -33,7 +36,7 @@ describe('Player', () => {
 			expect(addedPlayer).toEqual(player);
 		});
 	});
-	describe('Given a valid seed players', () => {
+	describe('Given valid seed players', () => {
 		beforeEach(() => {
 			players = new Players();
 		});
