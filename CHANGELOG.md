@@ -3,13 +3,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
-## [0.0.3] -underway
-### Feature
-* Add Swiss pairing method to pair next round using hard coded data
-## [0.0.2] - 2021 01 17
+## [0.0.2] - underway
 ### Feature
 * Create infrastructure / Node / Express / Typescript
-* Use Cucumber for unit tests and live documentation
+* Attempted to se Cucumber for unit tests and live documentation; unable to square the JS/TS circle;
+* Modeled a player
 ## [0.0.1] - 2021 01 17
 ### Feature
 * Create Documents
