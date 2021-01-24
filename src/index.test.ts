@@ -1,4 +1,4 @@
-import app from '../src/index';
+import app from './index';
 // import * as supertest from 'supertest';
 let supertest = require("supertest");
 
