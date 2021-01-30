@@ -14,8 +14,12 @@ Use the following `curl` command to create a user:
 curl --location --request POST 'localhost:3000/user' \
 --header 'Content-Type: application/json' \
 --data-raw '{
+"firstName": "rodrigo",
+"lastName": "silveira",
 "email": "rodrigo.silveira@coolprovider.com",
-"password": "sup3rS3cr3tPassw0rd!23"
+"password": "sup3rS3cr3tPassw0rd!23",
+"permissionLevel": 0,
+"rating": 1234
 }'
 ````
 

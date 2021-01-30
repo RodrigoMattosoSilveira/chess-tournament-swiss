@@ -3,13 +3,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
-## [0.0.3] - underway
+## [0.0.4] -2021 01 30
+### Feature
+* Added testing to the user entity
+
+## [0.0.3] - 2021 01 30
 ### Feature
 * Integrate DAO DTO layers using new entity, user (no testing)
+
 ## [0.0.2] - 2021 01 30
 ### Feature
 * Create infrastructure / Node / Express / Typescript
 * Added one entity, player
+
 ## [0.0.1] - 2021 01 17
 ### Feature
 * Create Documents

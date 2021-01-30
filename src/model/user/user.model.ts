@@ -5,4 +5,5 @@ export interface UserDto {
 	firstName?: string;
 	lastName?: string;
 	permissionLevel?: number;
+	rating?: number;
 }
