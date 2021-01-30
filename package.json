@@ -13,17 +13,26 @@
     "ctest": "cucumber-js"
   },
   "dependencies": {
-    "@types/express": "^4.17.11",
-    "express": "^4.17.1"
+    "argon2": "^0.27.1",
+    "cors": "^2.8.5",
+    "debug": "^4.3.1",
+    "express": "^4.17.1",
+    "express-winston": "^4.0.5",
+    "shortid": "^2.2.16",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
-    "@cucumber/cucumber": "^7.0.0",
+    "@types/cors": "^2.8.9",
+    "@types/debug": "^4.1.5",
+    "@types/express": "^4.17.11",
     "@types/jest": "^26.0.20",
     "@types/node": "^14.14.21",
+    "@types/shortid": "^0.0.29",
     "jest": "^26.6.3",
     "nodemon": "^2.0.7",
     "nodemon-webpack-plugin": "^4.4.4",
     "supertest": "^6.1.1",
+    "source-map-support": "^0.5.19",
     "ts-jest": "^26.4.4",
     "ts-loader": "^8.0.14",
     "ts-node": "^9.1.1",
