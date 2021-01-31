@@ -1,4 +1,6 @@
 import express from 'express';
+
+// todo: change it to service
 import userService from './user.service';
 
 class UserMiddleware {

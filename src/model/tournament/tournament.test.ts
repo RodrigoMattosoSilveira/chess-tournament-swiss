@@ -1,20 +1,22 @@
 import app from './../../index';
 import {server} from '../../index';
-import {UserDto} from "./user.model";
+import {TournamentDto} from "./tournament.model";
+import {UserDto} from "../user/user.model";
 let supertest = require("supertest");
 
-describe('User Entity', () => {
+describe('Tournament Entity', () => {
 	let request: any;
+	let entity = '/tournament';
 	beforeAll(() => {
 		request = supertest(app);
 	});
-	it('should return a successful response for GET /user', done => {
-		request.get('/user')
+	it('should return a successful response for GET /tournament', done => {
+		request.get(entity)
 			.expect(200, done);
 	});
-	it('GET /user', function(done) {
+	it('GET /tournament', function(done) {
 		return request
-			.get('/user')
+			.get(entity)
 			.set('Accept', 'application/json')
 			.expect('Content-Type', /json/)
 			.expect(200)
@@ -25,38 +27,34 @@ describe('User Entity', () => {
 			})
 			.catch((err: any) => done(err))
 	});
-	it('POST /user', function(done) {
-		let user: UserDto = {
-			id: "somecrazynumber",
-			email: "Paul.Roberts@yahoo.com",
-			password: "$dfg&*mns12PP",
-			firstName: "Paul",
-			lastName: "Roberts",
-			permissionLevel: 0,
-			rating: 1234
+	it('POST /tournament', function(done) {
+		let tournament: TournamentDto = {
+			"id": "string",
+			"name": "Tata Steel Chess",
+			"city": "Wijk aan Zee",
+			"year": 2021,
+			"rounds": 6
 		}
 		return request
-			.post('/user')
-			.send(user)
+			.post(entity)
+			.send(tournament)
 			.set('Accept', 'application/json')
 			.expect('Content-Type', /json/)
 			.expect(201)
 			.then((response: any) => {
-				// console.log(response);
+				console.log('Tournament Entity/POST /tournament: ' + response.body.id);
 				expect(response.body.id).toBeTruthy()
 				return request
-					.get('/user/' + response.body.id)
+					.get('/tournament/' + response.body.id)
 					.set('Accept', 'application/json')
 					.expect(200)
 					.then((response: any) => {
 						// console.log(response);
 						// console.log(response.body);
-						expect(response.body.firstName).toEqual(user.firstName)
-						expect(response.body.lastName).toEqual(user.lastName)
-						expect(response.body.permissionLevel).toEqual(user.permissionLevel)
-						expect(response.body.email).toEqual(user.email)
-						expect(response.body.rating).toEqual(user.rating)
-						expect(response.body.password).not.toEqual(user.password)
+						expect(response.body.name).toEqual(tournament.name)
+						expect(response.body.city).toEqual(tournament.city)
+						expect(response.body.year).toEqual(tournament.year)
+						expect(response.body.rounds).toEqual(tournament.rounds)
 						done();
 					})
 					.catch((err: any) => done(err))
