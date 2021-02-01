@@ -6,4 +6,5 @@ export interface UserDto {
 	lastName?: string;
 	permissionLevel?: number;
 	rating?: number;
+	state?: string; // active* or inactive
 }

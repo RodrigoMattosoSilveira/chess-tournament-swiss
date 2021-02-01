@@ -30,6 +30,7 @@ export class UserRoutes extends CommonRoutesConfig {
 			.get(UserController.listUsers)
 			.post(
 				UserMiddleware.validateRequiredUserBodyFields,
+				UserMiddleware.validateEmail,
 				UserMiddleware.validateSameEmailDoesntExist,
 				UserController.createUser);
 		
@@ -37,16 +38,20 @@ export class UserRoutes extends CommonRoutesConfig {
 		this.app.route(`/user/:userId`)
 			.all(UserMiddleware.validateUserExists)
 			.get(UserController.getUserById)
-			.delete(UserController.removeUser);
+			.delete(UserController.delete); // This service does not support DELETE
 		
+		// This service does not support PUT
 		this.app.put(`/user/:userId`,[
-			UserMiddleware.validateRequiredUserBodyFields,
-			UserMiddleware.validateSameEmailBelongToSameUser,
+			// UserMiddleware.validateRequiredUserBodyFields,
+			// UserMiddleware.validateSameEmailBelongToSameUser,
 			UserController.put
 		]);
 		
 		this.app.patch(`/user/:userId`, [
-			UserMiddleware.validatePatchEmail,
+			UserMiddleware.validateUserExists,
+			UserMiddleware.validateEmail,
+			UserMiddleware.validateSameEmailDoesntExist,
+			UserMiddleware.validateStateIfPresent,
 			UserController.patch
 		]);
 		

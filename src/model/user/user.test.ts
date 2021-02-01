@@ -1,6 +1,8 @@
+import express from 'express';
 import app from './../../index';
 import {server} from '../../index';
 import {UserDto} from "./user.model";
+import {USER_STATE, user_states} from "../../contants/contants";
 let supertest = require("supertest");
 
 describe('User Entity', () => {
@@ -8,11 +10,11 @@ describe('User Entity', () => {
 	beforeAll(() => {
 		request = supertest(app);
 	});
-	it('should return a successful response for GET /user', done => {
+	test('should return a successful response for GET /user', done => {
 		request.get('/user')
 			.expect(200, done);
 	});
-	it('GET /user', function(done) {
+	test('GET /user', function(done) {
 		return request
 			.get('/user')
 			.set('Accept', 'application/json')
@@ -25,7 +27,7 @@ describe('User Entity', () => {
 			})
 			.catch((err: any) => done(err))
 	});
-	it('POST /user', function(done) {
+	test('POST /user', function(done) {
 		let user: UserDto = {
 			id: "somecrazynumber",
 			email: "Paul.Roberts@yahoo.com",
@@ -51,12 +53,13 @@ describe('User Entity', () => {
 					.then((response: any) => {
 						// console.log(response);
 						// console.log(response.body);
-						expect(response.body.firstName).toEqual(user.firstName)
-						expect(response.body.lastName).toEqual(user.lastName)
-						expect(response.body.permissionLevel).toEqual(user.permissionLevel)
-						expect(response.body.email).toEqual(user.email)
-						expect(response.body.rating).toEqual(user.rating)
-						expect(response.body.password).not.toEqual(user.password)
+						expect(response.body.firstName).toEqual(user.firstName);
+						expect(response.body.lastName).toEqual(user.lastName);
+						expect(response.body.permissionLevel).toEqual(user.permissionLevel);
+						expect(response.body.email).toEqual(user.email);
+						expect(response.body.rating).toEqual(user.rating);
+						expect(response.body.password).not.toEqual(user.password);
+						expect(response.body.state).toEqual(USER_STATE.ACTIVE);
 						done();
 					})
 					.catch((err: any) => done(err))
@@ -64,6 +67,74 @@ describe('User Entity', () => {
 			})
 			.catch((err: any) => done(err))
 	});
+	
+	describe('PATCH /user:id', () => {
+		let firstName = "firstName";
+		let lastName = "lastName";
+		let emailDifferentiator = "a";
+		let testEmail: string = "";
+		let user: UserDto = {
+			id: "somecrazynumber",
+			email: "Paul.Roberts@yahoo.com",
+			password: "$dfg&*mns12PP",
+			firstName: "Paul",
+			lastName: "Roberts",
+			permissionLevel: 0,
+			rating: 1234
+		}
+		let testingUser: UserDto;
+		beforeAll(function(done) {
+			emailDifferentiator += "a";
+			testEmail = firstName + '.' + lastName + "." + emailDifferentiator + "@yahoo.com"
+			user.email = testEmail;
+			postUser(user)
+				.then((response: any) => {
+					getUser(response.body.id)
+						.then((response: any) => {
+							testingUser = <UserDto>request.body;
+							done();
+						})
+				})
+		});
+		test.only('patches all valid attributes', (done) => {
+			let userPatch: UserDto = {
+				id: "somecrazynumber",
+				email: "Frank.Franklin@gmail.com",
+				password: "$dfg&*mns12PP",
+				firstName: "Frank",
+				lastName: "Franklin",
+				permissionLevel: 5,
+				rating: 2222,
+				state: "inactive"
+			}
+			patchUser(testingUser)
+				.then((response: any) => {
+					// console.log(response.body);
+					expect(response.body.email).toEqual(userPatch.email);
+					expect(response.body.firstName).toEqual(userPatch.firstName);
+					expect(response.body.lastName).toEqual(userPatch.lastName);
+					expect(response.body.permissionLevel).toEqual(userPatch.permissionLevel);
+					expect(response.body.rating).toEqual(userPatch.rating);
+					expect(response.body.state).toEqual(userPatch.state);
+					done();
+				})
+		});
+		test('PATCH /user:id email', (done) => {
+			expect(false).toEqual(true);
+		});
+		test('PATCH /user:id password', (done) => {
+			expect(false).toEqual(true);
+		});
+		test('PATCH /user:id firstName', (done) => {
+			expect(false).toEqual(true);
+		});
+		test('PATCH /user:id lastName', (done) => {
+			expect(false).toEqual(true);
+		});
+		test('PATCH /user:id state', (done) => {
+			expect(false).toEqual(true);
+		});
+	})
 	
 	// Used https://github.com/visionmedia/supertest/issues/520
 	// https://github.com/visionmedia/supertest/issues/520
@@ -74,3 +145,64 @@ describe('User Entity', () => {
 		done()
 	})
 });
+
+/**
+ * Helper unction to post a USER and return the new user's id
+ * @param user
+ * @return newly created user id
+ */
+const  postUser = async (user: UserDto) => {
+	let request = supertest(app);
+	let userId: string = "";
+	await request
+		.post('/user')
+		.send(user)
+		.set('Accept', 'application/json')
+		.then((response: any) => {
+			// console.log('\n user.test/postUser/response' + response + '\n');
+			return response;
+		})
+}
+
+/**
+ * Helper unction to post a USER and return the new user's id
+ * @param id
+ * @return newly created user id
+ */
+const  getUser = async (id: string) => {
+	let request = supertest(app);
+	await request
+		.get('/user/' + id)
+		.set('Accept', 'application/json')
+		.then((response: any) => {
+			// console.log('\n user.test/getUser/response' + response + '\n');
+			return response;
+		})
+}
+
+/**
+ * Helper unction to post a USER and return the new user's id
+ * @param id
+ * @return newly created user id
+ */
+const  patchUser = async (userPath: UserDto) => {
+	let request = supertest(app);
+	let id = userPath.id;
+	let patch: any = {}
+	Object.keys(userPath).forEach(key => {// @ts-ignore
+		if (key !== "id") {
+			// @ts-ignore
+			patch[key] = userPath[key]
+		}
+	})
+	await request
+		.patch('/user/' + id)
+		. send(patch)
+		.set('Accept', 'application/json')
+		.then((response: any) => {
+			// console.log('\n user.test/getUser/response' + response + '\n');
+			return response;
+		})
+}
+
+

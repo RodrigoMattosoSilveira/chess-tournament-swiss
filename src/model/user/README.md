@@ -43,6 +43,7 @@ $ curl --location --request GET "localhost:3000/user/$REST_API_EXAMPLE_ID" --hea
 ````
 
 ## PUT
+`This service does not support PUT`
 Use the following `curl` command to update the whole record:
 ````bash
 $ curl --location --request PUT "localhost:3000/user/$REST_API_EXAMPLE_ID" \
@@ -58,7 +59,7 @@ $ curl --location --request PUT "localhost:3000/user/$REST_API_EXAMPLE_ID" \
 ## PATCH
 Use the following `curl` command to update the email address:
 ````bash
-curl --location --request PATCH "localhost:3000/users/$REST_API_EXAMPLE_ID" \
+curl --location --request PATCH "localhost:3000/user/$REST_API_EXAMPLE_ID" \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "lastName": "Mattoso"
@@ -66,6 +67,7 @@ curl --location --request PATCH "localhost:3000/users/$REST_API_EXAMPLE_ID" \
 ````
 
 ## DELETE
+`This service does not support DELETE`
 Use the following `curl` delete a user:
 ````bash
 curl --location --request DELETE "localhost:3000/user/$REST_API_EXAMPLE_ID" \

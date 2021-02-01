@@ -1,6 +1,7 @@
 import {UserDto} from "./user.model";
 import shortid from 'shortid';
 import debug from 'debug';
+import {USER_STATE} from "../../contants/contants";
 const log: debug.IDebugger = debug('app:in-memory-dao');
 
 /**
@@ -27,6 +28,7 @@ class UserDao {
 	
 	async addUser(user: UserDto) {
 		user.id = shortid.generate();
+		user.state = USER_STATE.ACTIVE;
 		this.user.push(user);
 		return user.id;
 	}
@@ -48,7 +50,7 @@ class UserDao {
 	async patchUserById(user: UserDto) {
 		const objIndex = this.user.findIndex((obj: { id: string; }) => obj.id === user.id);
 		let currentUser = this.user[objIndex];
-		const allowedPatchFields = ["password", "firstName", "lastName", "permissionLevel"];
+		const allowedPatchFields = ["email", "firstName", "lastName", "password", "permissionLevel", "rating", "state"];
 		for (let field of allowedPatchFields) {
 			if (field in user) {
 				// @ts-ignore

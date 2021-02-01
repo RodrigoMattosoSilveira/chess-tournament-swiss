@@ -40,22 +40,21 @@ class UserController {
 	}
 	
 	async patch(req: express.Request, res: express.Response) {
+		console.log('\n' + 'UserController/patch' + JSON.stringify(req.body) +'\n');
 		if(req.body.password){
 			req.body.password = await argon2.hash(req.body.password);
 		}
 		log(await userService.patchById(req.body));
-		res.status(204).send(``);
+		const user = await userService.readById(req.params.userId);
+		res.status(200).send(user);
 	}
 	
 	async put(req: express.Request, res: express.Response) {
-		req.body.password = await argon2.hash(req.body.password);
-		log(await userService.updateById({id: req.params.userId, ...req.body}));
-		res.status(204).send(``);
+		res.status(405).send(`You cannot PUT a USER. Consider patching it instead`);
 	}
 	
-	async removeUser(req: express.Request, res: express.Response) {
-		log(await userService.deleteById(req.params.userId));
-		res.status(204).send(``);
+	async delete(req: express.Request, res: express.Response) {
+		res.status(405).send(`You cannot DELETE a USER. Consider patching its state to INACTIVE`);
 	}
 }
 
