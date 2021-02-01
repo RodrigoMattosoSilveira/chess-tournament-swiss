@@ -31,6 +31,7 @@ export class TournamentRoutes extends CommonRoutesConfig {
 			.get(TournamentController.getAll)
 			.post(
 				TournamentMiddleware.validateRequiredBodyFields,
+				TournamentMiddleware.validateType,
 				TournamentMiddleware.validateSameNameDoesntExist,
 				TournamentController.create);
 		
@@ -38,16 +39,19 @@ export class TournamentRoutes extends CommonRoutesConfig {
 		this.app.route(`/tournament/:id`)
 			.all(TournamentMiddleware.validateExists)
 			.get(TournamentController.getById)
-			.delete(TournamentController.remove);
+			.delete(TournamentController.delete); // this service does not support delete
 		
+		// This service does not suppot put
 		this.app.put(`/tournament/:id`,[
-			TournamentMiddleware.validateExists,
-			TournamentMiddleware.validateRequiredBodyFields,
+			// TournamentMiddleware.validateExists,
+			// TournamentMiddleware.validateRequiredBodyFields,
+			// TournamentMiddleware.validateType,
 			TournamentController.put
 		]);
 		
 		this.app.patch(`/tournament/:id`, [
 			TournamentMiddleware.validateExists,
+			TournamentMiddleware.validateTypeIfPresent,
 			TournamentController.patch
 		]);
 		

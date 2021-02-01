@@ -2,6 +2,7 @@ import {TournamentDto} from "./tournament.model";
 import shortid from 'shortid';
 import debug from 'debug';
 const log: debug.IDebugger = debug('app:in-memory-dao');
+import {TOURNAMENT_STATE} from "../../contants/contants";
 
 /**
  * Using the singleton pattern, this class will always provide the same instance—and, critically, the same user
@@ -27,6 +28,7 @@ class TournamentDao {
 	
 	async add(entity: TournamentDto) {
 		entity.id = shortid.generate();
+		entity.state = TOURNAMENT_STATE.PLANNED;
 		entity.players = [];
 		this.collection.push(entity);
 		return entity.id;
@@ -61,6 +63,7 @@ class TournamentDao {
 	}
 	
 	async removeById(id: string) {
+		// Note that we do not remove tournaments; we
 		const objIndex = this.collection.findIndex((obj: { id: string; }) => obj.id === id);
 		this.collection.splice(objIndex, 1);
 		return `${id} removed`;

@@ -8,9 +8,9 @@
   "license": "MIT",
   "scripts": {
     "build": "webpack",
-    "start:dev": "NODE_ENV=development webpack",
+    "start:dev": "NODE_ENV=development NODE_OPTIONS=--unhandled-rejections=strict webpack",
     "test": "jest --detectOpenHandles",
-    "test1": "jest -t 'user entity'"
+    "test1": "jest -t 'Tournament Entity'"
   },
   "dependencies": {
     "argon2": "^0.27.1",

@@ -1,7 +1,7 @@
 import app from './../../index';
 import {server} from '../../index';
 import {TournamentDto} from "./tournament.model";
-import {UserDto} from "../user/user.model";
+import {TOURNAMENT_TYPE} from "../../contants/contants";
 let supertest = require("supertest");
 
 describe('Tournament Entity', () => {
@@ -33,7 +33,9 @@ describe('Tournament Entity', () => {
 			"name": "Tata Steel Chess",
 			"city": "Wijk aan Zee",
 			"year": 2021,
-			"rounds": 6
+			"rounds": 6,
+			"maxPlayers": 45,
+			"type": TOURNAMENT_TYPE.SWISS
 		}
 		return request
 			.post(entity)
@@ -51,10 +53,11 @@ describe('Tournament Entity', () => {
 					.then((response: any) => {
 						// console.log(response);
 						// console.log(response.body);
-						expect(response.body.name).toEqual(tournament.name)
-						expect(response.body.city).toEqual(tournament.city)
-						expect(response.body.year).toEqual(tournament.year)
-						expect(response.body.rounds).toEqual(tournament.rounds)
+						expect(response.body.name).toEqual(tournament.name);
+						expect(response.body.city).toEqual(tournament.city);
+						expect(response.body.year).toEqual(tournament.year);
+						expect(response.body.rounds).toEqual(tournament.rounds);
+						expect(response.body.type).toEqual(tournament.type);
 						done();
 					})
 					.catch((err: any) => done(err))

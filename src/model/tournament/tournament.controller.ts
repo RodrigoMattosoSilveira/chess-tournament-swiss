@@ -9,6 +9,7 @@ import argon2 from 'argon2';
 
 // we use debug with a custom context as described in Part 1
 import debug from 'debug';
+import userService from "../user/user.service";
 
 const log: debug.IDebugger = debug('app:tournament-controller');
 
@@ -29,7 +30,7 @@ class TournamentController {
 	}
 	
 	async getById(req: express.Request, res: express.Response) {
-		console.log('TournamentController/getById/id' + req.params.id);
+		// console.log('TournamentController/getById/id' + req.params.id);
 		const entity = await tournamentService.readById(req.params.id);
 		res.status(200).send(entity);
 	}
@@ -48,15 +49,13 @@ class TournamentController {
 	}
 	
 	async put(req: express.Request, res: express.Response) {
-		req.body.password = await argon2.hash(req.body.password);
-		log(await tournamentService.updateById({id: req.params.userId, ...req.body}));
-		res.status(204).send(``);
+		res.status(405).send(`You cannot PUT a TOURNAMENT. Consider patching it instead`);
 	}
 	
-	async remove(req: express.Request, res: express.Response) {
-		log(await tournamentService.deleteById(req.params.userId));
-		res.status(204).send(``);
+	async delete(req: express.Request, res: express.Response) {
+		res.status(405).send(`You cannot DELETE a TOURNAMENT. Consider patching its state to INACTIVE`);
 	}
+	
 }
 
 export default TournamentController.getInstance();
