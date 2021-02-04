@@ -69,6 +69,7 @@ describe('User Entity', () => {
 	});
 	
 	describe('PATCH /user:id', () => {
+		let response: any;
 		let firstName = "firstName";
 		let lastName = "lastName";
 		let emailDifferentiator = "a";
@@ -83,22 +84,20 @@ describe('User Entity', () => {
 			rating: 1234
 		}
 		let testingUser: UserDto;
-		beforeAll(function(done) {
+		beforeAll(async() => {
 			emailDifferentiator += "a";
 			testEmail = firstName + '.' + lastName + "." + emailDifferentiator + "@yahoo.com"
 			user.email = testEmail;
-			postUser(user)
+			await postUser(request, user)
 				.then((response: any) => {
-					getUser(response.body.id)
-						.then((response: any) => {
-							testingUser = <UserDto>request.body;
-							done();
-						})
+					expect(201);
+					testingUser = <UserDto>response.body;
 				})
+				.catch((err: any) => (err))
 		});
-		test.only('patches all valid attributes', (done) => {
+		test.only('patches all valid attributes', async() => {
 			let userPatch: UserDto = {
-				id: "somecrazynumber",
+				id: testingUser.id,
 				email: "Frank.Franklin@gmail.com",
 				password: "$dfg&*mns12PP",
 				firstName: "Frank",
@@ -107,17 +106,17 @@ describe('User Entity', () => {
 				rating: 2222,
 				state: "inactive"
 			}
-			patchUser(testingUser)
+			await patchUser(request, userPatch)
 				.then((response: any) => {
-					// console.log(response.body);
+					expect(200);
 					expect(response.body.email).toEqual(userPatch.email);
 					expect(response.body.firstName).toEqual(userPatch.firstName);
 					expect(response.body.lastName).toEqual(userPatch.lastName);
 					expect(response.body.permissionLevel).toEqual(userPatch.permissionLevel);
 					expect(response.body.rating).toEqual(userPatch.rating);
 					expect(response.body.state).toEqual(userPatch.state);
-					done();
 				})
+				.catch((err: any) => (err))
 		});
 		test('PATCH /user:id email', (done) => {
 			expect(false).toEqual(true);
@@ -148,11 +147,11 @@ describe('User Entity', () => {
 
 /**
  * Helper unction to post a USER and return the new user's id
+ * @param request
  * @param user
  * @return newly created user id
  */
-const  postUser = async (user: UserDto) => {
-	let request = supertest(app);
+const  postUser = async (request: any, user: UserDto) => {
 	let userId: string = "";
 	await request
 		.post('/user')
@@ -166,11 +165,11 @@ const  postUser = async (user: UserDto) => {
 
 /**
  * Helper unction to post a USER and return the new user's id
+ * @param request
  * @param id
  * @return newly created user id
  */
-const  getUser = async (id: string) => {
-	let request = supertest(app);
+const  getUser = async (request: any, id: string) => {
 	await request
 		.get('/user/' + id)
 		.set('Accept', 'application/json')
@@ -182,11 +181,11 @@ const  getUser = async (id: string) => {
 
 /**
  * Helper unction to post a USER and return the new user's id
- * @param id
+ * @param request
+ * @param userPath: UserDto
  * @return newly created user id
  */
-const  patchUser = async (userPath: UserDto) => {
-	let request = supertest(app);
+const  patchUser = async (request: any, userPath: UserDto) => {
 	let id = userPath.id;
 	let patch: any = {}
 	Object.keys(userPath).forEach(key => {// @ts-ignore
@@ -204,5 +203,3 @@ const  patchUser = async (userPath: UserDto) => {
 			return response;
 		})
 }
-
-

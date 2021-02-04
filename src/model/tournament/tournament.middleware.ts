@@ -3,7 +3,7 @@ import express from 'express';
 // todo: apply this generalization to all other entities
 import service from './tournament.service';
 import tournamentService from "../tournament/tournament.service";
-import {user_states} from "../../contants/contants";
+import {tournament_types} from "../../contants/contants";
 
 class TournamentMiddleware {
 	private static instance: TournamentMiddleware;
@@ -27,7 +27,7 @@ class TournamentMiddleware {
 	}
 	
 	async validateRequiredBodyFields(req: express.Request, res: express.Response, next: express.NextFunction) {
-		console.log('\n' + 'TournamentMiddleware/validateRequiredBodyFields/body: ' + JSON.stringify(req.body) + '\n');
+		// console.log('\n' + 'TournamentMiddleware/validateRequiredBodyFields/body: ' + JSON.stringify(req.body) + '\n');
 		if (req.body && req.body.name && req.body.rounds && req.body.type) {
 			next();
 		} else {
@@ -35,7 +35,7 @@ class TournamentMiddleware {
 		}
 	}
 	async validateExists(req: express.Request, res: express.Response, next: express.NextFunction) {
-		console.log('\n' + 'TournamentMiddleware/validateExists/id: ' + req.body.id + '\n');
+		// console.log('\n' + 'TournamentMiddleware/validateExists/id: ' + req.body.id + '\n');
 		const entity = await service.readById(req.params.id);
 		if (entity) {
 			next();
@@ -45,7 +45,7 @@ class TournamentMiddleware {
 	}
 	
 	async validateType(req: express.Request, res: express.Response, next: express.NextFunction) {
-		console.log('\n' + 'TournamentMiddleware/validateType/type: ' + req.body.type + '\n');
+		// console.log('\n' + 'TournamentMiddleware/validateType/type: ' + req.body.type + '\n');
 		// type must be supported
 		if (!isTypeSupported(req.body.type) ) {
 			res.status(404).send({error: `type ${req.params.type} is invalid`});
@@ -66,7 +66,7 @@ class TournamentMiddleware {
 	}
 	
 	async extractId(req: express.Request, res: express.Response, next: express.NextFunction) {
-		console.log('\n' + 'TournamentMiddleware/extractId/id: ' + req.params.id + '\n');
+		// console.log('\n' + 'TournamentMiddleware/extractId/id: ' + req.params.id + '\n');
 		req.body.id = req.params.id;
 		next();
 	}
@@ -75,13 +75,13 @@ class TournamentMiddleware {
 export default TournamentMiddleware.getInstance();
 
 /**
- * Asserts whether type is a supported tournanment type
+ * Asserts whether type is a supported tournament type
  * @param type
- * @return -1 if type is not a supported tournanment type, non-negative value if so.
+ * @return -1 if type is not a supported tournament type, non-negative value if so.
  */
 const isTypeSupported = (type: string): boolean => {
 	let requestType  = type.toLowerCase();
-	console.log('\n' + 'TournamentMiddleware/isTypeSupported/type: ' + requestType + '\n');
-	return user_states.findIndex((aValidType: string) => aValidType === requestType) !== -1;
+	// console.log('\n' + 'TournamentMiddleware/isTypeSupported/type: ' + requestType + '\n');
+	return tournament_types.findIndex((aValidType: string) => aValidType === requestType) !== -1;
 }
 
