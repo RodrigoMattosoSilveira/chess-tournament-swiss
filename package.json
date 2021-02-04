@@ -9,8 +9,9 @@
   "scripts": {
     "build": "webpack",
     "start:dev": "NODE_ENV=development NODE_OPTIONS=--unhandled-rejections=strict webpack",
-    "test": "jest --detectOpenHandles",
-    "test1": "jest -t 'Tournament Entity'"
+    "test":   "NODE_ENV=test jest --detectOpenHandles",
+    "test_u": "NODE_ENV=test jest --detectOpenHandles -t 'User Entity'",
+    "test_t": "NODE_ENV=test jest --detectOpenHandles -t 'Tournament Entity'"
   },
   "dependencies": {
     "argon2": "^0.27.1",
@@ -29,6 +30,7 @@
     "@types/jest": "^26.0.20",
     "@types/node": "^14.14.21",
     "@types/shortid": "^0.0.29",
+    "@types/supertest": "^2.0.10",
     "jest": "^26.6.3",
     "nodemon": "^2.0.7",
     "nodemon-webpack-plugin": "^4.4.4",

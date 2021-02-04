@@ -76,11 +76,14 @@ app.get('/', (req: express.Request, res: express.Response) => {
 
 // This actually starts our server. Once it’s started, Node.js will run our callback function, which reports that we’re
 // running, followed by the names of all the routes we’ve configured—so far, just UserRoutes.
-server.listen(port, () => {
-	debugLog(`Server running at http://localhost:${port}`);
-	routes.forEach((route: CommonRoutesConfig) => {
-		debugLog(`Routes configured for ${route.getName()}`);
+if (process.env.NODE_ENV !== 'test') {
+	server.listen(port, () => {
+		// debugLog(`Server running at http://localhost:${port}`);
+		console.log(`Server running at http://localhost:$ ` + port);
+		routes.forEach((route: CommonRoutesConfig) => {
+			debugLog(`Routes configured for ${route.getName()}`);
+		});
 	});
-});
+}
 export default app;
 export {server};
