@@ -17,7 +17,9 @@ curl --location --request POST 'localhost:3000/tournament' \
 "name": "Tata Steel Chess",
 "city": "Wijk aan Zee",
 "year": 2021,
-"rounds": 6
+"maxPlayers": 48,
+"rounds": 6,
+"type": "swiss"
 }'
 ````
 
