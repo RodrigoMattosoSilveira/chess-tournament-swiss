@@ -38,7 +38,7 @@ describe('Tournament Entity', () => {
 				entityDto.id = response.body.id;
 				expect(response.body.id).toBeTruthy()
 			})
-			.catch((err: any) => done(err))
+			.catch((err: any) => done(err));
 		
 		// GET the entity
 		await request(app)
