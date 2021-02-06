@@ -40,7 +40,7 @@ class UserController {
 	}
 	
 	async patch(req: express.Request, res: express.Response) {
-		console.log('\n' + 'UserController/patch' + JSON.stringify(req.body) +'\n');
+		// console.log('\n' + 'UserController/patch' + JSON.stringify(req.body) +'\n');
 		if(req.body.password){
 			req.body.password = await argon2.hash(req.body.password);
 		}
