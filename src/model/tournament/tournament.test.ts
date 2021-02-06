@@ -5,11 +5,11 @@ import {TOURNAMENT_TYPE} from "../../contants/contants";
 const request = require('supertest');
 
 describe('Tournament Entity', () => {
-	let entity = '/tournament';
+	let resoure = '/tournament';
 	let response: any;
 	it('GET /tournament', async done => {
 		response = await request(app)
-			.get(entity)
+			.get(resoure)
 			.set('Accept', 'application/json')
 			.expect('Content-Type', /json/)
 			.expect(200);
@@ -17,7 +17,7 @@ describe('Tournament Entity', () => {
 		done();
 	});
 	it('POST /tournament', async done =>  {
-		let tournament: any = {
+		let entityDto: any = {
 			"name": "Tata Steel Chess",
 			"city": "Wijk aan Zee",
 			"year": 2021,
@@ -26,31 +26,33 @@ describe('Tournament Entity', () => {
 			"type": TOURNAMENT_TYPE.SWISS
 		}
 
-		// Post the entity
+		// POST the entity
 		await request(app)
-			.post(entity)
-			.send(tournament)
+			.post(resoure)
+			.send(entityDto)
 			.set('Accept', 'application/json')
 			.expect('Content-Type', /json/)
 			.expect(201)
 			.then((response: any) => {
 				// console.log('Tournament Entity/POST /tournament: ' + response.body.id);
-				tournament.id = response.body.id;
+				entityDto.id = response.body.id;
 				expect(response.body.id).toBeTruthy()
 			})
 			.catch((err: any) => done(err))
+		
+		// GET the entity
 		await request(app)
-			.get('/tournament/' +tournament.id)
+			.get('/tournament/' +entityDto.id)
 			.set('Accept', 'application/json')
 			.expect(200)
 			.then((response: any) => {
 				// console.log(response);
 				// console.log(response.body);
-				expect(response.body.name).toEqual(tournament.name);
-				expect(response.body.city).toEqual(tournament.city);
-				expect(response.body.year).toEqual(tournament.year);
-				expect(response.body.rounds).toEqual(tournament.rounds);
-				expect(response.body.type).toEqual(tournament.type);
+				expect(response.body.name).toEqual(entityDto.name);
+				expect(response.body.city).toEqual(entityDto.city);
+				expect(response.body.year).toEqual(entityDto.year);
+				expect(response.body.rounds).toEqual(entityDto.rounds);
+				expect(response.body.type).toEqual(entityDto.type);
 			})
 			.catch((err: any) => done(err))
 		done();
