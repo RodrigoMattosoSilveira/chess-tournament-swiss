@@ -5,11 +5,11 @@ import {TOURNAMENT_TYPE} from "../../contants/contants";
 const request = require('supertest');
 
 describe('Tournament Entity', () => {
-	let resoure = '/tournament';
+	let resource = '/tournament';
 	let response: any;
 	it('GET /tournament', async done => {
 		response = await request(app)
-			.get(resoure)
+			.get(resource)
 			.set('Accept', 'application/json')
 			.expect('Content-Type', /json/)
 			.expect(200);
@@ -28,7 +28,7 @@ describe('Tournament Entity', () => {
 
 		// POST the entity
 		await request(app)
-			.post(resoure)
+			.post(resource)
 			.send(entityDto)
 			.set('Accept', 'application/json')
 			.expect('Content-Type', /json/)
@@ -42,7 +42,7 @@ describe('Tournament Entity', () => {
 		
 		// GET the entity
 		await request(app)
-			.get('/tournament/' +entityDto.id)
+			.get(resource + '/' + entityDto.id)
 			.set('Accept', 'application/json')
 			.expect(200)
 			.then((response: any) => {
