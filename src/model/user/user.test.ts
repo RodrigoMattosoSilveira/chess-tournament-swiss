@@ -3,9 +3,11 @@ import {USER_STATE} from "../../contants/contants";
 import app from './../../index';
 import {server} from '../../index';
 const request = require('supertest');
+import { Utils } from "../../utils/utils";
 
 
 describe('User Entity', () => {
+	const utils = new Utils();
 	let resource = '/user';
 	let response: any;
 	it('GET /tournament', async done => {
@@ -111,7 +113,7 @@ describe('User Entity', () => {
 			done();
 		});
 		it('patches all patchable attributes', async done => {
-			let response = await patchEntity(request(app), resource + '/' + entityDto.id, entityPatch);
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, entityPatch);
 			expect(response.body.firstName).toEqual(entityPatch.firstName);
 			expect(response.body.lastName).toEqual(entityPatch.lastName);
 			expect(response.body.permissionLevel).toEqual(entityPatch.permissionLevel);
@@ -123,31 +125,31 @@ describe('User Entity', () => {
 		});
 		it('PATCH /user:id email', async done => {
 			const patchMe = {"email": "crazy.horse@someserver.com"};
-			let response = await patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
 			expect(response.body.email).toEqual(patchMe.email);
 			done();
 		});
 		it('PATCH /user:id password', async done => {
 			const patchMe = {"password": "$dfg&*mns14zz"};
-			let response = await patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
 			expect(response.body.password).not.toEqual(patchMe.password);
 			done();
 		});
 		it('PATCH /user:id firstName', async done => {
 			const patchMe = {"firstName": "Jonas"};
-			let response = await patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
 			expect(response.body.firstName).toEqual(patchMe.firstName);
 			done();
 		});
 		it('PATCH /user:id lastName', async done => {
 			const patchMe = {"lastName": "Andreozzi"};
-			let response = await patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
 			expect(response.body.lastName).toEqual(patchMe.lastName);
 			done();
 		});
 		it('PATCH /user:id state', async done => {
 			const patchMe = {"state": USER_STATE.ACTIVE};
-			let response = await patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
 			expect(response.body.state).toEqual(patchMe.state);
 			done();
 		});
@@ -162,19 +164,3 @@ describe('User Entity', () => {
 		done()
 	})
 });
-
-/**
- * Helper function to patch a USER and return the response object
- * @param agent
- * @param url
- * @param patch
- * @return response
- */
-const  patchEntity = async (agent: any, url: string, patch: any): Promise<any> => {
-	return await agent
-		.patch(url)
-		.send(patch)
-		.set('Accept', 'application/json')
-		.expect('Content-Type', /json/)
-		.expect(200);
-}
