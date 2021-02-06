@@ -1,6 +1,5 @@
-import express from 'express';
 import {UserDto} from "./user.model";
-import {USER_STATE, user_states} from "../../contants/contants";
+import {USER_STATE} from "../../contants/contants";
 import app from './../../index';
 import {server} from '../../index';
 const request = require('supertest');
@@ -64,7 +63,6 @@ describe('User Entity', () => {
 	});
 
 	describe('PATCH /user:id', () => {
-		let response: any;
 		let firstName = "firstName";
 		let lastName = "lastName";
 		let emailDifferentiator = "a";
@@ -113,98 +111,44 @@ describe('User Entity', () => {
 			done();
 		});
 		it('patches all patchable attributes', async done => {
-			await request(app)
-				.patch(resource + '/' + entityDto.id)
-				.send(entityPatch)
-				.set('Accept', 'application/json')
-				.expect('Content-Type', /json/)
-				.expect(200)
-				.then((response: any) => {
-					// console.log('User Entity/PATCH /user: ' + response.body.id);
-					expect(response.body.firstName).toEqual(entityPatch.firstName);
-					expect(response.body.lastName).toEqual(entityPatch.lastName);
-					expect(response.body.permissionLevel).toEqual(entityPatch.permissionLevel);
-					expect(response.body.email).toEqual(entityPatch.email);
-					expect(response.body.rating).toEqual(entityPatch.rating);
-					expect(response.body.password).not.toEqual(entityPatch.password);
-					expect(response.body.state).toEqual(USER_STATE.INACTIVE);
-				})
-				.catch((err: any) => done(err));
+			let response = await patchEntity(request(app), resource + '/' + entityDto.id, entityPatch);
+			expect(response.body.firstName).toEqual(entityPatch.firstName);
+			expect(response.body.lastName).toEqual(entityPatch.lastName);
+			expect(response.body.permissionLevel).toEqual(entityPatch.permissionLevel);
+			expect(response.body.email).toEqual(entityPatch.email);
+			expect(response.body.rating).toEqual(entityPatch.rating);
+			expect(response.body.password).not.toEqual(entityPatch.password);
+			expect(response.body.state).toEqual(USER_STATE.INACTIVE);
 			done();
 		});
 		it('PATCH /user:id email', async done => {
 			const patchMe = {"email": "crazy.horse@someserver.com"};
-			await request(app)
-				.patch(resource + '/' + entityDto.id)
-				.send(patchMe)
-				.set('Accept', 'application/json')
-				.expect('Content-Type', /json/)
-				.expect(200)
-				.then((response: any) => {
-					// console.log('User Entity/PATCH /user: ' + response.body.id);
-					expect(response.body.email).toEqual(patchMe.email);
-				})
-				.catch((err: any) => done(err));
+			let response = await patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
+			expect(response.body.email).toEqual(patchMe.email);
 			done();
 		});
 		it('PATCH /user:id password', async done => {
 			const patchMe = {"password": "$dfg&*mns14zz"};
-			await request(app)
-				.patch(resource + '/' + entityDto.id)
-				.send(patchMe)
-				.set('Accept', 'application/json')
-				.expect('Content-Type', /json/)
-				.expect(200)
-				.then((response: any) => {
-					// console.log('User Entity/PATCH /user: ' + response.body.id);
-					expect(response.body.password).not.toEqual(patchMe.password);
-				})
-				.catch((err: any) => done(err));
+			let response = await patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
+			expect(response.body.password).not.toEqual(patchMe.password);
 			done();
 		});
 		it('PATCH /user:id firstName', async done => {
 			const patchMe = {"firstName": "Jonas"};
-			await request(app)
-				.patch(resource + '/' + entityDto.id)
-				.send(patchMe)
-				.set('Accept', 'application/json')
-				.expect('Content-Type', /json/)
-				.expect(200)
-				.then((response: any) => {
-					// console.log('User Entity/PATCH /user: ' + response.body.id);
-					expect(response.body.firstName).toEqual(patchMe.firstName);
-				})
-				.catch((err: any) => done(err));
+			let response = await patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
+			expect(response.body.firstName).toEqual(patchMe.firstName);
 			done();
 		});
-		test('PATCH /user:id lastName', async done => {
+		it('PATCH /user:id lastName', async done => {
 			const patchMe = {"lastName": "Andreozzi"};
-			await request(app)
-				.patch(resource + '/' + entityDto.id)
-				.send(patchMe)
-				.set('Accept', 'application/json')
-				.expect('Content-Type', /json/)
-				.expect(200)
-				.then((response: any) => {
-					// console.log('User Entity/PATCH /user: ' + response.body.id);
-					expect(response.body.lastName).toEqual(patchMe.lastName);
-				})
-				.catch((err: any) => done(err));
+			let response = await patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
+			expect(response.body.lastName).toEqual(patchMe.lastName);
 			done();
 		});
-		test('PATCH /user:id state', async done => {
+		it('PATCH /user:id state', async done => {
 			const patchMe = {"state": USER_STATE.ACTIVE};
-			await request(app)
-				.patch(resource + '/' + entityDto.id)
-				.send(patchMe)
-				.set('Accept', 'application/json')
-				.expect('Content-Type', /json/)
-				.expect(200)
-				.then((response: any) => {
-					// console.log('User Entity/PATCH /user: ' + response.body.id);
-					expect(response.body.state).toEqual(patchMe.state);
-				})
-				.catch((err: any) => done(err));
+			let response = await patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
+			expect(response.body.state).toEqual(patchMe.state);
 			done();
 		});
 	})
@@ -220,57 +164,17 @@ describe('User Entity', () => {
 });
 
 /**
- * Helper unction to post a USER and return the new user's id
- * @param request
- * @param resource
- * @return newly created user id
+ * Helper function to patch a USER and return the response object
+ * @param agent
+ * @param url
+ * @param patch
+ * @return response
  */
-const  postUser = async ( app: express.Application, request: any, resource: string, entityDto: any, done: jest.DoneCallback ) => {
-	const response = await request(app)
-		.post(resource)
-		.send(entityDto)
+const  patchEntity = async (agent: any, url: string, patch: any): Promise<any> => {
+	return await agent
+		.patch(url)
+		.send(patch)
 		.set('Accept', 'application/json')
-		.catch((err: any) => done(err));
-	return response;
-}
-
-/**
- * Helper unction to post a USER and return the new user's id
- * @param request
- * @param id
- * @return newly created user id
- */
-const  getUser = async (request: any, id: string) => {
-	await request
-		.get('/user/' + id)
-		.set('Accept', 'application/json')
-		.then((response: any) => {
-			// console.log('\n user.test/getUser/response' + response + '\n');
-			return response;
-		})
-}
-
-/**
- * Helper unction to post a USER and return the new user's id
- * @param request
- * @param userPath: UserDto
- * @return newly created user id
- */
-const  patchUser = async (request: any, userPath: UserDto) => {
-	let id = userPath.id;
-	let patch: any = {}
-	Object.keys(userPath).forEach(key => {// @ts-ignore
-		if (key !== "id") {
-			// @ts-ignore
-			patch[key] = userPath[key]
-		}
-	})
-	await request
-		.patch('/user/' + id)
-		. send(patch)
-		.set('Accept', 'application/json')
-		.then((response: any) => {
-			// console.log('\n user.test/getUser/response' + response + '\n');
-			return response;
-		})
+		.expect('Content-Type', /json/)
+		.expect(200);
 }
