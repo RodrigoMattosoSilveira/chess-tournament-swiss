@@ -1,3 +1,4 @@
+import express from 'express';
 import {UserDto} from "./user.model";
 import {USER_STATE, user_states} from "../../contants/contants";
 import app from './../../index';
@@ -61,73 +62,152 @@ describe('User Entity', () => {
 			.catch((err: any) => done(err))
 		done();
 	});
-	//
-	// describe('PATCH /user:id', () => {
-	// 	let response: any;
-	// 	let firstName = "firstName";
-	// 	let lastName = "lastName";
-	// 	let emailDifferentiator = "a";
-	// 	let testEmail: string = "";
-	// 	let user: UserDto = {
-	// 		id: "somecrazynumber",
-	// 		email: "Paul.Roberts@yahoo.com",
-	// 		password: "$dfg&*mns12PP",
-	// 		firstName: "Paul",
-	// 		lastName: "Roberts",
-	// 		permissionLevel: 0,
-	// 		rating: 1234
-	// 	}
-	// 	let testingUser: UserDto;
-	// 	beforeAll(async() => {
-	// 		emailDifferentiator += "a";
-	// 		testEmail = firstName + '.' + lastName + "." + emailDifferentiator + "@yahoo.com"
-	// 		user.email = testEmail;
-	// 		await postUser(request, user)
-	// 			.then((response: any) => {
-	// 				expect(201);
-	// 				testingUser = <UserDto>response.body;
-	// 			})
-	// 			.catch((err: any) => (err))
-	// 	});
-	// 	test.only('patches all valid attributes', async() => {
-	// 		let userPatch: UserDto = {
-	// 			id: testingUser.id,
-	// 			email: "Frank.Franklin@gmail.com",
-	// 			password: "$dfg&*mns12PP",
-	// 			firstName: "Frank",
-	// 			lastName: "Franklin",
-	// 			permissionLevel: 5,
-	// 			rating: 2222,
-	// 			state: "inactive"
-	// 		}
-	// 		await patchUser(request, userPatch)
-	// 			.then((response: any) => {
-	// 				expect(200);
-	// 				expect(response.body.email).toEqual(userPatch.email);
-	// 				expect(response.body.firstName).toEqual(userPatch.firstName);
-	// 				expect(response.body.lastName).toEqual(userPatch.lastName);
-	// 				expect(response.body.permissionLevel).toEqual(userPatch.permissionLevel);
-	// 				expect(response.body.rating).toEqual(userPatch.rating);
-	// 				expect(response.body.state).toEqual(userPatch.state);
-	// 			})
-	// 			.catch((err: any) => (err))
-	// 	});
-	// 	test('PATCH /user:id email', (done) => {
-	// 		expect(false).toEqual(true);
-	// 	});
-	// 	test('PATCH /user:id password', (done) => {
-	// 		expect(false).toEqual(true);
-	// 	});
-	// 	test('PATCH /user:id firstName', (done) => {
-	// 		expect(false).toEqual(true);
-	// 	});
-	// 	test('PATCH /user:id lastName', (done) => {
-	// 		expect(false).toEqual(true);
-	// 	});
-	// 	test('PATCH /user:id state', (done) => {
-	// 		expect(false).toEqual(true);
-	// 	});
-	// })
+
+	describe('PATCH /user:id', () => {
+		let response: any;
+		let firstName = "firstName";
+		let lastName = "lastName";
+		let emailDifferentiator = "a";
+		let testEmail: string = "";
+		
+		// Create this user and validate PATCH against it
+		let entityDto: any = {
+			email: "Paul.Roberts@yahoo.com",
+			password: "$dfg&*mns12PP",
+			firstName: "Paul",
+			lastName: "Roberts",
+			permissionLevel: 0,
+			rating: 1234
+		}
+		
+		// Use it to p
+		let entityPatch: UserDto = {
+			id: entityDto.id,
+			email: "Frank.Franklin@gmail.com",
+			password: "$dfg&*mns13TT",
+			firstName: "Frank",
+			lastName: "Franklin",
+			permissionLevel: 5,
+			rating: 2222,
+			state: "inactive"
+		}
+		
+		beforeAll(async done => {
+			emailDifferentiator += "a";
+			testEmail = firstName + '.' + lastName + "." + emailDifferentiator + "@yahoo.com"
+			entityDto.email = testEmail;
+			
+			// POST the USER, will validate PATCH against it
+			await request(app)
+				.post(resource)
+				.send(entityDto)
+				.set('Accept', 'application/json')
+				.expect('Content-Type', /json/)
+				.expect(201)
+				.then((response: any) => {
+					// console.log('User Entity/POST /user: ' + response.body.id);
+					entityDto.id = response.body.id;
+					expect(response.body.id).toBeTruthy()
+				})
+				.catch((err: any) => done(err));
+			done();
+		});
+		it('patches all patchable attributes', async done => {
+			await request(app)
+				.patch(resource + '/' + entityDto.id)
+				.send(entityPatch)
+				.set('Accept', 'application/json')
+				.expect('Content-Type', /json/)
+				.expect(200)
+				.then((response: any) => {
+					// console.log('User Entity/PATCH /user: ' + response.body.id);
+					expect(response.body.firstName).toEqual(entityPatch.firstName);
+					expect(response.body.lastName).toEqual(entityPatch.lastName);
+					expect(response.body.permissionLevel).toEqual(entityPatch.permissionLevel);
+					expect(response.body.email).toEqual(entityPatch.email);
+					expect(response.body.rating).toEqual(entityPatch.rating);
+					expect(response.body.password).not.toEqual(entityPatch.password);
+					expect(response.body.state).toEqual(USER_STATE.INACTIVE);
+				})
+				.catch((err: any) => done(err));
+			done();
+		});
+		it('PATCH /user:id email', async done => {
+			const patchMe = {"email": "crazy.horse@someserver.com"};
+			await request(app)
+				.patch(resource + '/' + entityDto.id)
+				.send(patchMe)
+				.set('Accept', 'application/json')
+				.expect('Content-Type', /json/)
+				.expect(200)
+				.then((response: any) => {
+					// console.log('User Entity/PATCH /user: ' + response.body.id);
+					expect(response.body.email).toEqual(patchMe.email);
+				})
+				.catch((err: any) => done(err));
+			done();
+		});
+		it('PATCH /user:id password', async done => {
+			const patchMe = {"password": "$dfg&*mns14zz"};
+			await request(app)
+				.patch(resource + '/' + entityDto.id)
+				.send(patchMe)
+				.set('Accept', 'application/json')
+				.expect('Content-Type', /json/)
+				.expect(200)
+				.then((response: any) => {
+					// console.log('User Entity/PATCH /user: ' + response.body.id);
+					expect(response.body.password).not.toEqual(patchMe.password);
+				})
+				.catch((err: any) => done(err));
+			done();
+		});
+		it('PATCH /user:id firstName', async done => {
+			const patchMe = {"firstName": "Jonas"};
+			await request(app)
+				.patch(resource + '/' + entityDto.id)
+				.send(patchMe)
+				.set('Accept', 'application/json')
+				.expect('Content-Type', /json/)
+				.expect(200)
+				.then((response: any) => {
+					// console.log('User Entity/PATCH /user: ' + response.body.id);
+					expect(response.body.firstName).toEqual(patchMe.firstName);
+				})
+				.catch((err: any) => done(err));
+			done();
+		});
+		test('PATCH /user:id lastName', async done => {
+			const patchMe = {"lastName": "Andreozzi"};
+			await request(app)
+				.patch(resource + '/' + entityDto.id)
+				.send(patchMe)
+				.set('Accept', 'application/json')
+				.expect('Content-Type', /json/)
+				.expect(200)
+				.then((response: any) => {
+					// console.log('User Entity/PATCH /user: ' + response.body.id);
+					expect(response.body.lastName).toEqual(patchMe.lastName);
+				})
+				.catch((err: any) => done(err));
+			done();
+		});
+		test('PATCH /user:id state', async done => {
+			const patchMe = {"state": USER_STATE.ACTIVE};
+			await request(app)
+				.patch(resource + '/' + entityDto.id)
+				.send(patchMe)
+				.set('Accept', 'application/json')
+				.expect('Content-Type', /json/)
+				.expect(200)
+				.then((response: any) => {
+					// console.log('User Entity/PATCH /user: ' + response.body.id);
+					expect(response.body.state).toEqual(patchMe.state);
+				})
+				.catch((err: any) => done(err));
+			done();
+		});
+	})
 	
 	// Used https://github.com/visionmedia/supertest/issues/520
 	// https://github.com/visionmedia/supertest/issues/520
@@ -142,19 +222,16 @@ describe('User Entity', () => {
 /**
  * Helper unction to post a USER and return the new user's id
  * @param request
- * @param user
+ * @param resource
  * @return newly created user id
  */
-const  postUser = async (request: any, user: UserDto) => {
-	let userId: string = "";
-	await request
-		.post('/user')
-		.send(user)
+const  postUser = async ( app: express.Application, request: any, resource: string, entityDto: any, done: jest.DoneCallback ) => {
+	const response = await request(app)
+		.post(resource)
+		.send(entityDto)
 		.set('Accept', 'application/json')
-		.then((response: any) => {
-			// console.log('\n user.test/postUser/response' + response + '\n');
-			return response;
-		})
+		.catch((err: any) => done(err));
+	return response;
 }
 
 /**
