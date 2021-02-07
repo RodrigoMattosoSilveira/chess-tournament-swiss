@@ -47,4 +47,14 @@ Object.keys(TOURNAMENT_TYPE).forEach(key => {// @ts-ignore
 	tournament_types.push(TOURNAMENT_TYPE[key])})
 
 
-
+const PLAYER_STATE = {
+	SCHEDULED: "scheduled",
+	WITHDREW: "withdrew",
+	PLAYING: "playing",
+	FORFEITED: "forfeited",
+	COMPLETE: "completed"
+}
+export { PLAYER_STATE }
+export const player_states = []
+Object.keys(TOURNAMENT_STATE).forEach(key => {// @ts-ignore
+	player_states.push(PLAYER_STATE[key])})
