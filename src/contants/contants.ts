@@ -20,6 +20,9 @@ export const user_states = []
 Object.keys(USER_STATE).forEach(key => {// @ts-ignore
 	user_states.push(USER_STATE[key])})
 
+export const TOURNAMENT_VALID_ATTRIBUTES = ["name", "city", "country", "month", "year", "rounds", "maxPlayers", "type", "players", "state"];
+export const TOURNAMENT_REQUIRED_ATTRIBUTES = ["name", "rounds", "maxPlayers", "type"];
+
 const TOURNAMENT_STATE = {
 	PLANNED: "planned",
 	SCHEDULED: "scheduled",
