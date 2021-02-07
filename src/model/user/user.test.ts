@@ -65,12 +65,7 @@ describe('User Entity', () => {
 	});
 
 	describe('PATCH /user:id', () => {
-		let firstName = "firstName";
-		let lastName = "lastName";
-		let emailDifferentiator = "a";
-		let testEmail: string = "";
-		
-		// Create this user and validate PATCH against it
+		// Create this entity and validate PATCH against it
 		let entityDto: any = {
 			email: "Paul.Roberts@yahoo.com",
 			password: "$dfg&*mns12PP",
@@ -80,7 +75,7 @@ describe('User Entity', () => {
 			rating: 1234
 		}
 		
-		// Use it to p
+		// Use it to patch all patchable attributes at once
 		let entityPatch: UserDto = {
 			id: entityDto.id,
 			email: "Frank.Franklin@gmail.com",
@@ -93,9 +88,7 @@ describe('User Entity', () => {
 		}
 		
 		beforeAll(async done => {
-			emailDifferentiator += "a";
-			testEmail = firstName + '.' + lastName + "." + emailDifferentiator + "@yahoo.com"
-			entityDto.email = testEmail;
+			entityDto.email = "Paul.Robertssssss@yahoo.com";
 			
 			// POST the USER, will validate PATCH against it
 			await request(app)
