@@ -21,7 +21,7 @@ class TournamentController {
 	}
 	
 	async getAll(req: express.Request, res: express.Response) {
-		const entities = await tournamentService.list(100, 0);
+		const entities = await tournamentService.list(/* 100, 0 */); // add it when working with DB
 		res.status(200).send(entities);
 	}
 	
