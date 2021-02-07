@@ -27,10 +27,12 @@ class TournamentDao {
 	}
 	
 	async add(entity: TournamentDto) {
+		// console.log("TournamentDao/add: " + JSON.stringify(entity) +"\n");
 		entity.id = shortid.generate();
 		entity.state = TOURNAMENT_STATE.PLANNED;
 		entity.players = [];
 		this.collection.push(entity);
+		// console.log("TournamentDao/add id: " +entity.id +"\n");
 		return entity.id;
 	}
 	
@@ -51,7 +53,7 @@ class TournamentDao {
 	async patchById(entity: TournamentDto) {
 		const objIndex = this.collection.findIndex((obj: { id: string; }) => obj.id === entity.id);
 		let currentEntity = this.collection[objIndex];
-		const allowedPatchFields = ["password", "firstName", "lastName", "permissionLevel"];
+		const allowedPatchFields = ["name", "city", "country", "month", "year", "rounds", "maxPlayers", "type", "players", "state"];
 		for (let field of allowedPatchFields) {
 			if (field in entity) {
 				// @ts-ignore
