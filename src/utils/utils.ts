@@ -7,6 +7,8 @@ export class Utils {
 	 * @return response
 	 */
 	public patchEntity = async (agent: any, url: string, patch: any): Promise<any> => {
+		// console.log ('Utils.patchEntity/url: ' + url);
+		// console.log ('Utils.patchEntity/url: ' + JSON.stringify(patch));
 		return await agent
 			.patch(url)
 			.send(patch)
