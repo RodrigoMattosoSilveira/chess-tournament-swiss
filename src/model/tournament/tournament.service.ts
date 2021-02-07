@@ -1,46 +1,48 @@
-import userDao from './tournament.dao';
+import tournamentDao from './tournament.dao';
 import {CRUD} from "../../common/crud.interface";
 import {TournamentDto} from "./tournament.model";
 
-class UserService implements CRUD {
-	private static instance: UserService;
+class TournamentService implements CRUD {
+	private static instance: TournamentService;
 	
-	static getInstance(): UserService {
-		if (!UserService.instance) {
-			UserService.instance = new UserService();
+	static getInstance(): TournamentService {
+		if (!TournamentService.instance) {
+			TournamentService.instance = new TournamentService();
 		}
-		return UserService.instance;
+		return TournamentService.instance;
 	}
 	
 	async create(resource: TournamentDto) {
-		return await userDao.add(resource);
+		// console.log("TournamentService/create: " + JSON.stringify(resource) +"\n");
+		// console.log("TournamentService/created id: " + id +"\n");
+		return  await tournamentDao.add(resource);
 	}
 	
 	async deleteById(resourceId: string) {
-		return await userDao.removeById(resourceId);
+		return await tournamentDao.removeById(resourceId);
 	};
 	
-	async list(limit: number, page: number) { // limit and page are ignored until we upgrade our DAO
-		return await userDao.getAll();
+	async list(/* limit: number, page: number */) { // limit and page are ignored until we upgrade our DAO
+		return await tournamentDao.getAll();
 	};
 	
 	async patchById(resource: TournamentDto) {
-		return await userDao.patchById(resource)
+		return await tournamentDao.patchById(resource)
 	};
 	
 	async readById(resourceId: string) {
-		return await userDao.getById(resourceId);
+		return await tournamentDao.getById(resourceId);
 	};
 	
 	async updateById(resource: TournamentDto) {
-		return await userDao.putById(resource);
+		return await tournamentDao.putById(resource);
 	};
 	
 	async getByName(name: string) {
-		return userDao.getByName(name);
+		return tournamentDao.getByName(name);
 		
 	}
 	
 }
 
-export default UserService.getInstance();
+export default TournamentService.getInstance();

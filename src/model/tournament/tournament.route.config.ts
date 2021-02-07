@@ -17,7 +17,6 @@ import TournamentMiddleware from './tournament.middleware';
 import express from 'express';
 
 export class TournamentRoutes extends CommonRoutesConfig {
-	private route = `/tournament`;
 	constructor(app: express.Application) {
 		super(app, 'TournamentRoutes');
 	}
@@ -31,8 +30,9 @@ export class TournamentRoutes extends CommonRoutesConfig {
 			.get(TournamentController.getAll)
 			.post(
 				TournamentMiddleware.validateRequiredBodyFields,
+				TournamentMiddleware.validateNameIsUnique,
 				TournamentMiddleware.validateType,
-				TournamentMiddleware.validateSameNameDoesntExist,
+				TournamentMiddleware.validateStateIfPresent,
 				TournamentController.create);
 		
 		this.app.param(`id`, TournamentMiddleware.extractId);
@@ -41,7 +41,7 @@ export class TournamentRoutes extends CommonRoutesConfig {
 			.get(TournamentController.getById)
 			.delete(TournamentController.delete); // this service does not support delete
 		
-		// This service does not suppot put
+		// This service does not support put
 		this.app.put(`/tournament/:id`,[
 			// TournamentMiddleware.validateExists,
 			// TournamentMiddleware.validateRequiredBodyFields,

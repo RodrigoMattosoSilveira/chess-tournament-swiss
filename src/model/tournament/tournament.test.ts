@@ -1,10 +1,11 @@
 import app from './../../index';
 import {server} from '../../index';
-import {TournamentDto} from "./tournament.model";
 import {TOURNAMENT_TYPE} from "../../contants/contants";
 const request = require('supertest');
+import { Utils } from "../../utils/utils";
 
 describe('Tournament Entity', () => {
+	const utils = new Utils();
 	let resource = '/tournament';
 	let response: any;
 	it('GET /tournament', async done => {
@@ -56,6 +57,74 @@ describe('Tournament Entity', () => {
 			})
 			.catch((err: any) => done(err))
 		done();
+	});
+	describe('PATCH /tournament:id', () => {
+		// Create this entity and validate PATCH against it
+		/**
+		 * MODEL
+		 * 	id: string;				// created by the server
+			name: string;			// must be unique
+			city?: string;
+			country?: string;
+			month?: number;
+			year?: number;
+			rounds: number;
+			maxPlayers: number;
+			type: string; // roundRobin, swiss, elimination, match
+			players?: Array<number> // TournamentPlayerDto.id
+			state?: string; // planned* / scheduled / closed / underway / complete
+		 */
+		let entityDto: any = {
+			"name": "DSB Congress - 1910",// Must be unique
+			"city": "Hamburg",
+			"rounds": 12,
+			"maxPlayers": 12,
+			"type": "round"
+		};
+		
+		// Use it to patch all patchable attributes at once
+		let entityPatch: any = {
+			"name": "DSB Congress - 1911",// Must be unique
+			"city": "Sao Paulo",
+			"country": "Brasil",
+			"month": 10,
+			"year": 1911,
+			"rounds": 6,
+			"maxPlayers": 13,
+			"type": TOURNAMENT_TYPE.SWISS,
+			"players": [1234, 2345, 3456, 4567, 5678, 6789],
+			"state": "scheduled"
+		}
+		
+		beforeAll(async done => {
+			// POST the entity, will validate PATCH against it
+			await request(app)
+				.post(resource)
+				.send(entityPatch)
+				.set('Accept', 'application/json')
+				.expect('Content-Type', /json/)
+				.expect(201)
+				.then((response: any) => {
+					// console.log('Tournament Entity/PATCH POST /tournament: ' + response.body.id);
+					entityDto.id = response.body.id;
+					expect(response.body.id).toBeTruthy()
+				})
+				.catch((err: any) => done(err));
+			done();
+		});
+		it('patches all patchable attributes', async done => {
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, entityPatch);
+			expect(response.body.city).toEqual(entityPatch.city);
+			expect(response.body.month).toEqual(entityPatch.month);
+			expect(response.body.year).toEqual(entityPatch.year);
+			expect(response.body.rounds).toEqual(entityPatch.rounds);
+			expect(response.body.maxPlayers).toEqual(entityPatch.maxPlayers);
+			expect(response.body.type).toEqual(entityPatch.type);
+			expect(response.body.players).toEqual(entityPatch.players);
+			expect(response.body.state).toEqual(entityPatch.state);
+			done();
+		});
+	
 	});
 
 	// Used https://github.com/visionmedia/supertest/issues/520
