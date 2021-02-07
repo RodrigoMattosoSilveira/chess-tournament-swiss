@@ -1,6 +1,6 @@
 import app from './../../index';
 import {server} from '../../index';
-import {TOURNAMENT_TYPE} from "../../contants/contants";
+import {TOURNAMENT_STATE, TOURNAMENT_TYPE} from "../../contants/contants";
 const request = require('supertest');
 import { Utils } from "../../utils/utils";
 
@@ -124,7 +124,62 @@ describe('Tournament Entity', () => {
 			expect(response.body.state).toEqual(entityPatch.state);
 			done();
 		});
-	
+		
+		it('PATCH /tournament:id city', async done => {
+			const patchMe = {"city": "Campinas"};
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
+			expect(response.body.city).toEqual(patchMe.city);
+			done();
+		});
+		
+		it('PATCH /tournament:id month', async done => {
+			const patchMe = {"month": 7};
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
+			expect(response.body.month).toEqual(patchMe.month);
+			done();
+		});
+		
+		it('PATCH /tournament:id year', async done => {
+			const patchMe = {"year": 1912};
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
+			expect(response.body.year).toEqual(patchMe.year);
+			done();
+		});
+		
+		it('PATCH /tournament:id rounds', async done => {
+			const patchMe = {"rounds": 1912};
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
+			expect(response.body.rounds).toEqual(patchMe.rounds);
+			done();
+		});
+		
+		it('PATCH /tournament:id maxPlayers', async done => {
+			const patchMe = {"maxPlayers": 21};
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
+			expect(response.body.maxPlayers).toEqual(patchMe.maxPlayers);
+			done();
+		});
+		
+		it('PATCH /tournament:id type', async done => {
+			const patchMe = {"type": TOURNAMENT_TYPE.ELIMINATION};
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
+			expect(response.body.type).toEqual(patchMe.type);
+			done();
+		});
+		
+		it('PATCH /tournament:id players', async done => {
+			const patchMe = {"players": [1234, 2345, 3456]};
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
+			expect(response.body.players).toEqual(patchMe.players);
+			done();
+		});
+		
+		it('PATCH /tournament:id state', async done => {
+			const patchMe = {"state": TOURNAMENT_STATE.CLOSED};
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
+			expect(response.body.state).toEqual(patchMe.state);
+			done();
+		});
 	});
 
 	// Used https://github.com/visionmedia/supertest/issues/520
