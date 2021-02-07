@@ -4,12 +4,8 @@ import express from 'express';
 // we import our newly created tournament services
 import tournamentService from './tournament.service';
 
-// we import the argon2 library for password hashing
-import argon2 from 'argon2';
-
 // we use debug with a custom context as described in Part 1
 import debug from 'debug';
-import userService from "../user/user.service";
 
 const log: debug.IDebugger = debug('app:tournament-controller');
 
@@ -36,16 +32,16 @@ class TournamentController {
 	}
 	
 	async create(req: express.Request, res: express.Response) {
+		// console.log("TournamentController/create: " + JSON.stringify(req.body) +"\n");
 		const id = await tournamentService.create(req.body);
+		// console.log("TournamentController/create id: " + id +"\n");
 		res.status(201).send({id: id});
 	}
 	
 	async patch(req: express.Request, res: express.Response) {
-		if(req.body.password){
-			req.body.password = await argon2.hash(req.body.password);
-		}
 		log(await tournamentService.patchById(req.body));
-		res.status(204).send(``);
+		const tournament = await tournamentService.readById(req.params.id);
+		res.status(200).send(tournament);
 	}
 	
 	async put(req: express.Request, res: express.Response) {
