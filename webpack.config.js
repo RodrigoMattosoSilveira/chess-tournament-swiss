@@ -20,6 +20,7 @@ module.exports = {
     plugins: [
         new NodemonPlugin()
     ],
+    devtool: 'source-map',
     module: {
         rules: [
             {
