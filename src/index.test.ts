@@ -1,26 +1,17 @@
 import app from './index';
 import {server} from "./index";
-const axios = require('axios');
-let supertest = require("supertest");
+const request = require('supertest');
 
 describe('app', () => {
-	let request: any;
-	beforeEach(() => {
-		request = supertest(app);
-	});
-	// it('should return a successful response for GET /', done => {
-	// 	request.get('/')
-	// 		.expect(200, done);
-	// });
-	it('should return a successful response for GET /', async() => {
-		try {
-			const response = await axios.get('http://localhost:3000/');
-			// console.log(response);
-			expect(response.status).toEqual(200);
-			expect(response.data).toEqual('Server up and running!');
-		} catch (error) {
-			console.error(error);
-		}
+	let response: any;
+	it('should return a successful response for GET /', async done => {
+		response = await request(app)
+			.get('/')
+			.expect(200);
+		console.log("\nindex/response :" + JSON.stringify(response) + '\n');
+		expect(response.text).toEqual('Server up and running!');
+		done();
+		
 	});
 	
 	// Used https://github.com/visionmedia/supertest/issues/520
