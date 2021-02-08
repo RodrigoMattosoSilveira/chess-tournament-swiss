@@ -8,6 +8,10 @@
   "license": "MIT",
   "scripts": {
     "build": "webpack",
+    "create-tournaments": "node ../node-scripts/create-tournaments index",
+    "create-users": "node ../node-scripts/create-users index",
+    "get-t-u": "node ../node-scripts/get-users-tournament index 1 5",
+    "create-t-u": "yarn run create-tournaments && yarn run create-users && yarn run get-t-u",
     "start:dev": "NODE_ENV=development NODE_OPTIONS=--unhandled-rejections=strict webpack",
     "test":   "NODE_ENV=test jest --detectOpenHandles",
     "test_u": "NODE_ENV=test jest --detectOpenHandles -t 'User Entity'",
