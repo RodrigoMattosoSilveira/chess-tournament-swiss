@@ -8,6 +8,7 @@ import cors from 'cors';
 import {CommonRoutesConfig} from './common/common.routes.config';
 import {UserRoutes} from './model/user/user.routes.config';
 import {TournamentRoutes} from './model/tournament/tournament.route.config';
+import {PlayerRoutes} from './model/player/player.route.config';
 import debug from 'debug';
 
 const app: express.Application = express();
@@ -56,6 +57,7 @@ app.use(expressWinston.logger({
 // our app!
 routes.push(new UserRoutes(app));
 routes.push(new TournamentRoutes(app));
+routes.push(new PlayerRoutes(app));
 
 // here we are configuring the expressWinston error-logging middleware,
 // which doesn't *handle* errors per se, but does *log* them

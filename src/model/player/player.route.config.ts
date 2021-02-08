@@ -16,7 +16,7 @@ import PlayerController from './player.controller';
 import PlayerMiddleware from './player.middleware';
 import express from 'express';
 
-export class TournamentRoutes extends CommonRoutesConfig {
+export class PlayerRoutes extends CommonRoutesConfig {
 	constructor(app: express.Application) {
 		super(app, 'TournamentRoutes');
 	}

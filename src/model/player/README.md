@@ -41,7 +41,7 @@ $ yarn start:dev
 ## GET ALL TOURNAMENTS
 Use the following `curl` command to retrieve all tournaments:
 ````bash
-curl --location --request GET 'localhost:3000/tournament' --header 'Content-Type: application/json'
+curl --location --request GET 'localhost:3000/player' --header 'Content-Type: application/json'
 ````
 
 # For the future
