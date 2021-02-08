@@ -46,6 +46,9 @@ export const tournament_types = []
 Object.keys(TOURNAMENT_TYPE).forEach(key => {// @ts-ignore
 	tournament_types.push(TOURNAMENT_TYPE[key])})
 
+export const PLAYER_VALID_ATTRIBUTES = ["user", "tournament", "hadByeOrForfeit", "byeNextRound", "playedAgainst", "playedColor", "results", "state"];
+export const PLAYER_REQUIRED_ATTRIBUTES = ["user", "tournament"];
+
 
 const PLAYER_STATE = {
 	SCHEDULED: "scheduled",
