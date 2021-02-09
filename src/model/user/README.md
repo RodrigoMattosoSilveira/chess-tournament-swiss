@@ -56,6 +56,7 @@ $ curl --location --request PUT "localhost:3000/user/$REST_API_EXAMPLE_ID" \
 "permissionLevel": 8
 }'
 ````
+
 ## PATCH
 Use the following `curl` command to update the email address:
 ````bash

@@ -75,7 +75,7 @@ The service returns the updated tournament's:
 }
 ````
 
-You can use the PATCH command to update multipe attributes:
+You can use the PATCH command to update multiple attributes:
 ````bash
 curl --location --request PATCH "localhost:3000/tournament/$REST_API_EXAMPLE_ID" \
 --header 'Content-Type: application/json' \
@@ -84,6 +84,7 @@ curl --location --request PATCH "localhost:3000/tournament/$REST_API_EXAMPLE_ID"
     "state":"scheduled"
 }'
 ````
+
 ## PUT
 `This service does not support PUT`
 
