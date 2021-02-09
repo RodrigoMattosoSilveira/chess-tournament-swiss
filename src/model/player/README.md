@@ -44,6 +44,113 @@ Use the following `curl` command to retrieve all tournaments:
 curl --location --request GET 'localhost:3000/player' --header 'Content-Type: application/json'
 ````
 
+
+Once executed, the service returns a user id
+````json
+[]
+````
+
+Of course, once you add players, the service will return something like:
+````json
+[
+    {"tournament":"qOSRL_bOe",
+      "user":"CFE_mIoQh",
+      "id":"QYqVEOPxQ",
+      "hadByeOrForfeit":false,
+      "byeNextRound":false,"playedAgainst":[],
+      "playedColor":[],
+      "results":[],
+      "state":"scheduled"
+    }
+]
+````
+
+## POST
+Use the following `curl` command to create a user:
+````bash
+curl --location --request POST 'localhost:3000/player' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+"tournament": "qOSRL_bOe",
+"user": "CFE_mIoQh"
+}'
+````
+
+Once executed, the service returns a user id
+````json
+{
+    "id": "QYqVEOPxQ"
+}
+````
+
+Use the terminal to create an environment variable to help us with the remaining curl examples
+
+````bash
+$ REST_API_EXAMPLE_ID="put_your_id_here"
+````
+
+## GET A PLAYER
+Use the following `curl` command to retrieve a user:
+````bash
+$ curl --location --request GET "localhost:3000/player/$REST_API_EXAMPLE_ID" --header 'Content-Type: application/json'
+````
+
+Once executed, the service returns a user id
+````json
+{
+  "tournament":"qOSRL_bOe",
+  "user":"CFE_mIoQh",
+  "id":"QYqVEOPxQ",
+  "hadByeOrForfeit":false,
+  "byeNextRound":false,
+  "playedAgainst":[],
+  "playedColor":[],
+  "results":[],
+  "state":"scheduled"
+}
+````
+
+## PATCH
+Use the following `curl` command to update the maximum number of players:
+````bash
+curl --location --request PATCH "localhost:3000/player/$REST_API_EXAMPLE_ID" \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "hadByeOrForfeit": true
+}'
+````
+
+The service returns the updated tournament's:
+````json
+{
+  "tournament":"doXsurGe9",
+  "user":"YC0vtQTD_9",
+  "id":"5mp2HL7H1",
+  "hadByeOrForfeit":true,
+  "byeNextRound":false,
+  "playedAgainst":[],
+  "playedColor":[],
+  "results":[],
+  "state":"scheduled"}
+````
+
+You can use the PATCH command to update multiple attributes:
+````bash
+curl --location --request PATCH "localhost:3000/player/$REST_API_EXAMPLE_ID" \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "hadByeOrForfeit": false,
+  "byeNextRound": true
+}'
+````
+
+## PUT
+`This service does not support PUT`
+
+## DELETE
+`This service does not support DELETE`
+
+
 # For the future
 game
 id: string, // unique game id

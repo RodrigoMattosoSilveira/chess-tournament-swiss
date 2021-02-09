@@ -1,7 +1,7 @@
 import {PlayerDto} from "./player.model";
 import shortid from 'shortid';
 import debug from 'debug';
-import {PLAYER_STATE} from "../../contants/contants";
+import {PLAYER_STATE, PLAYER_PATCHABLE_ATTRIBUTES} from "../../contants/contants";
 
 const log: debug.IDebugger = debug('app:in-memory-dao');
 
@@ -58,8 +58,7 @@ class PlayerDao {
 	async patchById(entity: PlayerDto) {
 		const objIndex = this.collection.findIndex((obj: { id: string; }) => obj.id === entity.id);
 		let currentEntity = this.collection[objIndex];
-		const allowedPatchFields = ["name", "city", "country", "month", "year", "rounds", "maxPlayers", "type", "players", "state"];
-		for (let field of allowedPatchFields) {
+		for (let field of PLAYER_PATCHABLE_ATTRIBUTES) {
 			if (field in entity) {
 				// @ts-ignore
 				currentEntity[field] = entity[field];

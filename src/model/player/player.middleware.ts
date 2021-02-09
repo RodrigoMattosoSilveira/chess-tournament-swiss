@@ -8,7 +8,6 @@ import {PLAYER_REQUIRED_ATTRIBUTES, player_states} from "../../contants/contants
 
 class PlayerMiddleware {
 	private static instance: PlayerMiddleware;
-	private entityName = "Player";
 	
 	static getInstance() {
 		if (!PlayerMiddleware.instance) {
@@ -33,13 +32,13 @@ class PlayerMiddleware {
 			}
 			if (missingAttributes.length > 0) {
 				// console.log('\n' + 'PlayerMiddleware/validateRequiredBodyFields/message: ' + missingAttributes + '\n');
-				res.status(400).send({error: "Missing required tournament attributes: "} + missingAttributes);
+				res.status(400).send({error: `Missing required tournament attributes: `} + missingAttributes);
 			} else {
 				// console.log('\n' + 'PlayerMiddleware/validateRequiredBodyFields/message: All required attributes present' + '\n');
 				next()
 			}
 		} else {
-			res.status(400).send({error: this.entityName + ` body is missing`});
+			res.status(400).send({error: `Player body is missing`});
 		}
 	}
 	
@@ -49,17 +48,17 @@ class PlayerMiddleware {
 		if (entity) {
 			next();
 		} else {
-			res.status(404).send({error: this.entityName +  `id: ` + req.params.id + ` not found`});
+			res.status(404).send({error: `Player id: ` + req.params.id + ` not found`});
 		}
 	}
 	
 	async validateUser(req: express.Request, res: express.Response, next: express.NextFunction) {
-		// console.log('\n' + 'PlayerMiddleware/validateUser : Name is unique' + '\n');
+		console.log('\n' + 'PlayerMiddleware/validateUser : Name is unique' + '\n');
 		const entity = await userService.readById(req.params.user);
 		if (entity) {
-			next();
+			res.status(404).send({error: `Player user: ` + req.params.user + ` already exists`});
 		} else {
-			res.status(404).send({error: this.entityName + `user: ` + req.params.user + ` not found`});
+			next();
 		}
 	}
 	
@@ -67,9 +66,9 @@ class PlayerMiddleware {
 		// console.log('\n' + 'PlayerMiddleware/validateTournament : Name is unique' + '\n');
 		const entity = await tournamentService.readById(req.params.tournament);
 		if (entity) {
-			next();
+			res.status(404).send({error: `Player tournament: ` + req.params.tournament + ` already exists`});
 		} else {
-			res.status(404).send({error: this.entityName + `tournament: ` + req.params.tournament + ` not found`});
+			next();
 		}
 	}
 	
@@ -84,7 +83,7 @@ class PlayerMiddleware {
 			// console.log('\n' + 'PlayerMiddleware/validateStateIfPresent:  ' + req.body.state + '\n');
 			if (!isStateSupported(req.body.type)) {
 				// console.log('\n' + 'PlayerMiddleware/validateStateIfPresent:  Invalid' + req.body.state + '\n');
-				res.status(404).send({error: this.entityName + ` state: ` + req.params.state + `is invalid`});
+				res.status(404).send({error: `Player state: ` + req.params.state + `is invalid`});
 			} else {
 				// console.log('\n' + 'PlayerMiddleware/validateStateIfPresent:  Valid' + req.body.state + '\n');
 				next();
