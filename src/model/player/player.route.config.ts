@@ -50,7 +50,7 @@ export class PlayerRoutes extends CommonRoutesConfig {
 		
 		this.app.patch(`/player/:id`, [
 			PlayerMiddleware.validateExists,
-			PlayerMiddleware.validateStateIfPresent,
+			PlayerMiddleware.validateState,
 			PlayerController.patch
 		]);
 		

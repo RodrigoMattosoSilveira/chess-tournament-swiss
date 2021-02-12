@@ -72,24 +72,24 @@ class PlayerMiddleware {
 		}
 	}
 	
-	async validateStateIfPresent(req: express.Request, res: express.Response, next: express.NextFunction) {
-		// console.log('\n' + 'PlayerMiddleware/validateStateIfPresent\n');
+	async validateState(req: express.Request, res: express.Response, next: express.NextFunction) {
+		// console.log('\n' + 'PlayerMiddleware/validateState\n');
 		// Validate type only if present
 		if (!req.body.state) {
-			// console.log('\n' + 'PlayerMiddleware/validateStateIfPresent: not present\n');
+			// console.log('\n' + 'PlayerMiddleware/validateState: not present\n');
 			next()
 		} else {
 			// it is present, hence must be valid
-			// console.log('\n' + 'PlayerMiddleware/validateStateIfPresent:  ' + req.body.state + '\n');
+			// console.log('\n' + 'PlayerMiddleware/validateState:  ' + req.body.state + '\n');
 			if (!isStateSupported(req.body.type)) {
-				// console.log('\n' + 'PlayerMiddleware/validateStateIfPresent:  Invalid' + req.body.state + '\n');
+				// console.log('\n' + 'PlayerMiddleware/validateState:  Invalid' + req.body.state + '\n');
 				res.status(404).send({error: `Player state: ` + req.params.state + `is invalid`});
 			} else {
-				// console.log('\n' + 'PlayerMiddleware/validateStateIfPresent:  Valid' + req.body.state + '\n');
+				// console.log('\n' + 'PlayerMiddleware/validateState:  Valid' + req.body.state + '\n');
 				next();
 			}
 		}
-		// console.log('\n' + 'PlayerMiddleware/validateStateIfPresent/state: ' + req.body.state + '\n');
+		// console.log('\n' + 'PlayerMiddleware/validateState/state: ' + req.body.state + '\n');
 	}
 	
 	async extractId(req: express.Request, res: express.Response, next: express.NextFunction) {
