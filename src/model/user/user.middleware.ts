@@ -51,12 +51,12 @@ class UserMiddleware {
 		}
 	}
 	
-	async validateStateIfPresent(req: express.Request, res: express.Response, next: express.NextFunction) {
+	async validateState(req: express.Request, res: express.Response, next: express.NextFunction) {
 		// Validate state only if present
 		if (!req.body.state) {
 			next()
 		} else {
-			// console.log('\n' + 'UserMiddleware/validateStateIfPresent/value: ' + req.body.state + '\n');
+			// console.log('\n' + 'UserMiddleware/validateState/value: ' + req.body.state + '\n');
 			// it is present, hence must be valid
 			if (!isStateSupported(req.body.state)) {
 				res.status(404).send({error: `state ${req.body.state} is invalid`});

@@ -90,23 +90,23 @@ class TournamentMiddleware {
 	}
 	
 	async validateStateIfPresent(req: express.Request, res: express.Response, next: express.NextFunction) {
-		// console.log('\n' + 'TournamentMiddleware/validateStateIfPresent\n');
+		// console.log('\n' + 'TournamentMiddleware/validateState\n');
 		// Validate type only if present
 		if (!req.body.state) {
-			// console.log('\n' + 'TournamentMiddleware/validateStateIfPresent: not present\n');
+			// console.log('\n' + 'TournamentMiddleware/validateState: not present\n');
 			next()
 		} else {
 			// it is present, hence must be valid
-			// console.log('\n' + 'TournamentMiddleware/validateStateIfPresent:  ' + req.body.state + '\n');
+			// console.log('\n' + 'TournamentMiddleware/validateState:  ' + req.body.state + '\n');
 			if (!isStateSupported(req.body.type)) {
-				// console.log('\n' + 'TournamentMiddleware/validateStateIfPresent:  Invalid' + req.body.state + '\n');
+				// console.log('\n' + 'TournamentMiddleware/validateState:  Invalid' + req.body.state + '\n');
 				res.status(404).send({error: `type ${req.params.type} is invalid`});
 			} else {
-				// console.log('\n' + 'TournamentMiddleware/validateStateIfPresent:  Valid' + req.body.state + '\n');
+				// console.log('\n' + 'TournamentMiddleware/validateState:  Valid' + req.body.state + '\n');
 				next();
 			}
 		}
-		// console.log('\n' + 'TournamentMiddleware/validateStateIfPresent/state: ' + req.body.state + '\n');
+		// console.log('\n' + 'TournamentMiddleware/validateState/state: ' + req.body.state + '\n');
 	}
 	
 	async extractId(req: express.Request, res: express.Response, next: express.NextFunction) {
