@@ -8,8 +8,12 @@
   "license": "MIT",
   "scripts": {
     "build": "webpack",
+    "create-t": "node ../node-scripts/create-tournaments index",
+    "create-u": "node ../node-scripts/create-users index",
+    "get-t-u": "node ../node-scripts/get-users-tournament index 1 5",
+    "create-t-u": "run-s create-t create-u get-t-u",
     "start:dev": "NODE_ENV=development NODE_OPTIONS=--unhandled-rejections=strict webpack",
-    "test":   "NODE_ENV=test jest --detectOpenHandles",
+    "test": "NODE_ENV=test jest --detectOpenHandles",
     "test_u": "NODE_ENV=test jest --detectOpenHandles -t 'User Entity'",
     "test_t": "NODE_ENV=test jest --detectOpenHandles -t 'Tournament Entity'"
   },
@@ -34,6 +38,7 @@
     "jest": "^26.6.3",
     "nodemon": "^2.0.7",
     "nodemon-webpack-plugin": "^4.4.4",
+    "npm-run-all": "^4.1.5",
     "source-map-support": "^0.5.19",
     "supertest": "^6.1.1",
     "ts-jest": "^26.4.4",

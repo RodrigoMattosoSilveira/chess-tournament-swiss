@@ -51,7 +51,7 @@ export class UserRoutes extends CommonRoutesConfig {
 			UserMiddleware.validateUserExists,
 			UserMiddleware.validateEmail,
 			UserMiddleware.validateSameEmailDoesntExist,
-			UserMiddleware.validateStateIfPresent,
+			UserMiddleware.validateState,
 			UserController.patch
 		]);
 		

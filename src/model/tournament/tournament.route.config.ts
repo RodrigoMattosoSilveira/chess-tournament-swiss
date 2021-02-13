@@ -32,7 +32,9 @@ export class TournamentRoutes extends CommonRoutesConfig {
 				TournamentMiddleware.validateRequiredBodyFields,
 				TournamentMiddleware.validateNameIsUnique,
 				TournamentMiddleware.validateType,
-				TournamentMiddleware.validateStateIfPresent,
+				TournamentMiddleware.validateState,
+				TournamentMiddleware.validateWinPoints,
+				// TournamentMiddleware.validateTie,
 				TournamentController.create);
 		
 		this.app.param(`id`, TournamentMiddleware.extractId);
@@ -51,7 +53,10 @@ export class TournamentRoutes extends CommonRoutesConfig {
 		
 		this.app.patch(`/tournament/:id`, [
 			TournamentMiddleware.validateExists,
-			TournamentMiddleware.validateTypeIfPresent,
+			TournamentMiddleware.validateType,
+			TournamentMiddleware.validateState,
+			TournamentMiddleware.validateWinPoints,
+			TournamentMiddleware.validateTiePoints,
 			TournamentController.patch
 		]);
 		

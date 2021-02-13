@@ -37,7 +37,8 @@ describe('Tournament Entity', () => {
 			.then((response: any) => {
 				// console.log('Tournament Entity/POST /tournament: ' + response.body.id);
 				entityDto.id = response.body.id;
-				expect(response.body.id).toBeTruthy()
+				expect(response.body.id).toBeTruthy();
+				done();
 			})
 			.catch((err: any) => done(err));
 		
@@ -54,65 +55,60 @@ describe('Tournament Entity', () => {
 				expect(response.body.year).toEqual(entityDto.year);
 				expect(response.body.rounds).toEqual(entityDto.rounds);
 				expect(response.body.type).toEqual(entityDto.type);
+				expect(response.body.players).toEqual([]);
+				expect(response.body.state).toEqual(TOURNAMENT_STATE.PLANNED);
+				expect(response.body.win).toEqual(1);
+				done();
 			})
 			.catch((err: any) => done(err))
-		done();
 	});
 	describe('PATCH /tournament:id', () => {
 		// Create this entity and validate PATCH against it
-		/**
-		 * MODEL
-		 * 	id: string;				// created by the server
-			name: string;			// must be unique
-			city?: string;
-			country?: string;
-			month?: number;
-			year?: number;
-			rounds: number;
-			maxPlayers: number;
-			type: string; // roundRobin, swiss, elimination, match
-			players?: Array<number> // TournamentPlayerDto.id
-			state?: string; // planned* / scheduled / closed / underway / complete
-		 */
 		let entityDto: any = {
 			"name": "DSB Congress - 1910",// Must be unique
 			"city": "Hamburg",
 			"rounds": 12,
 			"maxPlayers": 12,
-			"type": "round"
+			"type": TOURNAMENT_TYPE.ROUND_ROBIN
 		};
-		
-		// Use it to patch all patchable attributes at once
-		let entityPatch: any = {
-			"name": "DSB Congress - 1911",// Must be unique
-			"city": "Sao Paulo",
-			"country": "Brasil",
-			"month": 10,
-			"year": 1911,
-			"rounds": 6,
-			"maxPlayers": 13,
-			"type": TOURNAMENT_TYPE.SWISS,
-			"players": [1234, 2345, 3456, 4567, 5678, 6789],
-			"state": "scheduled"
-		}
 		
 		beforeAll(async done => {
 			// POST the entity, will validate PATCH against it
+			console.log('\nTournament Entity/PATCH beforeAll \n');
 			await request(app)
 				.post(resource)
-				.send(entityPatch)
+				.send(entityDto)
 				.set('Accept', 'application/json')
 				.expect('Content-Type', /json/)
 				.expect(201)
 				.then((response: any) => {
-					// console.log('Tournament Entity/PATCH POST /tournament: ' + response.body.id);
+					console.log('\nTournament Entity/PATCH POST /tournament: ' + response.body.id + '\n');
 					entityDto.id = response.body.id;
 					expect(response.body.id).toBeTruthy()
 				})
-				.catch((err: any) => done(err));
+				.catch((err: any) => {
+					console.log('\nTournament Entity/PATCH POST /tournament: ' + err + '\n');
+					done(err)
+				});
 			done();
 		});
 		it('patches all patchable attributes', async done => {
+			
+			// Use it to patch all patchable attributes at once
+			let entityPatch: any = {
+				"name": "DSB Congress - 1911",// Must be unique
+				"city": "Sao Paulo",
+				"country": "Brasil",
+				"month": 10,
+				"year": 1911,
+				"rounds": 6,
+				"maxPlayers": 13,
+				"type": TOURNAMENT_TYPE.SWISS,
+				"players": [1234, 2345, 3456, 4567, 5678, 6789],
+				"state": TOURNAMENT_STATE.SCHEDULED,
+				"winPoints": 3,
+				"tiePoints": 1
+			}
 			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, entityPatch);
 			expect(response.body.city).toEqual(entityPatch.city);
 			expect(response.body.month).toEqual(entityPatch.month);
@@ -122,6 +118,8 @@ describe('Tournament Entity', () => {
 			expect(response.body.type).toEqual(entityPatch.type);
 			expect(response.body.players).toEqual(entityPatch.players);
 			expect(response.body.state).toEqual(entityPatch.state);
+			expect(response.body.winPoints).toEqual(3);
+			expect(response.body.tiePoints).toEqual(1);
 			done();
 		});
 		
@@ -178,6 +176,20 @@ describe('Tournament Entity', () => {
 			const patchMe = {"state": TOURNAMENT_STATE.CLOSED};
 			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
 			expect(response.body.state).toEqual(patchMe.state);
+			done();
+		});
+		
+		it('PATCH /tournament:id winPoints', async done => {
+			const patchMe = {"winPoints": 2};
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
+			expect(response.body.winPoints).toEqual(patchMe.winPoints);
+			done();
+		});
+		
+		it('PATCH /tournament:id tiePoints', async done => {
+			const patchMe = {"tiePoints": 1.5};
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
+			expect(response.body.tiePoints).toEqual(patchMe.tiePoints);
 			done();
 		});
 	});
