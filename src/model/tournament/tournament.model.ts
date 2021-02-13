@@ -1,13 +1,3 @@
-// interface TournamentPlayerDto {
-// 	player: number; // UserDto.id
-// 	hadByeOrForfeit: boolean;
-// 	byeNextRound: boolean;
-// 	opponents: Array<number>; // UserDto.id
-// 	playedColor: Array<number>;
-// 	results: Array<number>;
-// 	tournamentPoints: number
-// }
-
 export interface TournamentDto {
 	id: string;				// created by the server
 	name: string;			// must be unique
@@ -20,4 +10,6 @@ export interface TournamentDto {
 	type: string; //roundRobin, swiss, elimination, match
 	players?: Array<number> // TournamentPlayerDto.id
 	state?: string; // planned* / scheduled / closed / underway / complete
+	winPoints?: number; // points awarded for a win, 1 is default
+	tiePoints?: number; // points awarded for a tie, 0.5 is default
 }

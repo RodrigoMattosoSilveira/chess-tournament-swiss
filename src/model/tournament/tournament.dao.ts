@@ -2,7 +2,7 @@ import {TournamentDto} from "./tournament.model";
 import shortid from 'shortid';
 import debug from 'debug';
 const log: debug.IDebugger = debug('app:in-memory-dao');
-import {TOURNAMENT_STATE} from "../../contants/contants";
+import {TOURNAMENT_PATCHABLE_ATTRIBUTES, TOURNAMENT_STATE} from "../../contants/contants";
 
 /**
  * Using the singleton pattern, this class will always provide the same instance—and, critically, the same user
@@ -28,9 +28,16 @@ class TournamentDao {
 	
 	async add(entity: TournamentDto) {
 		// console.log("TournamentDao/add: " + JSON.stringify(entity) +"\n");
+		// Set defaults
 		entity.id = shortid.generate();
 		entity.state = TOURNAMENT_STATE.PLANNED;
 		entity.players = [];
+		if (!entity.winPoints) {
+			entity.winPoints = 1;
+		}
+		if (!entity.tiePoints) {
+			entity.tiePoints = 0.5;
+		}
 		this.collection.push(entity);
 		// console.log("TournamentDao/add id: " +entity.id +"\n");
 		return entity.id;
@@ -53,8 +60,7 @@ class TournamentDao {
 	async patchById(entity: TournamentDto) {
 		const objIndex = this.collection.findIndex((obj: { id: string; }) => obj.id === entity.id);
 		let currentEntity = this.collection[objIndex];
-		const allowedPatchFields = ["name", "city", "country", "month", "year", "rounds", "maxPlayers", "type", "players", "state"];
-		for (let field of allowedPatchFields) {
+		for (let field of TOURNAMENT_PATCHABLE_ATTRIBUTES) {
 			if (field in entity) {
 				// @ts-ignore
 				currentEntity[field] = entity[field];
