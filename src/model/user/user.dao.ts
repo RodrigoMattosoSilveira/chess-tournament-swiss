@@ -25,11 +25,13 @@ class UserDao {
 	static getInstance(): UserDao {
 		if (!UserDao.instance) {
 			UserDao.instance = new UserDao();
-			try {
-				const data = fs.readFileSync('./generated-data/users.generated.json', 'utf8')
-				UserDao.user = JSON.parse(data)
-			} catch (err) {
-				console.error(err)
+			if (process.env.NODE_DATA !== 'generated') {
+				try {
+					const data = fs.readFileSync('./generated-data/users.generated.json', 'utf8')
+					UserDao.user = JSON.parse(data)
+				} catch (err) {
+					console.error(err)
+				}
 			}
 		}
 		return UserDao.instance;
