@@ -16,13 +16,13 @@ class GameController {
 	}
 	
 	async getAll(req: express.Request, res: express.Response) {
-		console.log('\nGameController/getAll\n');
+		// console.log('\nGameController/getAll\n');
 		const entities = await gameService.list(/* 100, 0 */); // add it when working with DB
 		res.status(200).send(entities);
 	}
 	
 	async getById(req: express.Request, res: express.Response) {
-		console.log('GameController/getById/id' + req.params.id);
+		// console.log('GameController/getById/id' + req.params.id);
 		const entity = await gameService.readById(req.params.id);
 		res.status(200).send(entity);
 	}

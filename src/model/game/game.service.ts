@@ -23,7 +23,7 @@ class GameService implements CRUD {
 	};
 	
 	async list(/* limit: number, page: number */) { // limit and page are ignored until we upgrade our DAO
-		console.log("\nGameService/list: \n");
+		// console.log("\nGameService/list: \n");
 		return await gameDao.getAll();
 	};
 	

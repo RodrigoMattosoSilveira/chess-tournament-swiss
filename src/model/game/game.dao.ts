@@ -46,12 +46,12 @@ class GameDao {
 	}
 	
 	async getAll() {
-		console.log("\nGameDao/getAll: \n");
+		// console.log("\nGameDao/getAll: \n");
 		return this.collection;
 	}
 	
 	async getById(id: string) {
-		console.log("\nGameDao/getAll: \n");
+		// console.log("\nGameDao/getAll: \n");
 		return this.collection.find((game: { id: string; }) => game.id === id);
 	}
 	
@@ -62,7 +62,7 @@ class GameDao {
 	}
 	
 	async patchById(entity: GameDto) {
-		console.log("\nGameDao/patchById: " + JSON.stringify(PATCHABLE_ATTRIBUTES) + "\n");
+		// console.log("\nGameDao/patchById: " + JSON.stringify(PATCHABLE_ATTRIBUTES) + "\n");
 		const objIndex = this.collection.findIndex((obj: { id: string; }) => obj.id === entity.id);
 		let currentEntity = this.collection[objIndex];
 		for (let field of PATCHABLE_ATTRIBUTES) {
