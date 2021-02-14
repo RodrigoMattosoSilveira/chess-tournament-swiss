@@ -42,13 +42,13 @@ The service returns the created tournament's id:
 When experimenting with a particular tournment, the terminal to create an environment variable to help you:
 
 ````bash
-$ REST_API_EXAMPLE_ID=v55YaUAmh
+$ REST_API_TOURNAMENT_ID=v55YaUAmh
 ````
 
 ## GET A TOURNAMENT
 Use the following `curl` command to retrieve a tournament:
 ````bash
-$ curl --location --request GET "localhost:3000/tournament/$REST_API_EXAMPLE_ID" --header 'Content-Type: application/json'
+$ curl --location --request GET "localhost:3000/tournament/$REST_API_TOURNAMENT_ID" --header 'Content-Type: application/json'
 ````
 
 The service returns the tournament's entity attributes:
@@ -61,7 +61,7 @@ The service returns the tournament's entity attributes:
 ## PATCH
 Use the following `curl` command to update the maximum number of players:
 ````bash
-curl --location --request PATCH "localhost:3000/tournament/$REST_API_EXAMPLE_ID" \
+curl --location --request PATCH "localhost:3000/tournament/$REST_API_TOURNAMENT_ID" \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "maxPlayers": 20
@@ -77,7 +77,7 @@ The service returns the updated tournament's:
 
 You can use the PATCH command to update multiple attributes:
 ````bash
-curl --location --request PATCH "localhost:3000/tournament/$REST_API_EXAMPLE_ID" \
+curl --location --request PATCH "localhost:3000/tournament/$REST_API_TOURNAMENT_ID" \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "maxPlayers": 47,
