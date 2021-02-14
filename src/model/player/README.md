@@ -92,7 +92,7 @@ $ REST_API_EXAMPLE_ID="put_your_id_here"
 ## GET A PLAYER
 Use the following `curl` command to retrieve a user:
 ````bash
-$ curl --location --request GET "localhost:3000/player/$REST_API_EXAMPLE_ID" --header 'Content-Type: application/json'
+$ curl --location --request GET "localhost:3000/player/$REST_API_PLAYER_ID" --header 'Content-Type: application/json'
 ````
 
 Once executed, the service returns a user id

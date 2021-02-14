@@ -53,7 +53,7 @@ class PlayerMiddleware {
 	}
 	
 	async validateUser(req: express.Request, res: express.Response, next: express.NextFunction) {
-		console.log('\n' + 'PlayerMiddleware/validateUser : Name is unique' + '\n');
+		// console.log('\n' + 'PlayerMiddleware/validateUser : Name is unique' + '\n');
 		const entity = await userService.readById(req.params.user);
 		if (entity) {
 			res.status(404).send({error: `Player user: ` + req.params.user + ` already exists`});
