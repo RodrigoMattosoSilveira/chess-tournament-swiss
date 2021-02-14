@@ -16,7 +16,6 @@ export interface PlayerDto {
 	results?: Array<number>; 		// -1 = loss, 0.5=tie, 1=win
 	state?:string; 		            // scheduled, withdrew, playing, forfeit, done
 }
-
 ````
 
 Note that the only attributes required to create a tournament player are the `user id` and `tournament id`. All other values are set to their defaults.
@@ -71,85 +70,94 @@ Use the following `curl` command to create a user:
 curl --location --request POST 'localhost:3000/player' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-"tournament": "qOSRL_bOe",
-"user": "CFE_mIoQh"
+"tournament": "Zvei69rE0",
+"user": "xuBs3_tvU"
 }'
 ````
 
 Once executed, the service returns a user id
 ````json
 {
-    "id": "QYqVEOPxQ"
+    "id": "nRo8tL2mP"
 }
 ````
 
 Use the terminal to create an environment variable to help us with the remaining curl examples
 
 ````bash
-$ REST_API_EXAMPLE_ID="put_your_id_here"
+$ REST_API_PLAYER_ID="put_your_id_here"
 ````
-
 ## GET A PLAYER
 Use the following `curl` command to retrieve a user:
 ````bash
 $ curl --location --request GET "localhost:3000/player/$REST_API_PLAYER_ID" --header 'Content-Type: application/json'
 ````
-
 Once executed, the service returns a user id
 ````json
 {
-  "tournament":"qOSRL_bOe",
-  "user":"CFE_mIoQh",
-  "id":"QYqVEOPxQ",
-  "hadByeOrForfeit":false,
-  "byeNextRound":false,
-  "playedAgainst":[],
-  "playedColor":[],
-  "results":[],
-  "state":"scheduled"
+  "hadByeOrForfeit": false,
+  "byeNextRound": false,
+  "playedAgainst": [],
+  "playedColor": [],
+  "results": [],
+  "state": "active"
 }
 ````
-
 ## PATCH
-Use the following `curl` command to update the maximum number of players:
+Use the following `curl` command to update all the patchable attributes:
 ````bash
-curl --location --request PATCH "localhost:3000/player/$REST_API_EXAMPLE_ID" \
+curl --location --request PATCH "localhost:3000/player/$REST_API_PLAYER_ID" \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "hadByeOrForfeit": true
+    "hadByeOrForfeit": true,
+    "byeNextRound": true,
+    "playedAgainst": ["a1x_V1h5Mq", "mgjR2IAh72"],
+    "playedColor": [-1, 1],
+    "results": [0, 1],
+    "state": "inactive"
 }'
 ````
-
-The service returns the updated tournament's:
+The service returns the updated player's entity:
 ````json
 {
-  "tournament":"doXsurGe9",
-  "user":"YC0vtQTD_9",
-  "id":"5mp2HL7H1",
+  "tournament":"Zvei69rE0",
+  "user":"xuBs3_tvU",
+  "id":"nRo8tL2mP",
   "hadByeOrForfeit":true,
-  "byeNextRound":false,
-  "playedAgainst":[],
-  "playedColor":[],
-  "results":[],
-  "state":"scheduled"}
+  "byeNextRound":true,
+  "playedAgainst":["a1x_V1h5Mq","mgjR2IAh72"],
+  "playedColor":[-1,1],
+  "results":[0,1],
+  "state":"inactive"
+}
 ````
-
-You can use the PATCH command to update multiple attributes:
+You can use the PATCH command to update one attribute:
 ````bash
-curl --location --request PATCH "localhost:3000/player/$REST_API_EXAMPLE_ID" \
+curl --location --request PATCH "localhost:3000/player/$REST_API_PLAYER_ID" \
 --header 'Content-Type: application/json' \
 --data-raw '{
-  "hadByeOrForfeit": false,
-  "byeNextRound": true
+  "state": "active"
 }'
 ````
-
+The service returns the updated player's entity:
+````json
+{
+  "tournament":"Zvei69rE0",
+  "user":"xuBs3_tvU",
+  "id":"nRo8tL2mP",
+  "hadByeOrForfeit":true,
+  "byeNextRound":true,
+  "playedAgainst":["a1x_V1h5Mq","mgjR2IAh72"],
+  "playedColor":[-1,1],
+  "results":[0,1],
+  "state":"active"
+}
+````
 ## PUT
 `This service does not support PUT`
 
 ## DELETE
 `This service does not support DELETE`
-
 
 # For the future
 game

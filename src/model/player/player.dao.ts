@@ -35,7 +35,7 @@ class PlayerDao {
 		entity.playedAgainst = [];
 		entity.playedColor = [];
 		entity.results = [];
-		entity.state = PLAYER_STATE.SCHEDULED;
+		entity.state = PLAYER_STATE.ACTIVE;
 		this.collection.push(entity);
 		// console.log("PlayerDao/add id: " +entity.id +"\n");
 		return entity.id;

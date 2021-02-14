@@ -102,7 +102,10 @@ export default PlayerMiddleware.getInstance();
 
 const isStateSupported = (state: string): boolean => {
 	let requestState  = state.toLowerCase();
-	// console.log('\n' + 'PlayerMiddleware/isStateSupported/type: ' + requestType + '\n');
+	console.log('\n' + 'PlayerMiddleware/isStateSupported/states: ' + JSON.stringify(player_states) + '\n');
+	console.log('\n' + 'PlayerMiddleware/isStateSupported/state: ' + requestState + '\n');
+	let supported: boolean = player_states.findIndex((aValidState: string) => aValidState === requestState) !== -1
+	console.log('\n' + 'PlayerMiddleware/isStateSupported/supported: ' + supported + '\n');
 	return player_states.findIndex((aValidState: string) => aValidState === requestState) !== -1;
 }
 
