@@ -15,7 +15,8 @@
     "start:dev": "NODE_ENV=development NODE_OPTIONS=--unhandled-rejections=strict webpack",
     "test": "NODE_ENV=test jest --detectOpenHandles",
     "test_u": "NODE_ENV=test jest --detectOpenHandles -t 'User Entity'",
-    "test_t": "NODE_ENV=test jest --detectOpenHandles -t 'Tournament Entity'"
+    "test_t": "NODE_ENV=test jest --detectOpenHandles -t 'Tournament Entity'",
+    "test_p": "NODE_ENV=test jest --detectOpenHandles -t 'Player Entity'"
   },
   "dependencies": {
     "argon2": "^0.27.1",
