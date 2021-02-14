@@ -51,7 +51,7 @@ Use the following `curl` command to retrieve a tournament:
 $ curl --location --request GET "localhost:3000/tournament/$REST_API_EXAMPLE_ID" --header 'Content-Type: application/json'
 ````
 
-The service returns the created tournament's id:
+The service returns the tournament's entity attributes:
 ````json
 {
   "name":"Tata Steel Chess 2","year":2021,"maxPlayers":48,"rounds":6,"type":"swiss","id":"Fo4RU7lH3","state":"planned","players":[]

@@ -81,9 +81,9 @@ class PlayerMiddleware {
 		} else {
 			// it is present, hence must be valid
 			// console.log('\n' + 'PlayerMiddleware/validateState:  ' + req.body.state + '\n');
-			if (!isStateSupported(req.body.type)) {
+			if (!isStateSupported(req.body.state)) {
 				// console.log('\n' + 'PlayerMiddleware/validateState:  Invalid' + req.body.state + '\n');
-				res.status(404).send({error: `Player state: ` + req.params.state + `is invalid`});
+				res.status(404).send({error: `Player state is invalid: ` + req.params.state});
 			} else {
 				// console.log('\n' + 'PlayerMiddleware/validateState:  Valid' + req.body.state + '\n');
 				next();
