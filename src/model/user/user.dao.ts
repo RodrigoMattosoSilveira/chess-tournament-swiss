@@ -1,8 +1,11 @@
-import {UserDto} from "./user.model";
+const fs = require('fs');
 import shortid from 'shortid';
 import debug from 'debug';
-import {USER_STATE} from "../../contants/contants";
 const log: debug.IDebugger = debug('app:in-memory-dao');
+
+import {UserDto} from "./user.model";
+import {USER_STATE} from "../../contants/contants";
+
 
 /**
  * Using the singleton pattern, this class will always provide the same instance—and, critically, the same user
@@ -13,7 +16,7 @@ const log: debug.IDebugger = debug('app:in-memory-dao');
  */
 class UserDao {
 	private static instance: UserDao;
-	user: Array<UserDto> = [];
+	private static user: Array<UserDto> = [];
 	
 	constructor() {
 		log('Created new instance of UserDao');
@@ -22,6 +25,12 @@ class UserDao {
 	static getInstance(): UserDao {
 		if (!UserDao.instance) {
 			UserDao.instance = new UserDao();
+			try {
+				const data = fs.readFileSync('./generated-data/users.generated.json', 'utf8')
+				UserDao.user = JSON.parse(data)
+			} catch (err) {
+				console.error(err)
+			}
 		}
 		return UserDao.instance;
 	}
@@ -29,27 +38,27 @@ class UserDao {
 	async addUser(user: UserDto) {
 		user.id = shortid.generate();
 		user.state = USER_STATE.ACTIVE;
-		this.user.push(user);
+		UserDao.user.push(user);
 		return user.id;
 	}
 	
 	async getUsers() {
-		return this.user;
+		return UserDao.user;
 	}
 	
 	async getUserById(userId: string) {
-		return this.user.find((user: { id: string; }) => user.id === userId);
+		return UserDao.user.find((user: { id: string; }) => user.id === userId);
 	}
 	
 	async putUserById(user: UserDto) {
-		const objIndex = this.user.findIndex((obj: { id: string; }) => obj.id === user.id);
-		this.user.splice(objIndex, 1, user);
+		const objIndex = UserDao.user.findIndex((obj: { id: string; }) => obj.id === user.id);
+		UserDao.user.splice(objIndex, 1, user);
 		return `${user.id} updated via put`;
 	}
 	
 	async patchUserById(user: UserDto) {
-		const objIndex = this.user.findIndex((obj: { id: string; }) => obj.id === user.id);
-		let currentUser = this.user[objIndex];
+		const objIndex = UserDao.user.findIndex((obj: { id: string; }) => obj.id === user.id);
+		let currentUser = UserDao.user[objIndex];
 		const allowedPatchFields = ["email", "firstName", "lastName", "password", "permissionLevel", "rating", "state"];
 		for (let field of allowedPatchFields) {
 			if (field in user) {
@@ -57,19 +66,19 @@ class UserDao {
 				currentUser[field] = user[field];
 			}
 		}
-		this.user.splice(objIndex, 1, currentUser);
+		UserDao.user.splice(objIndex, 1, currentUser);
 		return `${user.id} patched`;
 	}
 	
 	async removeUserById(userId: string) {
-		const objIndex = this.user.findIndex((obj: { id: string; }) => obj.id === userId);
-		this.user.splice(objIndex, 1);
+		const objIndex = UserDao.user.findIndex((obj: { id: string; }) => obj.id === userId);
+		UserDao.user.splice(objIndex, 1);
 		return `${userId} removed`;
 	}
 	
 	async getUserByEmail(email: string) {
-		const objIndex = this.user.findIndex((obj: { email: string; }) => obj.email === email);
-		let currentUser = this.user[objIndex];
+		const objIndex = UserDao.user.findIndex((obj: { email: string; }) => obj.email === email);
+		let currentUser = UserDao.user[objIndex];
 		if (currentUser) {
 			return currentUser;
 		} else {
