@@ -52,7 +52,6 @@ export class GameRoutes extends CommonRoutesConfig {
 		
 		this.app.patch(`/game/:id`, [
 			GameMiddleware.validateState,
-			GameMiddleware.validateState,
 			GameMiddleware.validateResult,
 			GameMiddleware.validateDate,
 			GameController.patch

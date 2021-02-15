@@ -5,12 +5,12 @@
  * [0, 0, w] - White won; w is the number of points awarded for a tournament win;
  */
 export interface GameDto {
-	id: string, // unique game id
-	tournament: string, // unique tournament id
-	whitePiecesPlayer: string, // unique player id, must differ from black
-	blackPiecesPlayer: string, // unique player id, must differ from white
-	state: string, // unique state id (scheduled/underway/complete)
-	result?:number, // -1 black won, 0 tie, 1 white won
-	date?: string,  // a valid game date
+	id: string, 				// unique game id
+	tournament: string, 		// unique tournament id
+	whitePiecesPlayer: string, 	// unique player id, must differ from black
+	blackPiecesPlayer: string, 	// unique player id, must differ from white
+	state?: string, 			// state (scheduled*/underway/complete)
+	result?:string, 			// `b` black won, `t` tie, `w` white won; NAN*, created when the game completes
+	date?: string,  			// a valid game date, creation date*
 }
 

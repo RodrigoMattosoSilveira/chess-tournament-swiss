@@ -3,7 +3,7 @@ import debug from 'debug';
 const log: debug.IDebugger = debug('app:in-memory-dao');
 
 import {GameDto} from "./game.model";
-import { STATES, PATCHABLE_ATTRIBUTES } from "./game.constants";
+import { GAME_STATES, PATCHABLE_GAME_ATTRIBUTES, GAME_RESULTS } from "./game.constants";
 
 /**
  * Using the singleton pattern, this class will always provide the same instance—and, critically, the same user
@@ -30,15 +30,15 @@ class GameDao {
 	async add(entity: GameDto) {
 		// console.log("GameDao/add: " + JSON.stringify(entity) +"\n");
 		entity.id = shortid.generate();
-		if (entity.state) {
-			entity.state = STATES.SCHEDULED
+		if (!entity.state) {
+			entity.state = GAME_STATES.SCHEDULED
 		}
 		if (entity.result) {
 			delete entity.result
 		}
-		if (entity.date) {
-			let date: Date = new Date();
-			entity.date = "" + date.getMonth() + '/' + date.getDay() + date.getFullYear();
+		if (!entity.date) {
+			let [month, date, year]    = new Date().toLocaleDateString("en-US").split("/")
+			entity.date = "" + month + '/' + date + '/' + year;
 		}
 		this.collection.push(entity);
 		// console.log("GameDao/add id: " +entity.id +"\n");
@@ -51,7 +51,8 @@ class GameDao {
 	}
 	
 	async getById(id: string) {
-		// console.log("\nGameDao/getAll: \n");
+		console.log("\nGameDao/getById/id: " + id + "\n");
+		console.log("\nGameDao/getById/collection: " + JSON.stringify(this.collection) + "\n");
 		return this.collection.find((game: { id: string; }) => game.id === id);
 	}
 	
@@ -62,10 +63,10 @@ class GameDao {
 	}
 	
 	async patchById(entity: GameDto) {
-		// console.log("\nGameDao/patchById: " + JSON.stringify(PATCHABLE_ATTRIBUTES) + "\n");
+		// console.log("\nGameDao/patchById: " + JSON.stringify(PATCHABLE_GAME_ATTRIBUTES) + "\n");
 		const objIndex = this.collection.findIndex((obj: { id: string; }) => obj.id === entity.id);
 		let currentEntity = this.collection[objIndex];
-		for (let field of PATCHABLE_ATTRIBUTES) {
+		for (let field of PATCHABLE_GAME_ATTRIBUTES) {
 			if (field in entity) {
 				// @ts-ignore
 				currentEntity[field] = entity[field];
