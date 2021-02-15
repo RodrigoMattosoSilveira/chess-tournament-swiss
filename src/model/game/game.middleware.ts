@@ -5,7 +5,6 @@ import express from 'express';
 import {
 	game_results,
 	GAME_STATES,
-	game_states,
 	PATCHABLE_GAME_ATTRIBUTES,
 	REQUIRED_GAME_ATTRIBUTES
 } from "./game.constants";
@@ -16,8 +15,6 @@ import { isValidDate } from "../../utils/utils";
 
 class GameMiddleware {
 	private static instance: GameMiddleware;
-	private fakeTournaments = ["1", "2", "3", "4", "5"]
-	private fakePlayers = ["1", "2", "3", "4", "5"]
 	
 	static getInstance() {
 		if (!GameMiddleware.instance) {
@@ -187,7 +184,7 @@ const isValidPatchableAttributes = (attributes:any, patchableAttributes: Array<s
 	if (attributesKeys.length === 0) {
 		foundInvalidAttributes = "there are no attributes to patch";
 	} else {
-		attributesKeys.forEach((thisAttribute, index,array) => {
+		attributesKeys.forEach((thisAttribute) => {
 			if (patchableAttributes.findIndex((aValidAttribute: string) => aValidAttribute === thisAttribute) === -1) {
 				foundInvalidAttributes += foundInvalidAttributes.length === 0 ? "" : ", ";
 				foundInvalidAttributes += thisAttribute;

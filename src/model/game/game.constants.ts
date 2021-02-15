@@ -1,15 +1,3 @@
-import {TOURNAMENT_STATE, tournament_states} from "../../contants/contants";
-
-/**
-	Model
-		id: string, // unique game id
-		tournament: string, // unique tournament id
-		white: string, // unique player id, must differ from black
-		black: string, // unique player id, must differ from white
-		state: string, // unique state id (scheduled/underway/complete)
-		result: Array<number>, // NAN, created when the game completes
-		date: string,  // a valid game date
- */
 export const GAME_ATTRIBUTES = {
 	"id":         { "required": false, "patchable": true },
 	"tournament": { "required": true, "patchable": false },

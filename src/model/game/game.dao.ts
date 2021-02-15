@@ -3,7 +3,7 @@ import debug from 'debug';
 const log: debug.IDebugger = debug('app:in-memory-dao');
 
 import {GameDto} from "./game.model";
-import { GAME_STATES, PATCHABLE_GAME_ATTRIBUTES, GAME_RESULTS } from "./game.constants";
+import { GAME_STATES, PATCHABLE_GAME_ATTRIBUTES } from "./game.constants";
 
 /**
  * Using the singleton pattern, this class will always provide the same instance—and, critically, the same user
