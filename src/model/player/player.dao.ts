@@ -25,7 +25,7 @@ class PlayerDao {
 	static getInstance(): PlayerDao {
 		if (!PlayerDao.instance) {
 			PlayerDao.instance = new PlayerDao();
-			if (process.env.NODE_DATA !== 'generated') {
+			if (process.env.NODE_DATA === 'generated') {
 				try {
 					const data = fs.readFileSync('./generated-data/player.generated.json', 'utf8')
 					PlayerDao.collection = JSON.parse(data)
@@ -56,7 +56,7 @@ class PlayerDao {
 	}
 	
 	async getById(id: string) {
-		return PlayerDao.collection.find((user: { id: string; }) => user.id === id);
+		return PlayerDao.collection.find((player: { id: string; }) => player.id === id);
 	}
 	
 	async putById(entity: PlayerDto) {

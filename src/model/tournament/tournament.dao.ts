@@ -24,7 +24,7 @@ class TournamentDao {
 	static getInstance(): TournamentDao {
 		if (!TournamentDao.instance) {
 			TournamentDao.instance = new TournamentDao();
-			if (process.env.NODE_DATA !== 'generated') {
+			if (process.env.NODE_DATA === 'generated') {
 				try {
 					const data = fs.readFileSync('./generated-data/tournament.generated.json', 'utf8')
 					TournamentDao.collection = JSON.parse(data)
