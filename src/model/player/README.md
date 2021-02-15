@@ -29,40 +29,21 @@ Note that the only attributes required to create a tournament player are the `us
 * results - default is `[]`;
 * state - default is `scheduled`;
 
-## Creating users and tournaments
-These instructions assume that the service is running:
-````bash
-$ yarn start:dev
-````
-### Users
-
 #curl
-## GET ALL TOURNAMENTS
+## GET ALL PLAYERS
 Use the following `curl` command to retrieve all tournaments:
 ````bash
 curl --location --request GET 'localhost:3000/player' --header 'Content-Type: application/json'
 ````
 
-
-Once executed, the service returns a user id
-````json
-[]
-````
-
-Of course, once you add players, the service will return something like:
+Once executed, the service returns collection of players
 ````json
 [
-    {"tournament":"qOSRL_bOe",
-      "user":"CFE_mIoQh",
-      "id":"QYqVEOPxQ",
-      "hadByeOrForfeit":false,
-      "byeNextRound":false,"playedAgainst":[],
-      "playedColor":[],
-      "results":[],
-      "state":"scheduled"
-    }
+  { }, {}
 ]
 ````
+
+See the PlayerDto above for details on the player model.
 
 ## POST
 Use the following `curl` command to create a user:
