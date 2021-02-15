@@ -48,13 +48,11 @@ Use the following `curl` command to create a game:
 curl --location --request POST 'localhost:3000/game' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-"tournament": "<tournament id>",
-"whitePiecesPlayer": "player id",
-"blackPiecesPlayer": "player id"
+"tournament": "Zvei69rE0",
+"whitePiecesPlayer": "L32ss05q2n",
+"blackPiecesPlayer": "bMNZi9Dvwd"
 }'
 ````
-
-NOTE: the `tournament`, `whitePiecesPlayer`, and `blackPiecesPlayer` are fake ids; you will have to use real ids;
 
 Once executed, the service returns a game id
 ````json
@@ -71,20 +69,25 @@ $ REST_API_GAME_ID="put_your_id_here"
 
 
 ## GET A GAME
-Use the following `curl` command to retrieve a tournament:
+Use the following `curl` command to retrieve a game:
 ````bash
 $ curl --location --request GET "localhost:3000/game/$REST_API_GAME_ID" --header 'Content-Type: application/json'
 ````
 
-The service returns the service returns the tournament's entity attributes:
+The service returns the service returns the games's entity attributes:
 ````json
 {
-  "tournament":"1","whitePiecesPlayer":"1","blackPiecesPlayer":"1","id":"a-s1mI78W"
+  "tournament":"Zvei69rE0",
+  "whitePiecesPlayer":"L32ss05q2n",
+  "blackPiecesPlayer":"bMNZi9Dvwd",
+  "id":"ibho4QFrV",
+  "state":"scheduled",
+  "date":"2/15/2021"
 }
 ````
 
 ## PATCH
-Use the following `curl` command to update the maximum number of players:
+Use the following `curl` command to update all the patchable attributes:
 ````bash
 curl --location --request PATCH "localhost:3000/game/$REST_API_GAME_ID" \
 --header 'Content-Type: application/json' \
