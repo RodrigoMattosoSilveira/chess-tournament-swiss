@@ -53,7 +53,7 @@ class TournamentMiddleware {
 	}
 
 	async validateExists(req: express.Request, res: express.Response, next: express.NextFunction) {
-		// console.log('\n' + 'TournamentMiddleware/validateNameIsUnique : Name is unique' + '\n');
+		// console.log('\n' + 'TournamentMiddleware/validateNameIsUnique : User exists' + '\n');
 		const entity = await service.readById(req.params.id);
 		if (entity) {
 			next();

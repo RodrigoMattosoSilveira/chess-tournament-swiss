@@ -12,10 +12,15 @@
     "create-u": "node ../node-scripts/create-users index",
     "get-t-u": "node ../node-scripts/get-users-tournament index 1 5",
     "create-t-u": "run-s create-t create-u get-t-u",
-    "start:dev": "NODE_ENV=development NODE_OPTIONS=--unhandled-rejections=strict webpack",
+    "start:dev": "NODE_ENV=development NODE_DATA=generated NODE_OPTIONS=--unhandled-rejections=strict webpack",
     "test": "NODE_ENV=test jest --detectOpenHandles",
-    "test_u": "NODE_ENV=test jest --detectOpenHandles -t 'User Entity'",
-    "test_t": "NODE_ENV=test jest --detectOpenHandles -t 'Tournament Entity'"
+    "test_u": "NODE_ENV=test NODE_DATA=generated jest --detectOpenHandles -t 'User Entity'",
+    "test_t": "NODE_ENV=test NODE_DATA=generated jest --detectOpenHandles -t 'Tournament Entity'",
+    "test_p": "NODE_ENV=test NODE_DATA=generated jest --detectOpenHandles -t 'Player Entity'",
+    "test_g": "NODE_ENV=test NODE_DATA=generated jest --detectOpenHandles -t 'Game Entity'",
+    "set-env": "run-s env-user env-tournament",
+    "env-tournament": "REST_API_TOURNAMENT_ID=Zvei69rE0",
+    "env-user": "REST_API_USER_ID=xuBs3_tvU"
   },
   "dependencies": {
     "argon2": "^0.27.1",

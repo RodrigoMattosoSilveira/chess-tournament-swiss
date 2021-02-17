@@ -51,15 +51,11 @@ export const PLAYER_VALID_ATTRIBUTES = ["user", "tournament", "hadByeOrForfeit",
 export const PLAYER_PATCHABLE_ATTRIBUTES = ["hadByeOrForfeit", "byeNextRound", "playedAgainst", "playedColor", "results", "state"];
 export const PLAYER_REQUIRED_ATTRIBUTES = ["user", "tournament"];
 
-
 const PLAYER_STATE = {
-	SCHEDULED: "scheduled",
-	WITHDREW: "withdrew",
-	PLAYING: "playing",
-	FORFEITED: "forfeited",
-	COMPLETE: "completed"
+	ACTIVE: "active",
+	INACTIVE: "inactive"
 }
 export { PLAYER_STATE }
 export const player_states = []
-Object.keys(TOURNAMENT_STATE).forEach(key => {// @ts-ignore
+Object.keys(PLAYER_STATE).forEach(key => {// @ts-ignore
 	player_states.push(PLAYER_STATE[key])})

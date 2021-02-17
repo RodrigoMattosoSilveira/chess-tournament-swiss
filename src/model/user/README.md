@@ -33,20 +33,20 @@ Once executed, the service returns a user id
 Use the terminal to create an environment variable to help us with the remaining curl examples
 
 ````bash
-$ REST_API_EXAMPLE_ID="put_your_id_here"
+$ REST_API_USER_ID="put_your_id_here"
 ````
 
 ## GET A USER
 Use the following `curl` command to retrieve a user:
 ````bash
-$ curl --location --request GET "localhost:3000/user/$REST_API_EXAMPLE_ID" --header 'Content-Type: application/json'
+$ curl --location --request GET "localhost:3000/user/$REST_API_USER_ID" --header 'Content-Type: application/json'
 ````
 
 ## PUT
 `This service does not support PUT`
 Use the following `curl` command to update the whole record:
 ````bash
-$ curl --location --request PUT "localhost:3000/user/$REST_API_EXAMPLE_ID" \
+$ curl --location --request PUT "localhost:3000/user/$REST_API_USER_ID" \
 --header 'Content-Type: application/json' \
 --data-raw '{
 "email": "marcos.henrique@toptal.com",
@@ -60,7 +60,7 @@ $ curl --location --request PUT "localhost:3000/user/$REST_API_EXAMPLE_ID" \
 ## PATCH
 Use the following `curl` command to update the email address:
 ````bash
-curl --location --request PATCH "localhost:3000/user/$REST_API_EXAMPLE_ID" \
+curl --location --request PATCH "localhost:3000/user/$REST_API_USER_ID" \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "lastName": "Mattoso"
@@ -71,6 +71,6 @@ curl --location --request PATCH "localhost:3000/user/$REST_API_EXAMPLE_ID" \
 `This service does not support DELETE`
 Use the following `curl` delete a user:
 ````bash
-curl --location --request DELETE "localhost:3000/user/$REST_API_EXAMPLE_ID" \
+curl --location --request DELETE "localhost:3000/user/$REST_API_USER_ID" \
 --header 'Content-Type: application/json'
 ````

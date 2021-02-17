@@ -1,9 +1,9 @@
 /**
- * Define the Tournament requests API
+ * Define the Player requests API
  *
- * Here, we are importing the CommonRoutesConfig class and extending it to our new class, called TournamentRoutes. With
- * the constructor, we send the app (the main express.Application object) and the name UserRoutes to
- * CommonRoutesConfig’s constructor.
+ * Here, we are importing the CommonRoutesConfig class and extending it to our new class, PlayerRoutes. With the
+ * constructor, we send the app (the main express.Application object) and the name PlayerRoutes to CommonRoutesConfig’s
+ * constructor.
  *
  * This example is quite simple, but when scaling to create several route files, this will help us avoid duplicate code.
  *
@@ -18,12 +18,12 @@ import express from 'express';
 
 export class PlayerRoutes extends CommonRoutesConfig {
 	constructor(app: express.Application) {
-		super(app, 'TournamentRoutes');
+		super(app, 'PlayerRoutes');
 	}
 	
 	/**
-	 * This logic lets any REST API client call our user endpoint with a POST or a GET request. Similarly, it lets a
-	 * client call our /user/:userId endpoint with a GET, PUT, PATCH, or DELETE request.
+	 * This logic lets any REST API client call our player endpoint with a POST or a GET request. Similarly, it lets a
+	 * client call our /player/:id endpoint with a GET, PUT, PATCH, or DELETE request.
 	 */
 	configureRoutes() {
 		this.app.route(`/player`) //this.app.route(`/player`)

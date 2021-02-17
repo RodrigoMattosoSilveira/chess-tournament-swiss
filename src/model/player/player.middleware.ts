@@ -53,7 +53,7 @@ class PlayerMiddleware {
 	}
 	
 	async validateUser(req: express.Request, res: express.Response, next: express.NextFunction) {
-		console.log('\n' + 'PlayerMiddleware/validateUser : Name is unique' + '\n');
+		// console.log('\n' + 'PlayerMiddleware/validateUser : Name is unique' + '\n');
 		const entity = await userService.readById(req.params.user);
 		if (entity) {
 			res.status(404).send({error: `Player user: ` + req.params.user + ` already exists`});
@@ -81,9 +81,9 @@ class PlayerMiddleware {
 		} else {
 			// it is present, hence must be valid
 			// console.log('\n' + 'PlayerMiddleware/validateState:  ' + req.body.state + '\n');
-			if (!isStateSupported(req.body.type)) {
+			if (!isStateSupported(req.body.state)) {
 				// console.log('\n' + 'PlayerMiddleware/validateState:  Invalid' + req.body.state + '\n');
-				res.status(404).send({error: `Player state: ` + req.params.state + `is invalid`});
+				res.status(404).send({error: `Player state is invalid: ` + req.params.state});
 			} else {
 				// console.log('\n' + 'PlayerMiddleware/validateState:  Valid' + req.body.state + '\n');
 				next();
@@ -102,7 +102,10 @@ export default PlayerMiddleware.getInstance();
 
 const isStateSupported = (state: string): boolean => {
 	let requestState  = state.toLowerCase();
-	// console.log('\n' + 'PlayerMiddleware/isStateSupported/type: ' + requestType + '\n');
+	// console.log('\n' + 'PlayerMiddleware/isStateSupported/states: ' + JSON.stringify(player_states) + '\n');
+	// console.log('\n' + 'PlayerMiddleware/isStateSupported/state: ' + requestState + '\n');
+	let supported: boolean = player_states.findIndex((aValidState: string) => aValidState === requestState) !== -1
+	// console.log('\n' + 'PlayerMiddleware/isStateSupported/supported: ' + supported + '\n');
 	return player_states.findIndex((aValidState: string) => aValidState === requestState) !== -1;
 }
 

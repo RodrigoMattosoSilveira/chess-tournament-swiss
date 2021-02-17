@@ -1,9 +1,11 @@
-import {PlayerDto} from "./player.model";
+const fs = require('fs');
 import shortid from 'shortid';
 import debug from 'debug';
-import {PLAYER_STATE, PLAYER_PATCHABLE_ATTRIBUTES} from "../../contants/contants";
-
 const log: debug.IDebugger = debug('app:in-memory-dao');
+
+
+import {PlayerDto} from "./player.model";
+import {PLAYER_STATE, PLAYER_PATCHABLE_ATTRIBUTES} from "../../contants/contants";
 
 /**
  * Using the singleton pattern, this class will always provide the same instance—and, critically, the same user
@@ -14,7 +16,7 @@ const log: debug.IDebugger = debug('app:in-memory-dao');
  */
 class PlayerDao {
 	private static instance: PlayerDao;
-	collection: Array<PlayerDto> = [];
+	private static collection: Array<PlayerDto> = [];
 	
 	constructor() {
 		log('Created new instance of PlayerDao');
@@ -23,6 +25,14 @@ class PlayerDao {
 	static getInstance(): PlayerDao {
 		if (!PlayerDao.instance) {
 			PlayerDao.instance = new PlayerDao();
+			if (process.env.NODE_DATA === 'generated') {
+				try {
+					const data = fs.readFileSync('./generated-data/player.generated.json', 'utf8')
+					PlayerDao.collection = JSON.parse(data)
+				} catch (err) {
+					console.error(err)
+				}
+			}
 		}
 		return PlayerDao.instance;
 	}
@@ -35,50 +45,50 @@ class PlayerDao {
 		entity.playedAgainst = [];
 		entity.playedColor = [];
 		entity.results = [];
-		entity.state = PLAYER_STATE.SCHEDULED;
-		this.collection.push(entity);
+		entity.state = PLAYER_STATE.ACTIVE;
+		PlayerDao.collection.push(entity);
 		// console.log("PlayerDao/add id: " +entity.id +"\n");
 		return entity.id;
 	}
 	
 	async getAll() {
-		return this.collection;
+		return PlayerDao.collection;
 	}
 	
 	async getById(id: string) {
-		return this.collection.find((user: { id: string; }) => user.id === id);
+		return PlayerDao.collection.find((player: { id: string; }) => player.id === id);
 	}
 	
 	async putById(entity: PlayerDto) {
-		const objIndex = this.collection.findIndex((obj: { id: string; }) => obj.id === entity.id);
-		this.collection.splice(objIndex, 1, entity);
+		const objIndex = PlayerDao.collection.findIndex((obj: { id: string; }) => obj.id === entity.id);
+		PlayerDao.collection.splice(objIndex, 1, entity);
 		return `${entity.id} updated via put`;
 	}
 	
 	async patchById(entity: PlayerDto) {
-		const objIndex = this.collection.findIndex((obj: { id: string; }) => obj.id === entity.id);
-		let currentEntity = this.collection[objIndex];
+		const objIndex = PlayerDao.collection.findIndex((obj: { id: string; }) => obj.id === entity.id);
+		let currentEntity = PlayerDao.collection[objIndex];
 		for (let field of PLAYER_PATCHABLE_ATTRIBUTES) {
 			if (field in entity) {
 				// @ts-ignore
 				currentEntity[field] = entity[field];
 			}
 		}
-		this.collection.splice(objIndex, 1, currentEntity);
+		PlayerDao.collection.splice(objIndex, 1, currentEntity);
 		return `${entity.id} patched`;
 	}
 	
 	async removeById(id: string) {
 		// Note that we do not remove players; we set set them to "withdrew" or "forfeited"
-		const objIndex = this.collection.findIndex((obj: { id: string; }) => obj.id === id);
-		this.collection.splice(objIndex, 1);
+		const objIndex = PlayerDao.collection.findIndex((obj: { id: string; }) => obj.id === id);
+		PlayerDao.collection.splice(objIndex, 1);
 		return `${id} removed`;
 	}
 	
 	async getPlayersByTournament(tournament: string) {
 		// console.log('PlayerDao/getByTournament: ' + tournament)
-		// console.log('PlayerDao/getByTournament: ' + JSON.stringify(this.collection))
-		return this.collection.filter((player:PlayerDto ) => player.tournament === tournament);
+		// console.log('PlayerDao/getByTournament: ' + JSON.stringify(PlayerDao.collection))
+		return PlayerDao.collection.filter((player:PlayerDto ) => player.tournament === tournament);
 	}
 	
 }

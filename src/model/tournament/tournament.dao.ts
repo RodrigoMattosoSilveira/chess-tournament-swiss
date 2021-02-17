@@ -1,7 +1,9 @@
-import {TournamentDto} from "./tournament.model";
+const fs = require('fs');
 import shortid from 'shortid';
 import debug from 'debug';
 const log: debug.IDebugger = debug('app:in-memory-dao');
+
+import {TournamentDto} from "./tournament.model";
 import {TOURNAMENT_PATCHABLE_ATTRIBUTES, TOURNAMENT_STATE} from "../../contants/contants";
 
 /**
@@ -13,7 +15,7 @@ import {TOURNAMENT_PATCHABLE_ATTRIBUTES, TOURNAMENT_STATE} from "../../contants/
  */
 class TournamentDao {
 	private static instance: TournamentDao;
-	collection: Array<TournamentDto> = [];
+	private static collection: Array<TournamentDto> = [];
 	
 	constructor() {
 		log('Created new instance of TournamentDao');
@@ -22,6 +24,14 @@ class TournamentDao {
 	static getInstance(): TournamentDao {
 		if (!TournamentDao.instance) {
 			TournamentDao.instance = new TournamentDao();
+			if (process.env.NODE_DATA === 'generated') {
+				try {
+					const data = fs.readFileSync('./generated-data/tournament.generated.json', 'utf8')
+					TournamentDao.collection = JSON.parse(data)
+				} catch (err) {
+					console.error(err)
+				}
+			}
 		}
 		return TournamentDao.instance;
 	}
@@ -38,50 +48,50 @@ class TournamentDao {
 		if (!entity.tiePoints) {
 			entity.tiePoints = 0.5;
 		}
-		this.collection.push(entity);
+		TournamentDao.collection.push(entity);
 		// console.log("TournamentDao/add id: " +entity.id +"\n");
 		return entity.id;
 	}
 	
 	async getAll() {
-		return this.collection;
+		return TournamentDao.collection;
 	}
 	
 	async getById(id: string) {
-		return this.collection.find((user: { id: string; }) => user.id === id);
+		return TournamentDao.collection.find((user: { id: string; }) => user.id === id);
 	}
 	
 	async putById(entity: TournamentDto) {
-		const objIndex = this.collection.findIndex((obj: { id: string; }) => obj.id === entity.id);
-		this.collection.splice(objIndex, 1, entity);
+		const objIndex = TournamentDao.collection.findIndex((obj: { id: string; }) => obj.id === entity.id);
+		TournamentDao.collection.splice(objIndex, 1, entity);
 		return `${entity.id} updated via put`;
 	}
 	
 	async patchById(entity: TournamentDto) {
-		const objIndex = this.collection.findIndex((obj: { id: string; }) => obj.id === entity.id);
-		let currentEntity = this.collection[objIndex];
+		const objIndex = TournamentDao.collection.findIndex((obj: { id: string; }) => obj.id === entity.id);
+		let currentEntity = TournamentDao.collection[objIndex];
 		for (let field of TOURNAMENT_PATCHABLE_ATTRIBUTES) {
 			if (field in entity) {
 				// @ts-ignore
 				currentEntity[field] = entity[field];
 			}
 		}
-		this.collection.splice(objIndex, 1, currentEntity);
+		TournamentDao.collection.splice(objIndex, 1, currentEntity);
 		return `${entity.id} patched`;
 	}
 	
 	async removeById(id: string) {
 		// Note that we do not remove tournaments; we
-		const objIndex = this.collection.findIndex((obj: { id: string; }) => obj.id === id);
-		this.collection.splice(objIndex, 1);
+		const objIndex = TournamentDao.collection.findIndex((obj: { id: string; }) => obj.id === id);
+		TournamentDao.collection.splice(objIndex, 1);
 		return `${id} removed`;
 	}
 	
 	async getByName(name: string) {
 		// console.log('TournamentDao/getByName: ' + name)
-		// console.log('TournamentDao/getByName: ' + JSON.stringify(this.collection))
-		const objIndex = this.collection.findIndex((obj: { name: string; }) => obj.name === name);
-		let currentEntity = this.collection[objIndex];
+		// console.log('TournamentDao/getByName: ' + JSON.stringify(TournamentDao.collection))
+		const objIndex = TournamentDao.collection.findIndex((obj: { name: string; }) => obj.name === name);
+		let currentEntity = TournamentDao.collection[objIndex];
 		if (currentEntity) {
 			return currentEntity;
 		} else {
