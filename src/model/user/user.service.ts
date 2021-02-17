@@ -20,7 +20,7 @@ class UserService implements CRUD {
 		return await userDao.removeUserById(resourceId);
 	};
 	
-	async list(limit: number, page: number) { // limit and page are ignored until we upgrade our DAO
+	async list(/*limit: number, page: number*/) { // limit and page are ignored until we upgrade our DAO
 		return await userDao.getUsers();
 	};
 	

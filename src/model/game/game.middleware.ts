@@ -75,6 +75,7 @@ class GameMiddleware {
 		if (entity) {
 			next();
 		} else {
+			// console.log('\n' + 'Game white pieces player not found: ' + req.body.whitePiecesPlayer +'\n');
 			res.status(404).send({error: `Game white pieces player not found: ` + req.body.whitePiecesPlayer});
 		}
 	}

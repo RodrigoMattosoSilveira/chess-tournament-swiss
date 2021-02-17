@@ -24,7 +24,7 @@ class UserController {
 	}
 	
 	async listUsers(req: express.Request, res: express.Response) {
-		const users = await userService.list(100, 0);
+		const users = await userService.list(/* 100, 0 */);
 		res.status(200).send(users);
 	}
 	

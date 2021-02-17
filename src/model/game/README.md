@@ -92,10 +92,27 @@ Use the following `curl` command to update all the patchable attributes:
 curl --location --request PATCH "localhost:3000/game/$REST_API_GAME_ID" \
 --header 'Content-Type: application/json' \
 --data-raw '{
-  "state": "complete",
-  "result": "w-resigned"
+  "date": "03/02/2021",
+  "result": "0-1"
 }'
 ````
+
+The service returns the updated player's entity:
+````json
+{
+  "tournament":"Zvei69rE0",
+  "whitePiecesPlayer":"L32ss05q2n",
+  "blackPiecesPlayer":"bMNZi9Dvwd",
+  "id":"ibho4QFrV",
+  "date":"03/02/2021",
+  "result": "0-1",
+  "state": "completed"
+}
+````
+Note that the service updated the `state` to `completed`, without you have to do it. In fact, you cannot update the service via a curl call:
+* CREATED   - Assigned automatically when the game is created;
+* UNDERWAY  - Assigned automatically when a round is started;
+* COMPLETED - Assigned automatically when a game result is recorded;
 
 ## PUT
 Not supported
