@@ -34,11 +34,28 @@ Note that the only attribute required to create a `round` is the `tournament`. A
 * state - default is `NAN`; ; it is created when `round` transitions to `complete`
 
 ## Workflow**
-### Adding a game to a round
-- Create a tournament's round (tournament is part of the round's POST)
-#### Option 1
-- PATCH a `game` with a round; seems logical 
-- finding a tournament's round's games would be tough;
+* The focus must be on a tournament;
+* We re-factor the `tournnament` entity to have a `rounds: {round<number>: Array<string>}` attribute;
+* We re-factor the `game` entity to have a `round` attribute;
+* When we create a `round` entity, we add it to `tournnament.rounds[round number] = []`;
+* When we assign a game to a tournament round we:
+  * add the `round` to the `game.round` attribute;
+  * push the `game` into `tournnament.rounds[round number]`;
+* When we record a game's result:
+  * if the game has a round object
+    * if all other games in the round object are completed
+      * then we complete the round
+        * if all tournament rounds are complete
+          * we complete the tournament
+    
+curl --location --request PATCH "localhost:3000/game/$REST_API_GAME_ID" \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "round": "roundId"
+}'
+````
+* finding a tournament's round's games would be tough:
+  * 
 #### Option 2
 - Patch a round with a game (might be tricky): PATCH /round/id?add_game:id
 # Removing a game
