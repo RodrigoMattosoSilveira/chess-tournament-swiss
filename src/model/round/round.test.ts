@@ -49,7 +49,11 @@ describe('Round Entity', () => {
 			expect(roundEntity).toBeTruthy();
 			expect(roundEntity.id).toBe(entityDtoId);
 			expect(roundEntity.tournament).toBe(tournamentId);
+			expect(roundEntity.number).toBe(1);
 			expect(roundEntity.state).toBe(ROUND_STATE.SCHEDULED);
+			expect(roundEntity.games).toEqual([]);
+			expect(roundEntity.start).toBeFalsy();
+			expect(roundEntity.end).toBeFalsy();
 			done();
 		});
 		it('getAll', async done => {

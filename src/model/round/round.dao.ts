@@ -41,6 +41,7 @@ class RoundDao {
 		// console.log("RoundDao/add: " + JSON.stringify(entity) +"\n");
 		entity.id = shortid.generate();
 		entity.state = ROUND_STATE.SCHEDULED;
+		entity.games = [];
 		RoundDao.collection.push(entity);
 		// console.log("RoundDao/add id: " +entity.id +"\n");
 		return entity.id;
