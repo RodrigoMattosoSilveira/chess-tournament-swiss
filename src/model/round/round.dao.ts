@@ -3,7 +3,7 @@ import shortid from 'shortid';
 import debug from 'debug';
 const log: debug.IDebugger = debug('app:in-memory-dao');
 
-import {ROUND_STATE, ROUND_PATCHABLE_ATTRIBUTES} from "./round.constants";
+import {ROUND_STATE, ROUND_PATCHABLE_ATTRIBUTES, ROUND_DOUBLE_PATCHABLE_ATTRIBUTES} from "./round.constants";
 
 import { RoundDto} from "./round.model";
 
@@ -60,17 +60,26 @@ class RoundDao {
 		return `${entity.id} updated via put`;
 	}
 	
-	async patchById(entity: RoundDto) {
-		const objIndex = RoundDao.collection.findIndex((obj: { id: string; }) => obj.id === entity.id);
-		let currentEntity = RoundDao.collection[objIndex];
+	async patchById(entityPatch: any) {
+		console.log(`RoundDao.patchById.collection: ` + JSON.stringify(RoundDao.collection))
+		console.log(`RoundDao.patchById.entityPatch: ` + JSON.stringify(entityPatch))
+		const objIndex = RoundDao.collection.findIndex((obj: { id: string; }) => obj.id === entityPatch.id);
+		let currentEntity: any = RoundDao.collection[objIndex];
 		for (let field of ROUND_PATCHABLE_ATTRIBUTES) {
-			if (field in entity) {
-				// @ts-ignore
-				currentEntity[field] = entity[field];
+			if (field in entityPatch) {
+				if (!(field in currentEntity)) {
+					// @ts-ignore
+					currentEntity[field] = entityPatch[field];
+				} else {
+					if (ROUND_DOUBLE_PATCHABLE_ATTRIBUTES.findIndex((attribute: string) => attribute === field) !== -1) {
+						// @ts-ignore
+						currentEntity[field] = entityPatch[field];
+					}
+				}
 			}
 		}
 		RoundDao.collection.splice(objIndex, 1, currentEntity);
-		return `${entity.id} patched`;
+		return `${entityPatch.id} patched`;
 	}
 	
 	async removeById(id: string) {

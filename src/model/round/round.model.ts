@@ -4,6 +4,6 @@ export interface RoundDto {
 	number: number;                 // round's order in time
 	games?: Array<string>           // Ids of the round's games, []*
 	state?:string; 		            // scheduled*, underway, complete
-	started?: number                 // milliseconds since epoch to date (date when transioned to underway)
-	ended?: number                   // milliseconds since epoch to date (date when transioned to complete)
+	started?: number                 // milliseconds since epoch to date (date when transitioned to underway)
+	ended?: number                   // milliseconds since epoch to date (date when transitioned to complete)
 }
