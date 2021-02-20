@@ -45,6 +45,89 @@ describe('Round Entity', () => {
 			expect(roundEntity.ended).toBeFalsy();
 			done();
 		})
+		it('list', async done => {
+			entityDto.number = 2;
+			await roundService.create(entityDto);
+			entityDto.number = 3;
+			await roundService.create(entityDto);
+			entityCollection = await roundService.list();
+			expect(entityCollection.length).toBeGreaterThan(2);
+			done();
+		});
+		describe('patchById', () => {
+			// Epoch dates for testing
+			// https://www.unixtimestamp.com/
+			// 1609552800 2021 01 01 18:00:00
+			// 1609564889 2021 01 01 21:21:29
+			let patchEntityId: string
+			let roundStartEpoch = 1609552800;
+			let roundEndEpoch = 1609564889;
+			beforeAll(async done => {
+				entityDto = {
+					id: "ignore",
+					tournament: tournamentId,
+					number: 11
+				}
+				patchEntityId = await roundService.create(entityDto)
+				expect(patchEntityId).toBeTruthy();
+				done();
+			});
+			it('state', async done => {
+				let entityPatch: any = {
+					id: patchEntityId,
+					state: ROUND_STATE.UNDERWAY
+				}
+				await roundService.patchById(entityPatch);
+				patchedEntityDto = await roundService.readById(patchEntityId)
+				expect(patchedEntityDto.id).toBe(patchEntityId);
+				expect(patchedEntityDto.state).toBe(ROUND_STATE.UNDERWAY);
+				done();
+			});
+			it('started', async done => {
+				let entityPatch: any = {
+					id: patchEntityId,
+					started: roundStartEpoch
+				}
+				await roundService.patchById(entityPatch);
+				patchedEntityDto = await roundService.readById(patchEntityId)
+				expect(patchedEntityDto.id).toBe(patchEntityId);
+				expect(patchedEntityDto.started).toBe(roundStartEpoch);
+				done();
+			});
+			it('started cannot be patched', async done => {
+				let entityPatch: any = {
+					id: patchEntityId,
+					started: roundStartEpoch + 10
+				}
+				await roundService.patchById(entityPatch);
+				patchedEntityDto = await roundService.readById(patchEntityId)
+				expect(patchedEntityDto.id).toBe(patchEntityId);
+				expect(patchedEntityDto.started).toBe(roundStartEpoch);
+				done();
+			});
+			it('ended', async done => {
+				let entityPatch: any = {
+					id: patchEntityId,
+					ended: roundEndEpoch
+				}
+				await roundService.patchById(entityPatch);
+				patchedEntityDto = await roundService.readById(patchEntityId)
+				expect(patchedEntityDto.id).toBe(patchEntityId);
+				expect(patchedEntityDto.ended).toBe(roundEndEpoch);
+				done();
+			});
+			it('end cannot be patched', async done => {
+				let entityPatch: any = {
+					id: patchEntityId,
+					ended: roundEndEpoch + 10
+				}
+				await roundService.patchById(entityPatch);
+				patchedEntityDto = await roundService.readById(patchEntityId)
+				expect(patchedEntityDto.id).toBe(patchEntityId);
+				expect(patchedEntityDto.ended).toBe(roundEndEpoch);
+				done();
+			});
+		})
 	})
 	describe('DAO Operations', () => {
 		it('add', async done => {
