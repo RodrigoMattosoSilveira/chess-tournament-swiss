@@ -16,6 +16,8 @@ describe('Round Entity', () => {
 		let tournamentId = "123456";
 		let roundId: string;
 		let roundEntity: any;
+		let roundEntityPatched: any;
+		let roundEntities: any;
 		it('add', async done => {
 			let entity: RoundDto = {
 				id: "ignore",
@@ -34,5 +36,27 @@ describe('Round Entity', () => {
 			expect(roundEntity.state).toBe(ROUND_STATE.SCHEDULED);
 			done();
 		});
+		it('getAll', async done => {
+			roundEntities = await roundDao.getAll()
+			expect(roundEntities.length).toBe(1);
+			roundEntity = roundEntities[0];
+			expect(roundEntity.id).toBe(roundId);
+			expect(roundEntity.tournament).toBe(tournamentId);
+			expect(roundEntity.state).toBe(ROUND_STATE.SCHEDULED);
+			done();
+		});
+		describe('patchById', () => {
+			it('number', async done => {
+				let entityPatch: any = {
+					state: ROUND_STATE.UNDERWAY
+				}
+				await roundDao.patchById(entityPatch);
+				roundEntityPatched = await roundDao.getById(roundId)
+				expect(roundEntityPatched.id).toBe(roundId);
+				expect(roundEntity.state).toBe(ROUND_STATE.UNDERWAY);
+				done();
+			});
+		})
+
 	});
 });
