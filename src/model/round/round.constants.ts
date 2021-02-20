@@ -6,8 +6,8 @@ export const ROUND_ATTRIBUTES = {
 	"number":     { "required": true,  "patchable": false, "doublePatchable": false },
 	"games":      { "required": false, "patchable": true, "doublePatchable": false },
 	"state":      { "required": false, "patchable": true, "doublePatchable": true },	// scheduled* (when round starts, and when result is recorded)
-	"start":      { "required": false, "patchable": true, "doublePatchable": false },		// NAN
-	"end":        { "required": false, "patchable": true, "doublePatchable": false },		// today's date*
+	"started":    { "required": false, "patchable": true, "doublePatchable": false },		// NAN
+	"ended":      { "required": false, "patchable": true, "doublePatchable": false },		// today's date*
 };
 export const ROUND_ATTRIBUTES_KEYS: Array<string> = Object.keys(ROUND_ATTRIBUTES);
 // console.log("\Round Attribute ROUND_ATTRIBUTES_KEYS: " + JSON.stringify(ROUND_ATTRIBUTES_KEYS));

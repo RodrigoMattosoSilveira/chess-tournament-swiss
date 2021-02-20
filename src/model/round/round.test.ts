@@ -32,6 +32,19 @@ describe('Round Entity', () => {
 			expect(entityDtoId).toBeTruthy();
 			done();
 		});
+		it('readById', async done => {
+			// @ts-ignore
+			let roundEntity: RoundDto = await roundService.readById(entityDtoId);
+			expect(roundEntity).toBeTruthy();
+			expect(roundEntity.id).toBe(entityDtoId);
+			expect(roundEntity.tournament).toBe(tournamentId);
+			expect(roundEntity.number).toBe(1);
+			expect(roundEntity.state).toBe(ROUND_STATE.SCHEDULED);
+			expect(roundEntity.games).toEqual([]);
+			expect(roundEntity.started).toBeFalsy();
+			expect(roundEntity.ended).toBeFalsy();
+			done();
+		})
 	})
 	describe('DAO Operations', () => {
 		it('add', async done => {
@@ -52,8 +65,8 @@ describe('Round Entity', () => {
 			expect(roundEntity.number).toBe(1);
 			expect(roundEntity.state).toBe(ROUND_STATE.SCHEDULED);
 			expect(roundEntity.games).toEqual([]);
-			expect(roundEntity.start).toBeFalsy();
-			expect(roundEntity.end).toBeFalsy();
+			expect(roundEntity.started).toBeFalsy();
+			expect(roundEntity.ended).toBeFalsy();
 			done();
 		});
 		it('getAll', async done => {
@@ -94,48 +107,48 @@ describe('Round Entity', () => {
 				expect(patchedEntityDto.state).toBe(ROUND_STATE.UNDERWAY);
 				done();
 			});
-			it('start', async done => {
+			it('started', async done => {
 				let entityPatch: any = {
 					id: patchEntityId,
-					start: roundStartEpoch
+					started: roundStartEpoch
 				}
 				await roundDao.patchById(entityPatch);
 				patchedEntityDto = await roundDao.getById(patchEntityId)
 				expect(patchedEntityDto.id).toBe(patchEntityId);
-				expect(patchedEntityDto.start).toBe(roundStartEpoch);
+				expect(patchedEntityDto.started).toBe(roundStartEpoch);
 				done();
 			});
-			it('start cannot be patched', async done => {
+			it('started cannot be patched', async done => {
 				let entityPatch: any = {
 					id: patchEntityId,
-					start: roundStartEpoch + 10
+					started: roundStartEpoch + 10
 				}
 				await roundDao.patchById(entityPatch);
 				patchedEntityDto = await roundDao.getById(patchEntityId)
 				expect(patchedEntityDto.id).toBe(patchEntityId);
-				expect(patchedEntityDto.start).toBe(roundStartEpoch);
+				expect(patchedEntityDto.started).toBe(roundStartEpoch);
 				done();
 			});
-			it('end', async done => {
+			it('ended', async done => {
 				let entityPatch: any = {
 					id: patchEntityId,
-					end: roundEndEpoch
+					ended: roundEndEpoch
 				}
 				await roundDao.patchById(entityPatch);
 				patchedEntityDto = await roundDao.getById(patchEntityId)
 				expect(patchedEntityDto.id).toBe(patchEntityId);
-				expect(patchedEntityDto.end).toBe(roundEndEpoch);
+				expect(patchedEntityDto.ended).toBe(roundEndEpoch);
 				done();
 			});
 			it('end cannot be patched', async done => {
 				let entityPatch: any = {
 					id: patchEntityId,
-					end: roundEndEpoch + 10
+					ended: roundEndEpoch + 10
 				}
 				await roundDao.patchById(entityPatch);
 				patchedEntityDto = await roundDao.getById(patchEntityId)
 				expect(patchedEntityDto.id).toBe(patchEntityId);
-				expect(patchedEntityDto.end).toBe(roundEndEpoch);
+				expect(patchedEntityDto.ended).toBe(roundEndEpoch);
 				done();
 			});
 		})
