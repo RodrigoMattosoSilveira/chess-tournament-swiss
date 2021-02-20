@@ -14,7 +14,7 @@ describe('Tournament Entity', () => {
 			.set('Accept', 'application/json')
 			.expect('Content-Type', /json/)
 			.expect(200);
-		expect(response.body).toEqual([]);
+		expect(Array.isArray(response.body)).toEqual(true);
 		done();
 	});
 	it('POST /tournament', async done =>  {
@@ -56,7 +56,7 @@ describe('Tournament Entity', () => {
 				expect(response.body.rounds).toEqual(entityDto.rounds);
 				expect(response.body.type).toEqual(entityDto.type);
 				expect(response.body.players).toEqual([]);
-				expect(response.body.state).toEqual(TOURNAMENT_STATE.PLANNED);
+				expect(response.body.state).toEqual(TOURNAMENT_STATE.SCHEDULED);
 				expect(response.body.win).toEqual(1);
 				done();
 			})
@@ -65,7 +65,7 @@ describe('Tournament Entity', () => {
 	describe('PATCH /tournament:id', () => {
 		// Create this entity and validate PATCH against it
 		let entityDto: any = {
-			"name": "DSB Congress - 1910",// Must be unique
+			"name": "DSB Congress - 1710",// Must be unique
 			"city": "Hamburg",
 			"rounds": 12,
 			"maxPlayers": 12,
@@ -84,7 +84,8 @@ describe('Tournament Entity', () => {
 				.then((response: any) => {
 					console.log('\nTournament Entity/PATCH POST /tournament: ' + response.body.id + '\n');
 					entityDto.id = response.body.id;
-					expect(response.body.id).toBeTruthy()
+					expect(response.body.id).toBeTruthy();
+					done();
 				})
 				.catch((err: any) => {
 					console.log('\nTournament Entity/PATCH POST /tournament: ' + err + '\n');
@@ -173,7 +174,7 @@ describe('Tournament Entity', () => {
 		});
 		
 		it('PATCH /tournament:id state', async done => {
-			const patchMe = {"state": TOURNAMENT_STATE.CLOSED};
+			const patchMe = {"state": TOURNAMENT_STATE.COMPLETE};
 			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
 			expect(response.body.state).toEqual(patchMe.state);
 			done();

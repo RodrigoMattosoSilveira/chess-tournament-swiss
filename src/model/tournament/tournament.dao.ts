@@ -40,7 +40,7 @@ class TournamentDao {
 		// console.log("TournamentDao/add: " + JSON.stringify(entity) +"\n");
 		// Set defaults
 		entity.id = shortid.generate();
-		entity.state = TOURNAMENT_STATE.PLANNED;
+		entity.state = TOURNAMENT_STATE.SCHEDULED;
 		entity.players = [];
 		if (!entity.winPoints) {
 			entity.winPoints = 1;
