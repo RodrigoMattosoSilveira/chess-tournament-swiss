@@ -93,37 +93,6 @@ describe('Tournament Entity', () => {
 				});
 			done();
 		});
-		it('patches all patchable attributes', async done => {
-			
-			// Use it to patch all patchable attributes at once
-			let entityPatch: any = {
-				"name": "DSB Congress - 1911",// Must be unique
-				"city": "Sao Paulo",
-				"country": "Brasil",
-				"month": 10,
-				"year": 1911,
-				"rounds": 6,
-				"maxPlayers": 13,
-				"type": TOURNAMENT_TYPE.SWISS,
-				"players": [1234, 2345, 3456, 4567, 5678, 6789],
-				"state": TOURNAMENT_STATE.SCHEDULED,
-				"winPoints": 3,
-				"tiePoints": 1
-			}
-			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, entityPatch);
-			expect(response.body.city).toEqual(entityPatch.city);
-			expect(response.body.month).toEqual(entityPatch.month);
-			expect(response.body.year).toEqual(entityPatch.year);
-			expect(response.body.rounds).toEqual(entityPatch.rounds);
-			expect(response.body.maxPlayers).toEqual(entityPatch.maxPlayers);
-			expect(response.body.type).toEqual(entityPatch.type);
-			expect(response.body.players).toEqual(entityPatch.players);
-			expect(response.body.state).toEqual(entityPatch.state);
-			expect(response.body.winPoints).toEqual(3);
-			expect(response.body.tiePoints).toEqual(1);
-			done();
-		});
-		
 		it('PATCH /tournament:id city', async done => {
 			const patchMe = {"city": "Campinas"};
 			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
