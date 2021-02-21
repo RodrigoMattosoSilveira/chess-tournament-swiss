@@ -7,9 +7,10 @@ import * as expressWinston from 'express-winston';
 import cors from 'cors';
 import {CommonRoutesConfig} from './common/common.routes.config';
 import {UserRoutes} from './model/user/user.routes.config';
-import {TournamentRoutes} from './model/tournament/tournament.route.config';
+import {TournamentRoutes} from './model/tournament/tournament.routes.config';
 import {PlayerRoutes} from './model/player/player.route.config';
 import {GameRoutes} from './model/game/game.routes.config';
+import {RoundRoutes} from './model/round/round.routes.config';
 import debug from 'debug';
 
 const app: express.Application = express();
@@ -60,6 +61,7 @@ routes.push(new UserRoutes(app));
 routes.push(new TournamentRoutes(app));
 routes.push(new PlayerRoutes(app));
 routes.push(new GameRoutes(app));
+routes.push(new RoundRoutes(app));
 
 // here we are configuring the expressWinston error-logging middleware,
 // which doesn't *handle* errors per se, but does *log* them
