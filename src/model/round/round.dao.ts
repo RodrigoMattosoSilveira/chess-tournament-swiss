@@ -43,7 +43,7 @@ class RoundDao {
 		entity.state = ROUND_STATE.SCHEDULED;
 		entity.games = [];
 		RoundDao.collection.push(entity);
-		// console.log("RoundDao/add id: " +entity.id +"\n");
+		// console.log(`RoundDao.add.collection: ` + JSON.stringify(RoundDao.collection))
 		return entity.id;
 	}
 	
@@ -52,6 +52,8 @@ class RoundDao {
 	}
 	
 	async getById(id: string) {
+		// console.log(`RoundDao.getById: ` + id)
+		// console.log(`RoundDao.patchById.collection: ` + JSON.stringify(RoundDao.collection))
 		return RoundDao.collection.find((round: { id: string; }) => round.id === id);
 	}
 	
@@ -62,8 +64,8 @@ class RoundDao {
 	}
 	
 	async patchById(entityPatch: any) {
-		console.log(`RoundDao.patchById.collection: ` + JSON.stringify(RoundDao.collection))
-		console.log(`RoundDao.patchById.entityPatch: ` + JSON.stringify(entityPatch))
+		// console.log(`RoundDao.patchById.collection: ` + JSON.stringify(RoundDao.collection))
+		// console.log(`RoundDao.patchById.entityPatch: ` + JSON.stringify(entityPatch))
 		const objIndex = RoundDao.collection.findIndex((obj: { id: string; }) => obj.id === entityPatch.id);
 		let currentEntity: any = RoundDao.collection[objIndex];
 		for (let field of ROUND_PATCHABLE_ATTRIBUTES) {

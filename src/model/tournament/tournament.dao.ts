@@ -28,6 +28,7 @@ class TournamentDao {
 				try {
 					const data = fs.readFileSync('./generated-data/tournament.generated.json', 'utf8')
 					TournamentDao.collection = JSON.parse(data)
+					// console.log(`TournamentDao.getInstance - Read generated tournaments: ` + JSON.stringify(TournamentDao.collection));
 				} catch (err) {
 					console.error(err)
 				}
