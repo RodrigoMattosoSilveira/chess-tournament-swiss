@@ -20,14 +20,12 @@ export const user_states = []
 Object.keys(USER_STATE).forEach(key => {// @ts-ignore
 	user_states.push(USER_STATE[key])})
 
-export const TOURNAMENT_VALID_ATTRIBUTES     = ["name", "rounds", "maxPlayers", "type", "city", "country", "month", "year", "players", "state", "winPoints", "tiePoints"];
+export const TOURNAMENT_VALID_ATTRIBUTES     = ["name", "rounds", "maxPlayers", "type", "city", "country", "month", "year", "players", "state", "winPoints", "tiePoints", "stated", "ended"];
 export const TOURNAMENT_REQUIRED_ATTRIBUTES  = ["name", "rounds", "maxPlayers", "type"];
-export const TOURNAMENT_PATCHABLE_ATTRIBUTES = ["name", "city", "country", "month", "year", "rounds", "maxPlayers", "type", "players", "state", "winPoints", "tiePoints"];
+export const TOURNAMENT_PATCHABLE_ATTRIBUTES = ["name", "city", "country", "month", "year", "rounds", "maxPlayers", "type", "players", "state", "winPoints", "tiePoints", "stated", "ended"];
 
 const TOURNAMENT_STATE = {
-	PLANNED: "planned",
 	SCHEDULED: "scheduled",
-	CLOSED: "closed",
 	UNDERWAY: "underway",
 	COMPLETE: "complete"
 }

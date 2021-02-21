@@ -18,6 +18,7 @@
     "test_t": "NODE_ENV=test NODE_DATA=generated jest --detectOpenHandles -t 'Tournament Entity'",
     "test_p": "NODE_ENV=test NODE_DATA=generated jest --detectOpenHandles -t 'Player Entity'",
     "test_g": "NODE_ENV=test NODE_DATA=generated jest --detectOpenHandles -t 'Game Entity'",
+    "test_r": "NODE_ENV=test NODE_DATA=generated jest --detectOpenHandles -t 'Round Entity'",
     "set-env": "run-s env-user env-tournament",
     "env-tournament": "REST_API_TOURNAMENT_ID=Zvei69rE0",
     "env-user": "REST_API_USER_ID=xuBs3_tvU"

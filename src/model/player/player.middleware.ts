@@ -5,6 +5,7 @@ import service from './player.service';
 import userService from './../user/user.service';
 import tournamentService from './../tournament/tournament.service';
 import {PLAYER_REQUIRED_ATTRIBUTES, player_states} from "../../contants/contants";
+import {RoundDto} from "../round/round.model";
 
 class PlayerMiddleware {
 	private static instance: PlayerMiddleware;
