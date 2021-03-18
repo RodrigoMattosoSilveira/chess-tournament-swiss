@@ -1,4 +1,9 @@
 {
   "ignore": ["test/*", "docs/*"],
-  "delay": 1000
+  "delay": 1000,
+  "env": {
+    "MONGO_USER": "systemAdmin",
+    "MONGO_PASSWORD": "hUr9bvrr4AQiDJf",
+    "MONGO_DB": "mychess"
+  }
 }

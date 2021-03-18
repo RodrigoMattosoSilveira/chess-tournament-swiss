@@ -5,6 +5,7 @@ const log: debug.IDebugger = debug('app:in-memory-dao');
 
 import {UserDto} from "./user.model";
 import {USER_STATE} from "../../contants/contants";
+import { UserMongo } from "./user-mongo";
 
 
 /**
@@ -40,7 +41,9 @@ class UserDao {
 	async addUser(user: UserDto) {
 		user.id = shortid.generate();
 		user.state = USER_STATE.ACTIVE;
-		UserDao.user.push(user);
+		// UserDao.user.push(user);
+		const userMongo = UserMongo.build({...user})
+		await userMongo.save();
 		return user.id;
 	}
 	
