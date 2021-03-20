@@ -48,11 +48,13 @@ class UserDao {
 	}
 	
 	async getUsers() {
-		return UserDao.user;
+		// return UserDao.user;
+		return UserMongo.find({})
 	}
 	
 	async getUserById(userId: string) {
-		return UserDao.user.find((user: { id: string; }) => user.id === userId);
+		// return UserDao.user.find((user: { id: string; }) => user.id === userId);
+		return UserMongo.findOne({id: "Dhi2G9yWE"});
 	}
 	
 	async putUserById(user: UserDto) {
