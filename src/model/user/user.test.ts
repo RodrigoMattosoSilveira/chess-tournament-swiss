@@ -19,7 +19,7 @@ describe('User Entity', () => {
 		expect(response.body).toEqual([]);
 		done();
 	});
-	test('POST /user', async done =>  {
+	it('POST /user', async done =>  {
 		let entityDto: UserDto = {
 			id: "somecrazynumber",
 			email: "Paul.Roberts@yahoo.com",
