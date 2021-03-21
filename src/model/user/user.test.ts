@@ -10,7 +10,7 @@ describe('User Entity', () => {
 	const utils = new Utils();
 	let resource = '/user';
 	let response: any;
-	it('GET /tournament', async done => {
+	it('GET /user', async done => {
 		response = await request(app)
 			.get(resource)
 			.set('Accept', 'application/json')
@@ -38,7 +38,7 @@ describe('User Entity', () => {
 			.expect('Content-Type', /json/)
 			.expect(201)
 			.then((response: any) => {
-				// console.log('User Entity/POST /tournament: ' + response.body.id);
+				// console.log('User Entity/POST /user: ' + response.body.id);
 				entityDto.id = response.body.id;
 				expect(response.body.id).toBeTruthy()
 			})

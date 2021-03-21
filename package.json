@@ -14,7 +14,7 @@
     "create-t-u": "run-s create-t create-u get-t-u",
     "start:dev": "NODE_ENV=development NODE_DATA=MONGODB NODE_OPTIONS=--unhandled-rejections=strict webpack",
     "test": "NODE_ENV=test jest --detectOpenHandles",
-    "test_u": "NODE_ENV=test NODE_DATA=generated jest --detectOpenHandles -t 'User Entity'",
+    "test_u": "NODE_ENV=test jest --detectOpenHandles -t 'User Entity'",
     "test_t": "NODE_ENV=test NODE_DATA=generated jest --detectOpenHandles -t 'Tournament Entity'",
     "test_p": "NODE_ENV=test NODE_DATA=generated jest --detectOpenHandles -t 'Player Entity'",
     "test_g": "NODE_ENV=test NODE_DATA=generated jest --detectOpenHandles -t 'Game Entity'",

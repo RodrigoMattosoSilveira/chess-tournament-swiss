@@ -54,7 +54,7 @@ class UserDao {
 	
 	async getUserById(userId: string) {
 		// return UserDao.user.find((user: { id: string; }) => user.id === userId);
-		return UserMongo.findOne({id: "Dhi2G9yWE"});
+		return UserMongo.findOne({id: userId}).lean();
 	}
 	
 	async putUserById(user: UserDto) {
@@ -63,18 +63,19 @@ class UserDao {
 		return `${user.id} updated via put`;
 	}
 	
-	async patchUserById(user: UserDto) {
-		const objIndex = UserDao.user.findIndex((obj: { id: string; }) => obj.id === user.id);
-		let currentUser = UserDao.user[objIndex];
+	async patchUserById(user: UserDto): Promise<string> {
+		// Do not use lean, so that we have the save method!
+		let currentEntity = await UserMongo.findOne({id:  user.id});
 		const allowedPatchFields = ["email", "firstName", "lastName", "password", "permissionLevel", "rating", "state"];
 		for (let field of allowedPatchFields) {
 			if (field in user) {
 				// @ts-ignore
-				currentUser[field] = user[field];
+				currentEntity[field] = user[field];
 			}
 		}
-		UserDao.user.splice(objIndex, 1, currentUser);
-		return `${user.id} patched`;
+		// @ts-ignore
+		await currentEntity.save();
+		return user.id;
 	}
 	
 	async removeUserById(userId: string) {

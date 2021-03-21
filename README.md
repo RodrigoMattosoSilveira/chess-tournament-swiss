@@ -7,16 +7,19 @@ TBD
 
 ## Build status
 TBD
+
 # Introduction
-This is a playground to implement a service to manage a chess tournament using Swiss Pairing, just because I'm curious. I will keep the technology stack as simple as possible by using Node.js / Express / Typescript stack, which I'm familiar with; I'll experiment with one technology components, Cucumber, because I'm interested in learning about Live Documentation. I'll use unit tests for validation, and `cURL` as my UI!
+This started as an attempt to write a swiss pairing algorithm for chess tournaments, just for curiosity's sake. 
+
+I'll start with a simple technology stack, `Node.js / Express / Typescript` stack, which I'm familiar with; I'll delay integrating a UI and will rely on `cURL` for as long as I can.
 
 Possible technological improvements:
-1. Add a MongoDB data storage; I could use a RDBS, but my teams use Mongo and I need to learn it;
-1. Replace Node / Express / Typescript with SpringBoot / Java; 
-1. Add a React / Redux or Angular / Redux UI;
-1. Expand the service handle a plurarity of use cases;
+1. Add a MongoDB data storage; I could use a RDBS, but my teams use Mongo, and I need to learn it;
+1. Add a `React` UI; right now leaning towards `Next.js`;
+1. Integrate `Redux` with the UI;
+1. Expand the service handle a plurality of use cases;
 
-## Swiss Pairing
+# Swiss Pairing
 Swiss Pairing is a method of pairing players in a tournament, requiring a relatively small number of rounds, involving all tournament players, to determine the winner(s); it was used for the first time in Switzerland in 1895, and today tournament organizers use it primarily for chess tournaments. The Swiss Paring method addresses significant problems of round robin and single elimination tournaments:
 * _Round robin_ tournaments require as many rounds as the number of players minus 1. Since most 2-hours / game tournaments take place over a weekend, limiting the number of rounds to 6, and the field to six players. Swiss pairing limits the number of rounds to log base 2 of the number of players, enabling up to 32 players to context a 2-hours/game weekend chess tournament.
 * _Single elimination_ tournaments leave half the field with nothing to do after the first round. Each successive round eliminates half the field, leaving these players with nothing to do. Swiss pairing is one way to provide pairings for all players in all rounds.
@@ -41,89 +44,18 @@ The Sensei Library provides additional suggestions regarding how to increase the
 
 The Swiss Pairing method is a good choice to decide who ends up at the top spot; it is not always clear who should get the 2nd and third place prize; The [Sensei Library](https://senseis.xmp.net/?SwissPairing#:~:text=Swiss%20Pairing%20is%20a%20TournamentFormat,%20i.e.%20a%20method,go%20tournaments,%20notably%20the%20World%20Amateur%20Go%20Championship) provides additional suggestions, which are out of the scope of this experiment. 
 
-# 0.0.2 New Structure
-I decided to refactor the work I did on round-swiss-pairing branch, starting from the point where the basic framework was in place. The new structure will be:
-* rest
-  * Player
-  * Game
-  * Tournament
-  * Round
-* model
-  * Player
-  * Game
-  * Tournament
-  * TournamentPlayer extends Player
-  * Round: Array<Game>
-  data
-      DPlayer
-      DGame
-      DTournament
-      DTournamentPlayer extends Player
-      DRound: Array<Game>
-  types
-      IPlayer
-      IGame
-      ITournament
-      ITournamentPlayer extends Player
-      IRound: Array<Game>
-
-# 0.0.1 Implemented the basic framework
-Used [How to set up an Express.js API using Webpack and TypeScript](https://medium.com/the-andela-way/how-to-set-up-an-express-api-using-webpack-and-typescript-69d18c8c4f52) as a guideline;
-
-## Improvement deviation
-The document's _13. Improvement_ section contains a bug leading to a transpilation error:
-````bash
-$ yarn start:dev
-yarn run v1.22.4
-$ NODE_ENV=development webpack
-[webpack-cli] TypeError: compiler.plugin is not a function
-````
-
-I fixed by replacing `webpack-shell-plugin` with `nodemon-webpack-plugin`.
-
-## Unit Tests
-Had to deal with a number of errors
-
-### Missing ts-node
-````bash
-$ yarn test
-yarn run v1.22.4
-$ jest
-Error: Jest: Failed to parse the TypeScript config file /Users/rodrigomattososilveira/projects/chess-tournament-swiss/jest.config.ts
-  Error: Jest: 'ts-node' is required for the TypeScript configuration files. Make sure it is installed
-````
-
-All I had to do was to run `$ yarn add ts-node -D`
-
-### Supertest is not typed
-````
-$ yarn test
-yarn run v1.22.4
-$ jest
- FAIL  tests/index.test.ts
-  ● Test suite failed to run
-
-    tests/index.test.ts:2:23 - error TS7016: Could not find a declaration file for module 'supertest'. '/Users/rodrigomattososilveira/projects/chess-tournament-swiss/node_modules/supertest/index.js' implicitly has an 'any' type.
-````
-
-All I had to do was to change supertest declaration:
-````bash
-// import * as supertest from 'supertest';
-var supertest = require("supertest");
-````
-
-### Supertest is not typed
-
-````bash
-    tests/index.test.ts:4:6 - error TS7034: Variable 'request' implicitly has type 'any' in some locations where its type cannot be determined.
-
-    4  let request;
-           ~~~~~~~
-    tests/index.test.ts:9:3 - error TS7005: Variable 'request' implicitly has an 'any' type.
-````
-All I had to do was to change request declaration:
-````bash
-//	let request;
-	let request: any;
-````
-
+# Elements
+Following are definitions specific to this system:
+* **Account Holder** - An individual who created an account;
+  * the `system administrator` is a default `account holder` with the privilege to perform all supported operations;
+* **Game** - An event where two `account holders` play  a chess game;
+* **Tournament** - An event consisting one or more `games` between two or more `account holders`;
+  * tournaments have one or more `rounds`; 
+  * a `round` has one or more `games`;  
+  * there are many `tournament types`:
+    * *_swiss pairing_*
+    * *_round-robin_* -
+    * *_match_*
+    * *_single-elimination_*
+    * double-elimination_*
+* **Player** - An `account holder` playing in a tournament; used to collect a contestant's data relative to the tournament;
