@@ -81,22 +81,22 @@ app.get('/', (req: express.Request, res: express.Response) => {
 	res.status(200).send(`Server up and running!`)
 });
 
+if (process.env.NODE_ENV !== 'test') {
 // This actually starts our server. Once it’s started, Node.js will run our callback function, which reports that we’re
 // running, followed by the names of all the routes we’ve configured—so far, just UserRoutes.
-
-console.log(`process.env.MONGO_USER: ` + process.env.MONGO_USER);
-console.log(`process.env.MONGO_PASSWORD: ` + process.env.MONGO_PASSWORD);
-console.log(`process.env.MONGO_DB: ` + process.env.MONGO_DB);
-// const uri: string = "mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@rms-mongo-cluster-chess.z4pdw.mongodb.net/${process.env.MONGO_DB}?retryWrites=true&w=majority";
-const uri: string = "mongodb+srv://systemAdmin:hUr9bvrr4AQiDJf@rms-mongo-cluster-chess.z4pdw.mongodb.net/mychess";
-const options = { useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true }
-mongoose.set("useFindAndModify", false)
-
-console.log(`uri: ` + uri);
-mongoose
-	.connect(uri, options)
-	.then(() => {
-		if (process.env.NODE_ENV !== 'test') {
+	
+	console.log(`process.env.MONGO_USER: ` + process.env.MONGO_USER);
+	console.log(`process.env.MONGO_PASSWORD: ` + process.env.MONGO_PASSWORD);
+	console.log(`process.env.MONGO_DB: ` + process.env.MONGO_DB);
+	// const uri: string = "mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@rms-mongo-cluster-chess.z4pdw.mongodb.net/${process.env.MONGO_DB}?retryWrites=true&w=majority";
+	const uri: string = "mongodb+srv://systemAdmin:hUr9bvrr4AQiDJf@rms-mongo-cluster-chess.z4pdw.mongodb.net/mychess";
+	const options = { useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true }
+	mongoose.set("useFindAndModify", false)
+	
+	console.log(`uri: ` + uri);
+	mongoose
+		.connect(uri, options)
+		.then(() => {
 			server.listen(port, () => {
 				// debugLog(`Server running at http://localhost:${port}`);
 				console.log(`Server running at http://localhost:$ ` + port);
@@ -104,11 +104,11 @@ mongoose
 					debugLog(`Routes configured for ${route.getName()}`);
 				});
 			});
-		}
-	})
-	.catch(error => {
-		console.log(`Error logging in ` + JSON.stringify(error));
-		throw error
-	})
+		})
+		.catch(error => {
+			console.log(`Error logging in ` + JSON.stringify(error));
+			throw error
+		})
+}
 export default app;
 export {server};

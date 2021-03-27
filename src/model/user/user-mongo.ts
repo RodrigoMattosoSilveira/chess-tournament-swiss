@@ -15,7 +15,7 @@ import { UserDto} from "./user.model";
 interface IUserMongoDoc extends UserDto, mongoose.Document {
 }
 
-interface IUserMongo extends mongoose.Model<IUserMongoDoc> {
+export interface IUserMongo extends mongoose.Model<IUserMongoDoc> {
 	build(attr: UserDto): any
 }
 
