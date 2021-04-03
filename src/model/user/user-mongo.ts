@@ -12,7 +12,7 @@ import { UserDto} from "./user.model";
  * merging interfaces: https://stackoverflow.com/questions/49723173/merge-two-interfaces
  */
 // @ts-ignore
-interface IUserMongoDoc extends UserDto, mongoose.Document {
+export interface IUserMongoDoc extends UserDto, mongoose.Document {
 }
 
 export interface IUserMongo extends mongoose.Model<IUserMongoDoc> {
