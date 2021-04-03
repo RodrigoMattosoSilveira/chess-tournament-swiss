@@ -65,16 +65,17 @@ class UserDao {
 	
 	async patchUserById(user: UserDto): Promise<string> {
 		// Do not use lean, so that we have the save method!
-		let currentEntity = await UserMongo.findOne({id:  user.id});
+		let conditions = {id: user.id};
+		let update = {}
 		const allowedPatchFields = ["email", "firstName", "lastName", "password", "permissionLevel", "rating", "state"];
 		for (let field of allowedPatchFields) {
 			if (field in user) {
 				// @ts-ignore
-				currentEntity[field] = user[field];
+				update[field] = user[field];
 			}
 		}
-		// @ts-ignore
-		await currentEntity.save();
+		let options = {new: true};
+		await UserMongo.findOneAndUpdate(conditions, update, options).exec();
 		return user.id;
 	}
 	
