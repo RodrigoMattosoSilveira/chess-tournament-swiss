@@ -75,6 +75,7 @@ class UserDao {
 			}
 		}
 		let options = {new: true};
+		// https://mongoosejs.com/docs/tutorials/findoneandupdate.html
 		await UserMongo.findOneAndUpdate(conditions, update, options).exec();
 		return user.id;
 	}

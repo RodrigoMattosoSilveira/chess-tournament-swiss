@@ -227,14 +227,14 @@ describe('User Entity unit tests', () => {
 			// create new post model instance
 			const userMongo = UserMongo.build({...entityDto})
 			// set some test properties
-			savedEntity = await userMongo.save()
+			savedEntity = await userMongo.save();
 			// find inserted post by title
 			expect(savedEntity).toBeTruthy();
 			//@ts-ignore
-			expect(savedEntity.email).toEqual(entityDto.email)
+			expect(savedEntity.email).toEqual(entityDto.email);
 			// check that content is expected
 			//@ts-ignore
-			expect(savedEntity.firstName).toEqual(entityDto.firstName)
+			expect(savedEntity.firstName).toEqual(entityDto.firstName);
 		});
 		it('User Mongo fineOne unit test', async () => {
 			// create user than read it
@@ -270,17 +270,21 @@ describe('User Entity unit tests', () => {
 			expect(names).toEqual(["Franco", "Jones", "Roberts", ]);
 		});
 		it('User Mongo findOneAndUpdate unit test', async () => {
-			// create user than read it
+			// https://mongoosejs.com/docs/tutorials/findoneandupdate.html
 			const userMongo = UserMongo.build({...entityDto})
-			savedEntity = await userMongo.save()
+			savedEntity = await userMongo.save();
 			expect(savedEntity).toBeTruthy();
+			//@ts-ignore
+			expect(savedEntity.lastName).toEqual(entityDto.lastName);
 			let conditions = {id: entityDto.id};
-			let update = { lastName: "NewLastName"}
-			let options = {new: true};
-			updatedEntity = await UserMongo.findOneAndUpdate(conditions, update, options).exec();
+			let update = {lastName: "NewLastName"};
+			let options = {new: true, lean: true};
+			updatedEntity = await UserMongo.findOneAndUpdate(conditions, update, options, (error, doc) => {
+				console.log("Error handling findOneAndUpdate: " + error);
+			}).exec();
 			expect(updatedEntity).toBeTruthy();
 			//@ts-ignore
-			expect(updatedEntity.lasName).toEqual(entityDto.lasName)
+			expect(updatedEntity.lastName).toEqual( "NewLastName")
 		});
 		
 	});
