@@ -169,32 +169,17 @@ describe('User Entity unit tests', () => {
 		 * https://medium.com/swlh/typescript-with-mongoose-and-node-express-24073d51d2ee
 		 *
 		 */
-		
-		beforeAll(async () => {
-			await testDb.connect()
-		});
-		
-		afterEach(async () => {
-			await testDb.clearDatabase()
-		});
-		
-		afterAll(async () => {
-			await testDb.closeDatabase()
-		});
-		
-		// Type experiment
-		type UserMongoReadEntity = IUserMongoDoc | null;
-		
-		//	Use the in memory database to validate
+			
+			//	Use the in memory database to validate
 		let entityDto: UserDto = {
-			id: "somecrazynumber",
-			email: "Paul.Roberts@yahoo.com",
-			password: "$dfg&*mns12PP",
-			firstName: "Paul",
-			lastName: "Roberts",
-			permissionLevel: 0,
-			rating: 1234
-		}
+				id: "somecrazynumber",
+				email: "Paul.Roberts@yahoo.com",
+				password: "$dfg&*mns12PP",
+				firstName: "Paul",
+				lastName: "Roberts",
+				permissionLevel: 0,
+				rating: 1234
+			}
 		let entityDto_1: UserDto = {
 			id: "anothercrazynumber",
 			email: "Joan.Jones@yahoo.com",
@@ -214,27 +199,75 @@ describe('User Entity unit tests', () => {
 			rating: 1934
 		}
 		let savedEntity: IUserMongo;
+		let savedEntityError: any;
 		let readEntity: UserMongoReadEntity;
 		let readEntities: IUserMongoDoc[];
 		let updatedEntity: UserMongoReadEntity;
 		
+		
+		beforeAll(async () => {
+			await testDb.connect()
+		});
+		
+		afterEach(async () => {
+			await testDb.clearDatabase()
+			// @ts-ignore
+			savedEntity = null;
+			savedEntityError = null;
+			readEntity = null;
+			// @ts-ignore
+			readEntities = null;
+			updatedEntity = null;
+		});
+		
+		afterAll(async () => {
+			await testDb.closeDatabase()
+		});
+		
+		// Type experiment
+		type UserMongoReadEntity = IUserMongoDoc | null;
 		it('User MongoDB Operations canonical unit test', async done => {
 			expect(1 + 1).toEqual(2);
 			done();
 		});
 		it('User Mongo save unit test', async () => {
-			expect.assertions(3)
+			expect.assertions(4)
 			// create new post model instance
 			const userMongo = UserMongo.build({...entityDto})
 			// set some test properties
-			savedEntity = await userMongo.save();
+			// savedEntity = await userMongo.save();
+			await userMongo.save()
+				.then((doc: IUserMongo) => {
+					savedEntity = doc;
+				})
+				.catch((error: any) => {
+					savedEntityError = error;
+				})
 			// find inserted post by title
 			expect(savedEntity).toBeTruthy();
+			expect(savedEntityError).toBeFalsy()
 			//@ts-ignore
 			expect(savedEntity.email).toEqual(entityDto.email);
 			// check that content is expected
 			//@ts-ignore
 			expect(savedEntity.firstName).toEqual(entityDto.firstName);
+		});
+		it('User Mongo save unit test error', async () => {
+			expect.assertions(2)
+			// create a user document
+			const userMongo = UserMongo.build({...entityDto});
+			userMongo.rating = "abcd"; // force an error
+			// savedEntity = await userMongo.save(); // this fails
+			await userMongo.save()
+				.then((doc: IUserMongo) => {
+					savedEntity = doc;
+				})
+				.catch((error: any) => {
+					savedEntityError = error;
+					console.log("User save error: " + JSON.stringify(savedEntityError));
+				})
+			expect(savedEntity).toBeFalsy();
+			expect(savedEntityError).toBeTruthy();
 		});
 		it('User Mongo fineOne unit test', async () => {
 			// create user than read it
