@@ -4,7 +4,10 @@ import shortid from "shortid";
 // todo: change it to service
 import userService from './user.service';
 import {user_states} from "../../contants/contants";
-import {USER_CONSTANTS} from "./user.constants"
+import {EMAIL_VALIDATION, USER_DEFAULT_CONSTANTS} from "./user.constants"
+import {isValidEmail} from "../../utils/utils";
+import userDao from './user.dao';
+import {EmailValidationCodeT} from "./user.interfaces";
 
 
 export class UserMiddleware {
@@ -22,15 +25,19 @@ export class UserMiddleware {
 		next();
 	}
 	
-	// It is a valid email string and is not in use
+	// It is a valid email string and it is unique
 	async createEmailIsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
-	}
-	
-	// It is a valid email string and is not in use
-	async emailIsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
-	}
-	
-	async emailIsUnique(req: express.Request, res: express.Response, next: express.NextFunction) {
+		switch(await this.lCreateEmailIsValid(req.body.email)) {
+			case  EMAIL_VALIDATION.VALID:
+				next();
+				break;
+			case EMAIL_VALIDATION.INVALID:
+				res.status(400).send({error: `Invalid user email: ` + req.body.email});
+				break;
+			case EMAIL_VALIDATION.ALREADY_EXISTS:
+				res.status(400).send({error: `New user email already exists: ` + req.body.email});
+				break;
+		}
 	}
 	
 	async entityExists(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -57,14 +64,46 @@ export class UserMiddleware {
 	// If provided, it is a valid email string and is not in use
 	async patchEmailIsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
 	}
-	
+	//****************************** Auxiliary methods for testing purposes *******************************************
+	/**
+	 * Fills up req.body generated attributes with their default values
+	 * @param req
+	 */
 	lAddAttributeDefaults = (req: any) => {
 		req.body.id =  shortid.generate();
-		req.body.permissionLevel = USER_CONSTANTS.DEFAULT_PERMISSION;
-		req.body.rating = USER_CONSTANTS.DEFAULT_RATING;
-		req.body.ratingState = USER_CONSTANTS.DEFAULT_RATING_STATE;
-		req.body.state = USER_CONSTANTS.DEFAULT_STATE;
+		req.body.permissionLevel = USER_DEFAULT_CONSTANTS.PERMISSION;
+		req.body.rating = USER_DEFAULT_CONSTANTS.RATING;
+		req.body.ratingState = USER_DEFAULT_CONSTANTS.RATING_STATE;
+		req.body.state = USER_DEFAULT_CONSTANTS.STATE;
 	}
+	
+	/**
+	 * Validates whether a string is a valid email and, if so, is unique
+	 * @param email
+	 * @returns EmailValidationCodeT
+	 */
+	async lCreateEmailIsValid (email: string): Promise<EmailValidationCodeT> {
+		let emailValidationCode: EmailValidationCodeT = EMAIL_VALIDATION.VALID
+		
+		if (!isValidEmail(email)) {
+			emailValidationCode = EMAIL_VALIDATION.INVALID
+		} else {
+			if (await this.lEmailExists(email)) {
+				emailValidationCode = EMAIL_VALIDATION.ALREADY_EXISTS;
+			}
+		}
+		// console.log("lCreateEmailIsValid: " + email + ", results in: " + emailValidationCode)
+		return emailValidationCode;
+	}
+	
+	async lEmailExists (value: string): Promise<boolean> {
+		return await userDao.emailExists(value);
+	}
+	
+	async lUserIdExists (value: string): Promise<boolean> {
+		return  await userDao.userIdExists(value);
+	}
+	
 }
 export default UserMiddleware.getInstance();
 

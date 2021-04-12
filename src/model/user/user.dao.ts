@@ -57,6 +57,14 @@ class UserDao {
 		return UserMongo.findOne({id: userId}).lean();
 	}
 	
+	async emailExists(email: string): Promise<boolean> {
+		return await UserMongo.exists({email: email});
+	}
+	
+	async userIdExists(id: string): Promise<boolean> {
+		return await UserMongo.exists({id: id});
+	}
+	
 	async putUserById(user: UserDto) {
 		const objIndex = UserDao.user.findIndex((obj: { id: string; }) => obj.id === user.id);
 		UserDao.user.splice(objIndex, 1, user);

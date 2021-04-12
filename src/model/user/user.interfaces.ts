@@ -56,7 +56,6 @@ export interface IUserPatch {
 }
 export const patchableAttributes = ["email", "firstName", "lastName", "password", "permissionLevel", "rating", "state"]
 
-// This is interface
 /**
  *  Interface representing the object returned from the DAO layer. Only one of the two can be present.
  *
@@ -65,3 +64,5 @@ export interface IUserResponse {
 	result?: OneOrMany<UserDto>;
 	error?: any;
 }
+
+export type EmailValidationCodeT = number;
