@@ -7,7 +7,7 @@ import {user_states} from "../../contants/contants";
 import {EMAIL_VALIDATION, USER_DEFAULT_CONSTANTS} from "./user.constants"
 import {isValidEmail} from "../../utils/utils";
 import userDao from './user.dao';
-import {EmailValidationCodeT, requiredCreateAttributes} from "./user.interfaces";
+import {EmailValidationCodeT, requiredCreateAttributes, patchableAttributes} from "./user.interfaces";
 
 
 export class UserMiddleware {
@@ -156,6 +156,20 @@ export class UserMiddleware {
 		return missingAttributes
 	}
 	
+	lHasValidPatchAttributes(body: any): string {
+		let nonPatchableAttributes: string = "";
+		let bodyKeys = Object.keys(body);
+		for (let i = 0; i < bodyKeys.length; i < i++) {
+			let bodyKey: string = bodyKeys[i];
+			if (patchableAttributes.findIndex(key => key===bodyKey) === -1) {
+				if (nonPatchableAttributes.length > 0) {
+					nonPatchableAttributes += ', ';
+				}
+				nonPatchableAttributes += bodyKey;
+			}
+		}
+		return nonPatchableAttributes
+	}
 }
 export default UserMiddleware.getInstance();
 

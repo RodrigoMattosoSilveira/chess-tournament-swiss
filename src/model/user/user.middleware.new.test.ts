@@ -5,10 +5,10 @@ import {isValidEmail} from "../../utils/utils";
 import userDao from './user.dao';
 jest.mock('./user.dao');
 
-import { IUserCreate } from "./user.interfaces";
+import { IUserCreate, IUserPatch } from "./user.interfaces";
 import * as testDb from "../../utils/test-db";
 import shortid from "shortid";
-import {EMAIL_VALIDATION, USER_DEFAULT_CONSTANTS} from "./user.constants";
+import {EMAIL_VALIDATION, USER_DEFAULT_CONSTANTS, USER_RATING_STATE, USER_STATE, USER_PERMISSION} from "./user.constants";
 
 describe('User Middleware Unit Tests', () => {
 	let userMiddleware: UserMiddleware;
@@ -100,7 +100,7 @@ describe('User Middleware Unit Tests', () => {
 			done();
 		});
 	});
-	describe('required attributes', () => {
+	describe('required create attributes', () => {
 		it('are present', async done => {
 			let body: IUserCreate = {
 				email: "a.b@c.com",
@@ -162,5 +162,37 @@ describe('User Middleware Unit Tests', () => {
 			done();
 		});
 	});
+	describe('patchable attributes', () => {
+		it('all valid patchable attributes present', async done => {
+			let body: IUserPatch = {
+				email:"a.b@c.com",
+				firstName: "Paul",
+				lastName: "White",
+				password: "ThoughToFigureOut",
+				permissionLevel: USER_PERMISSION.USER,
+				rating: 1567,
+				state: USER_STATE.ACTIVE
+			}
+			let invalidPatchAttributes = userMiddleware.lHasValidPatchAttributes(body)
+			expect(invalidPatchAttributes).toEqual("");
+			done();
+		});
+		it('invalid patchable attribute present', async done => {
+			let body:any = {
+				email:"a.b@c.com",
+				firstName: "Paul",
+				lastName: "White",
+				id: "invalid id",
+				password: "ThoughToFigureOut",
+				permissionLevel: USER_PERMISSION.USER,
+				rating: 1567,
+				state: USER_STATE.ACTIVE
+			}
+			let invalidPatchAttributes = userMiddleware.lHasValidPatchAttributes(body)
+			expect(invalidPatchAttributes).toEqual("id");
+			done();
+		});
+		
+	})
 });
 

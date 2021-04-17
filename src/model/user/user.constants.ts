@@ -9,9 +9,9 @@ export const USER_STATE = {
 }
 
 export const USER_PERMISSION = {
-	SYSTEM_ADMIN: "system_admin",
-	TOURNAMENT_DIRECTOR: "tournament_director",
-	USER: "user"
+	SYSTEM_ADMIN: 0,
+	TOURNAMENT_DIRECTOR: 1,
+	USER: 2
 }
 
 export const EMAIL_VALIDATION = {
