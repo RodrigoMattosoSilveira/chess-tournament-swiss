@@ -41,9 +41,19 @@ export class UserMiddleware {
 	}
 	
 	async entityExists(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if (await this.lEntityExists(req.body.id)) {
+			next()
+		} else {
+			res.status(400).send({error: `User id not found: ` + req.body.id});
+		}
 	}
 	
 	async entityDoesntExist(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if (!await this.lEntityExists(req.body.id)) {
+			next()
+		} else {
+			res.status(400).send({error: `User id already exists: ` + req.body.id});
+		}
 	}
 	
 	// required create attributes are present and valid
@@ -100,8 +110,8 @@ export class UserMiddleware {
 		return await userDao.emailExists(value);
 	}
 	
-	async lUserIdExists (value: string): Promise<boolean> {
-		return  await userDao.userIdExists(value);
+	async lEntityExists (value: string): Promise<boolean> {
+		return  await userDao.idExists(value);
 	}
 	
 }

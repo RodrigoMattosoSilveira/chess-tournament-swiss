@@ -61,7 +61,7 @@ class UserDao {
 		return await UserMongo.exists({email: email});
 	}
 	
-	async userIdExists(id: string): Promise<boolean> {
+	async idExists(id: string): Promise<boolean> {
 		return await UserMongo.exists({id: id});
 	}
 	

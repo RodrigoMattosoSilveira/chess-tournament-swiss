@@ -80,5 +80,25 @@ describe('User Middleware Unit Tests', () => {
 			done();
 		})
 	});
+	describe('entity existence', () => {
+		it('non existing entity', async done => {
+			let id: string = "existing_user_id";
+			// @ts-ignore
+			userDao.idExists.mockResolvedValue(Promise.resolve(false));
+			expect(await userMiddleware.lEntityExists(id)).toEqual(false);
+			expect(userDao.idExists).toHaveBeenCalled();
+			expect(userDao.idExists).toHaveBeenCalledWith(id);
+			done();
+		});
+		it('non existing entity', async done => {
+			let id: string = "non_existing_user_id";
+			// @ts-ignore
+			userDao.idExists.mockResolvedValue(Promise.resolve(true));
+			expect(await userMiddleware.lEntityExists(id)).toEqual(true);
+			expect(userDao.idExists).toHaveBeenCalled();
+			expect(userDao.idExists).toHaveBeenCalledWith(id);
+			done();
+		});
+	});
 });
 
