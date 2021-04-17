@@ -7,7 +7,7 @@ import {user_states} from "../../contants/contants";
 import {EMAIL_VALIDATION, USER_DEFAULT_CONSTANTS} from "./user.constants"
 import {isValidEmail} from "../../utils/utils";
 import userDao from './user.dao';
-import {EmailValidationCodeT} from "./user.interfaces";
+import {EmailValidationCodeT, requiredCreateAttributes} from "./user.interfaces";
 
 
 export class UserMiddleware {
@@ -58,6 +58,18 @@ export class UserMiddleware {
 	
 	// required create attributes are present and valid
 	async hasRequiredCreateAttributes(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if (req.body) {
+			let missingAttributes = this.lHasRequiredCreateAttributes(req.body)
+			if (missingAttributes.length > 0) {
+				// console.log('\n' + 'PlayerMiddleware/validateRequiredBodyFields/message: ' + missingAttributes + '\n');
+				res.status(400).send({error: `Missing required user attributes: `} + missingAttributes);
+			} else {
+				// console.log('\n' + 'PlayerMiddleware/validateRequiredBodyFields/message: All required attributes present' + '\n');
+				next()
+			}
+		}else {
+			res.status(400).send({error: `User requirement body is missing`});
+		}
 	}
 	
 	//provided patch attributes are valid
@@ -76,7 +88,7 @@ export class UserMiddleware {
 	}
 	//****************************** Auxiliary methods for testing purposes *******************************************
 	/**
-	 * Fills up req.body generated attributes with their default values
+	 * lAddAttributeDefaults Fills up req.body generated attributes with their default values
 	 * @param req
 	 */
 	lAddAttributeDefaults = (req: any) => {
@@ -88,7 +100,7 @@ export class UserMiddleware {
 	}
 	
 	/**
-	 * Validates whether a string is a valid email and, if so, is unique
+	 * lCreateEmailIsValid Validates whether a string is a valid email and, if so, is unique
 	 * @param email
 	 * @returns EmailValidationCodeT
 	 */
@@ -106,12 +118,42 @@ export class UserMiddleware {
 		return emailValidationCode;
 	}
 	
-	async lEmailExists (value: string): Promise<boolean> {
-		return await userDao.emailExists(value);
+	/**
+	 * lEmailExists Searches the database for an entity with the given email
+	 * @param email, the email of the sought entity
+	 * @returns boolean, true if an entity with this email exists, false otherwise
+	 */
+	async lEmailExists (email: string): Promise<boolean> {
+		return await userDao.emailExists(email);
 	}
 	
-	async lEntityExists (value: string): Promise<boolean> {
-		return  await userDao.idExists(value);
+	/**
+	 * lEntityExists Searches the database for an entity with the given id
+	 * @param id, the id of the sought entity
+	 * @returns boolean, true if an entity with this id exists, false otherwise
+	 */
+	async lEntityExists (id: string): Promise<boolean> {
+		return  await userDao.idExists(id);
+	}
+	
+	/**
+	 * lHasRequiredCreateAttributes
+	 * @param body - the request body attribute
+	 * @returns string, empty if all required attributes are present, the list of missing attributes otherwise
+	 */
+	lHasRequiredCreateAttributes (body: any): string {
+		let missingAttributes: string = "";
+		for (let i = 0; i < requiredCreateAttributes.length; i < i++) {
+			let requiredAttribute = requiredCreateAttributes[i];
+			// @ts-ignore
+			if (!body[requiredAttribute]) {
+				if (missingAttributes.length > 0) {
+					missingAttributes += ', ';
+				}
+				missingAttributes += requiredAttribute;
+			}
+		}
+		return missingAttributes
 	}
 	
 }

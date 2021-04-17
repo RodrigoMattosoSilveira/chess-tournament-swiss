@@ -100,5 +100,67 @@ describe('User Middleware Unit Tests', () => {
 			done();
 		});
 	});
+	describe('required attributes', () => {
+		it('are present', async done => {
+			let body: IUserCreate = {
+				email: "a.b@c.com",
+				firstName: "John",
+				lastName: "White",
+				password: "ThoughToFigureOut"
+			}
+			let missingAttributes = userMiddleware.lHasRequiredCreateAttributes(body);
+			expect(missingAttributes).toEqual("");
+			done();
+		});
+		it('the email is missing', async done => {
+			let body: any = {
+				firstName: "John",
+				lastName: "White",
+				password: "ThoughToFigureOut"
+			}
+			let missingAttributes = userMiddleware.lHasRequiredCreateAttributes(body);
+			expect(missingAttributes).toEqual("email");
+			done();
+		});
+		it('the first name is missing', async done => {
+			let body: any = {
+				email: "a.b@c.com",
+				lastName: "White",
+				password: "ThoughToFigureOut"
+			}
+			let missingAttributes = userMiddleware.lHasRequiredCreateAttributes(body);
+			expect(missingAttributes).toEqual("firstName");
+			done();
+		});
+		it('the last name is missing', async done => {
+			let body: any = {
+				email: "a.b@c.com",
+				firstName: "John",
+				password: "ThoughToFigureOut"
+			}
+			let missingAttributes = userMiddleware.lHasRequiredCreateAttributes(body);
+			expect(missingAttributes).toEqual("lastName");
+			done();
+		});
+		it('the password is missing', async done => {
+			let body: any = {
+				email: "a.b@c.com",
+				firstName: "John",
+				lastName: "White",
+			}
+			let missingAttributes = userMiddleware.lHasRequiredCreateAttributes(body);
+			expect(missingAttributes).toEqual("password");
+			done();
+		});
+		it('the first name and the password are missing', async done => {
+			let body: any = {
+				email: "a.b@c.com",
+				lastName: "White",
+			}
+			let missingAttributes = userMiddleware.lHasRequiredCreateAttributes(body);
+			expect(missingAttributes).toEqual("firstName, password");
+			done();
+		});
+	});
 });
 
