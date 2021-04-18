@@ -162,6 +162,32 @@ describe('User Middleware Unit Tests', () => {
 			done();
 		});
 	});
+	describe('only required create attributes', () => {
+		it('Ok when only required attributes', async done => {
+			let body: IUserCreate = {
+				email: "a.b@c.com",
+				firstName: "John",
+				lastName: "White",
+				password: "ThoughToFigureOut"
+			}
+			let errorMessage = userMiddleware.lHasOnlyRequiredCreateAttributes(body)
+			expect(errorMessage).toEqual("");
+			done();
+		});
+		it('Fail when one extraneous attribute', async done => {
+			let body: any = {
+				email: "a.b@c.com",
+				firstName: "John",
+				lastName: "White",
+				password: "ThoughToFigureOut",
+				extraneous: "attribute"
+			}
+			let errorMessage = userMiddleware.lHasOnlyRequiredCreateAttributes(body)
+			expect(errorMessage).toEqual("extraneous");
+			done();
+		})
+		
+	});
 	describe('patchable attributes', () => {
 		it('all valid patchable attributes present', async done => {
 			let body: IUserPatch = {

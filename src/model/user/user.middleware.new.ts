@@ -56,24 +56,52 @@ export class UserMiddleware {
 		}
 	}
 	
-	// required create attributes are present and valid
+	// User create request has required user attributes
 	async hasRequiredCreateAttributes(req: express.Request, res: express.Response, next: express.NextFunction) {
 		if (req.body) {
 			let missingAttributes = this.lHasRequiredCreateAttributes(req.body)
 			if (missingAttributes.length > 0) {
-				// console.log('\n' + 'PlayerMiddleware/validateRequiredBodyFields/message: ' + missingAttributes + '\n');
-				res.status(400).send({error: `Missing required user attributes: `} + missingAttributes);
+				// console.log('\n' + 'UserMiddleware/hasRequiredCreateAttributes/message: ' + missingAttributes + '\n');
+				res.status(400).send({error: `User create request missing required attributes: `} + missingAttributes);
 			} else {
 				// console.log('\n' + 'PlayerMiddleware/validateRequiredBodyFields/message: All required attributes present' + '\n');
 				next()
 			}
 		}else {
-			res.status(400).send({error: `User requirement body is missing`});
+			res.status(400).send({error: `User  create request does not include any attributes`});
 		}
 	}
 	
-	//provided patch attributes are valid
+	// User create request has only required attributes
+	async hasOnlyRequiredCreateAttributes(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if (req.body) {
+			let errorMessage = this.lHasOnlyRequiredCreateAttributes(req.body)
+			if (errorMessage.length > 0) {
+				// console.log('\n' + 'UserMiddleware/hasOnlyRequiredCreateAttributes/message: ' + errorMessage + '\n');
+				res.status(400).send({error: `User create request has invalid attributes: `} + errorMessage);
+			} else {
+				// console.log('\n' + 'UserMiddleware/hasOnlyRequiredCreateAttributes/message: All required attributes present' + '\n');
+				next()
+			}
+		}else {
+			res.status(400).send({error: `User create request does not include any attributes`});
+		}
+	}
+	
+	// User patch request has valid attributes
 	async hasValidPatchAttributes(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if (req.body) {
+			let nonPatchableAttributes = this.lHasValidPatchAttributes(req.body)
+			if (nonPatchableAttributes.length > 0) {
+				// console.log('\n' + 'UserMiddleware/hasValidPatchAttributes/message: ' + missingAttributes + '\n');
+				res.status(400).send({error: `User patch request has invalid attributes: `} + nonPatchableAttributes);
+			} else {
+				// console.log('\n' + 'UserMiddleware/hasValidPatchAttributes/message: All required attributes present' + '\n');
+				next()
+			}
+		}else {
+			res.status(400).send({error: `User patch request does not include any attributes`});
+		}
 	}
 	
 	async permissionLevelIsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -138,37 +166,59 @@ export class UserMiddleware {
 	
 	/**
 	 * lHasRequiredCreateAttributes
-	 * @param body - the request body attribute
+	 * @param body - the request body attributes
 	 * @returns string, empty if all required attributes are present, the list of missing attributes otherwise
 	 */
 	lHasRequiredCreateAttributes (body: any): string {
-		let missingAttributes: string = "";
-		for (let i = 0; i < requiredCreateAttributes.length; i < i++) {
-			let requiredAttribute = requiredCreateAttributes[i];
-			// @ts-ignore
-			if (!body[requiredAttribute]) {
-				if (missingAttributes.length > 0) {
-					missingAttributes += ', ';
+		let errorMessage: string = "";
+		let bodyKeys = Object.keys(body);
+		for (let requiredAttribute of requiredCreateAttributes) {
+			if (bodyKeys.findIndex(key => key===requiredAttribute) === -1) {
+				if (errorMessage.length > 0) {
+					errorMessage += ', ';
 				}
-				missingAttributes += requiredAttribute;
+				errorMessage += requiredAttribute;
 			}
 		}
-		return missingAttributes
+		return errorMessage
 	}
 	
-	lHasValidPatchAttributes(body: any): string {
-		let nonPatchableAttributes: string = "";
+	/**
+	 * lHasOnlyRequiredCreateAttributes
+	 * @param body, the request body attributes
+	 * @returns string, empty if all attributes are valid, the list of invalid attributes otherwise
+	 */
+	lHasOnlyRequiredCreateAttributes(body: any): string {
+		let errorMessage: string = "";
 		let bodyKeys = Object.keys(body);
-		for (let i = 0; i < bodyKeys.length; i < i++) {
-			let bodyKey: string = bodyKeys[i];
-			if (patchableAttributes.findIndex(key => key===bodyKey) === -1) {
-				if (nonPatchableAttributes.length > 0) {
-					nonPatchableAttributes += ', ';
+		for (let bodyKey of bodyKeys) {
+			if (requiredCreateAttributes.findIndex(key => key===bodyKey) === -1) {
+				if (errorMessage.length > 0) {
+					errorMessage += ', ';
 				}
-				nonPatchableAttributes += bodyKey;
+				errorMessage += bodyKey;
 			}
 		}
-		return nonPatchableAttributes
+		return errorMessage
+	}
+	
+	/**
+	 * lHasValidPatchAttributes
+	 * @param body, the request body attributes
+	 *  @returns string, empty if all attributes are valid, the list of invalid attributes otherwise
+	 */
+	lHasValidPatchAttributes(body: any): string {
+		let errorMessage: string = "";
+		let bodyKeys = Object.keys(body);
+		for (let bodyKey of bodyKeys) {
+			if (patchableAttributes.findIndex(key => key===bodyKey) === -1) {
+				if (errorMessage.length > 0) {
+					errorMessage += ', ';
+				}
+				errorMessage += bodyKey;
+			}
+		}
+		return errorMessage
 	}
 }
 export default UserMiddleware.getInstance();
