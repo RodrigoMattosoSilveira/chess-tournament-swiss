@@ -8,7 +8,7 @@ jest.mock('./user.dao');
 import { IUserCreate, IUserPatch } from "./user.interfaces";
 import * as testDb from "../../utils/test-db";
 import shortid from "shortid";
-import {EMAIL_VALIDATION, USER_DEFAULT_CONSTANTS, USER_RATING_STATE, USER_STATE, USER_PERMISSION} from "./user.constants";
+import {EMAIL_VALIDATION, USER_DEFAULT_CONSTANTS, USER_RATING_STATE, USER_STATE, USER_ROLE} from "./user.constants";
 
 describe('User Middleware Unit Tests', () => {
 	let userMiddleware: UserMiddleware;
@@ -26,8 +26,8 @@ describe('User Middleware Unit Tests', () => {
 			req.body = {};
 			expect.assertions(5);
 			userMiddleware.lAddAttributeDefaults(req);
-			expect(Object.keys(req.body).sort()).toEqual(["id", "permissionLevel", "rating", "ratingState", "state"].sort());
-			expect(req.body.permissionLevel).toEqual(USER_DEFAULT_CONSTANTS.PERMISSION);
+			expect(Object.keys(req.body).sort()).toEqual(["id", "role", "rating", "ratingState", "state"].sort());
+			expect(req.body.role).toEqual(USER_DEFAULT_CONSTANTS.ROLE);
 			expect(req.body.rating).toEqual(USER_DEFAULT_CONSTANTS.RATING);
 			expect(req.body.ratingState).toEqual(USER_DEFAULT_CONSTANTS.RATING_STATE);
 			expect(req.body.state).toEqual(USER_DEFAULT_CONSTANTS.STATE);
@@ -194,7 +194,7 @@ describe('User Middleware Unit Tests', () => {
 				firstName: "Paul",
 				lastName: "White",
 				password: "ThoughToFigureOut",
-				permissionLevel: USER_PERMISSION.USER,
+				role: USER_ROLE.USER,
 				rating: 1567,
 				state: USER_STATE.ACTIVE
 			}
@@ -209,7 +209,7 @@ describe('User Middleware Unit Tests', () => {
 				lastName: "White",
 				id: "invalid id",
 				password: "ThoughToFigureOut",
-				permissionLevel: USER_PERMISSION.USER,
+				role: USER_ROLE.USER,
 				rating: 1567,
 				state: USER_STATE.ACTIVE
 			}
@@ -237,6 +237,20 @@ describe('User Middleware Unit Tests', () => {
 			expect(userDao.emailExists).toHaveBeenCalledWith(email);
 			done();
 		});
+	});
+	describe('Validate that role is valid', () => {
+		it('valid roles', async done => {
+			expect(userMiddleware.lRoleIsValid("system_admin")).toEqual(true);
+			expect(userMiddleware.lRoleIsValid("tournament_director")).toEqual(true);
+			expect(userMiddleware.lRoleIsValid("user")).toEqual(true);
+			done();
+		});
+		it('invalid roles', async done => {
+			expect(userMiddleware.lRoleIsValid("system admin")).toEqual(false);
+			expect(userMiddleware.lRoleIsValid("tournament director")).toEqual(false);
+			expect(userMiddleware.lRoleIsValid("users")).toEqual(false);
+			done();
+		})
 	});
 });
 

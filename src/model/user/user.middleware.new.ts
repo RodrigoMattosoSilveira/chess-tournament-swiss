@@ -4,7 +4,7 @@ import shortid from "shortid";
 // todo: change it to service
 import userService from './user.service';
 import {user_states} from "../../contants/contants";
-import {EMAIL_VALIDATION, USER_DEFAULT_CONSTANTS} from "./user.constants"
+import {EMAIL_VALIDATION, USER_DEFAULT_CONSTANTS, USER_ROLE} from "./user.constants"
 import {isValidEmail} from "../../utils/utils";
 import userDao from './user.dao';
 import {EmailValidationCodeT, requiredCreateAttributes, patchableAttributes} from "./user.interfaces";
@@ -120,7 +120,7 @@ export class UserMiddleware {
 		}
 	}
 	
-	async permissionLevelIsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
+	async roleIsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
 	}
 	
 	// rating must be numeric, be between 0 and 3000 (no one in the world is rated above 3000)
@@ -142,7 +142,7 @@ export class UserMiddleware {
 	 */
 	lAddAttributeDefaults = (req: any) => {
 		req.body.id =  shortid.generate();
-		req.body.permissionLevel = USER_DEFAULT_CONSTANTS.PERMISSION;
+		req.body.role = USER_DEFAULT_CONSTANTS.ROLE;
 		req.body.rating = USER_DEFAULT_CONSTANTS.RATING;
 		req.body.ratingState = USER_DEFAULT_CONSTANTS.RATING_STATE;
 		req.body.state = USER_DEFAULT_CONSTANTS.STATE;
@@ -226,7 +226,7 @@ export class UserMiddleware {
 	/**
 	 * lHasValidPatchAttributes
 	 * @param body, the request body attributes
-	 *  @returns string, empty if all attributes are valid, the list of invalid attributes otherwise
+	 * @returns string, empty if all attributes are valid, the list of invalid attributes otherwise
 	 */
 	lHasValidPatchAttributes(body: any): string {
 		let errorMessage: string = "";
@@ -240,6 +240,22 @@ export class UserMiddleware {
 			}
 		}
 		return errorMessage
+	}
+	
+	/**
+	 * lRoleIsValid, the user role
+	 * @param role
+	 * @returns boolean, true if roles valid,false otherwise
+	 */
+	lRoleIsValid(role: string): boolean {
+		let valid: boolean = true;
+		const upperCaseRole = role.toUpperCase();
+		let roles = Object.keys(USER_ROLE);
+		const upperCaseRoles = roles.map(x => x.toUpperCase());
+		if (upperCaseRoles.findIndex(key => key===upperCaseRole) === -1) {
+			valid = false
+		}
+		return valid;
 	}
 }
 export default UserMiddleware.getInstance();

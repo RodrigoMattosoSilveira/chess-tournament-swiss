@@ -19,7 +19,7 @@ export interface UserDto {
 	id: string;
 	lastName: string;
 	password: string;
-	permissionLevel: number;
+	role: string;
 	rating: number;
 	ratingState: string;
 	state: string;
@@ -50,12 +50,12 @@ export interface IUserPatch {
 	firstName?: string;
 	lastName?: string;
 	password?: string;
-	permissionLevel?: number;
+	role?: string;
 	rating?: number;
 	ratingState?: string;
 	state?: string;
 }
-export const patchableAttributes = ["email", "firstName", "lastName", "password", "permissionLevel", "rating", "ratingState", "state"]
+export const patchableAttributes = ["email", "firstName", "lastName", "password", "role", "rating", "ratingState", "state"]
 
 /**
  *  Interface representing the object returned from the DAO layer. Only one of the two can be present.
