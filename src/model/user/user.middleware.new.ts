@@ -104,6 +104,22 @@ export class UserMiddleware {
 		}
 	}
 	
+	async emailIsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if (req.body.email && !isValidEmail(req.body.email)) {
+			res.status(400).send({error: `Invalid user email: ` + req.body.email});
+		} else {
+			next();
+		}
+	}
+	
+	async emailIsUnique(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if (!await this.lEmailExists(req.body.email)) {
+			next()
+		} else {
+			res.status(400).send({error: `User email already exists: ` + req.body.id});
+		}
+	}
+	
 	async permissionLevelIsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
 	}
 	
@@ -111,9 +127,14 @@ export class UserMiddleware {
 	async ratingIsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
 	}
 	
-	// If provided, it is a valid email string and is not in use
-	async patchEmailIsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
+	// rating state is valid
+	async ratingStateIsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
 	}
+	
+	// state is valid
+	async stateIsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
+	}
+	
 	//****************************** Auxiliary methods for testing purposes *******************************************
 	/**
 	 * lAddAttributeDefaults Fills up req.body generated attributes with their default values

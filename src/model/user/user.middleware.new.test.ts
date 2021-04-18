@@ -90,7 +90,7 @@ describe('User Middleware Unit Tests', () => {
 			expect(userDao.idExists).toHaveBeenCalledWith(id);
 			done();
 		});
-		it('non existing entity', async done => {
+		it('existing entity', async done => {
 			let id: string = "non_existing_user_id";
 			// @ts-ignore
 			userDao.idExists.mockResolvedValue(Promise.resolve(true));
@@ -186,7 +186,6 @@ describe('User Middleware Unit Tests', () => {
 			expect(errorMessage).toEqual("extraneous");
 			done();
 		})
-		
 	});
 	describe('patchable attributes', () => {
 		it('all valid patchable attributes present', async done => {
@@ -218,7 +217,26 @@ describe('User Middleware Unit Tests', () => {
 			expect(invalidPatchAttributes).toEqual("id");
 			done();
 		});
-		
 	})
+	describe('Validate that the email is unique', () => {
+		it('unique email', async done => {
+			let email: string = "unique.email@gmail.com";
+			// @ts-ignore
+			userDao.emailExists.mockResolvedValue(Promise.resolve(false));
+			expect(await userMiddleware.lEmailExists(email)).toEqual(false);
+			expect(userDao.emailExists).toHaveBeenCalled();
+			expect(userDao.emailExists).toHaveBeenCalledWith(email);
+			done();
+		});
+		it('existing email', async done => {
+			let email: string = "unique.email@rocketmail.com";
+			// @ts-ignore
+			userDao.emailExists.mockResolvedValue(Promise.resolve(true));
+			expect(await userMiddleware.lEmailExists(email)).toEqual(true);
+			expect(userDao.emailExists).toHaveBeenCalled();
+			expect(userDao.emailExists).toHaveBeenCalledWith(email);
+			done();
+		});
+	});
 });
 
