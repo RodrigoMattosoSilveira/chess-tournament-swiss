@@ -4,7 +4,7 @@ import shortid from "shortid";
 // todo: change it to service
 import userService from './user.service';
 import {user_states} from "../../contants/contants";
-import {EMAIL_VALIDATION, USER_DEFAULT_CONSTANTS, USER_RATING, USER_RATING_STATE, USER_ROLE} from "./user.constants"
+import {EMAIL_VALIDATION, USER_DEFAULT_CONSTANTS, USER_RATING, USER_RATING_STATE, USER_ROLE, USER_STATE} from "./user.constants"
 import {isStringNumeric, isValidEmail} from "../../utils/utils";
 import userDao from './user.dao';
 import {EmailValidationCodeT, requiredCreateAttributes, patchableAttributes} from "./user.interfaces";
@@ -134,16 +134,27 @@ export class UserMiddleware {
 		if(isStringNumeric(req.body.rating)) {
 			next()
 		} else {
-			res.status(400).send({error: `User rating, ${req.body.rating}, is not numberic`});
+			res.status(400).send({error: `User rating, ${req.body.rating}, is not numeric`});
 		}
 	}
 	
 	// rating is between USER_RATING.MINIMUM and USER_RATING.MAXIMUM
 	async ratingIsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
+		let errorMessage = this.lRatingIsValid(req.body.rating);
+		if (errorMessage.length === 0) {
+			next()
+		} else {
+			res.status(400).send({error: errorMessage});
+		}
 	}
 	
 	// rating state is valid
 	async ratingStateIsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if(this.lRatingStateIsValid(req.body.ratingState)) {
+			next()
+		} else {
+			res.status(400).send({error: `User rating state, ${req.body.ratingState}, is not valid`});
+		}
 	}
 	
 	// state is valid
@@ -306,6 +317,16 @@ export class UserMiddleware {
 		return valid;
 	}
 	
+	lStateIsValid(state: string) : boolean {
+		let valid: boolean = true;
+		const upperCaseState = state.toUpperCase();
+		let states = Object.keys(USER_STATE);
+		const upperCaseStates = states.map(x => x.toUpperCase());
+		if (upperCaseStates.findIndex(key => key===upperCaseState) === -1) {
+			valid = false
+		}
+		return valid;
+	}
 }
 export default UserMiddleware.getInstance();
 

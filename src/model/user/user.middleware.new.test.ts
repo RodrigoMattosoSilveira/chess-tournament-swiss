@@ -275,5 +275,17 @@ describe('User Middleware Unit Tests', () => {
 			done();
 		});
 	});
+	describe('Validate that state is valid', () => {
+		it('valid rating state', async done => {
+			expect (userMiddleware.lStateIsValid(USER_STATE.ACTIVE)).toEqual(true);
+			expect (userMiddleware.lStateIsValid(USER_STATE.INACTIVE)).toEqual(true);
+			done();
+		});
+		it('invalid rating state', async done => {
+			expect (userMiddleware.lStateIsValid("ACTIVEe")).toEqual(false);
+			expect (userMiddleware.lStateIsValid("EFFFECTIVEe")).toEqual(false);
+			done();
+		});
+	})
 });
 
