@@ -27,3 +27,8 @@ export const USER_DEFAULT_CONSTANTS = {
 	STATE: USER_STATE.ACTIVE
 }
 
+export const USER_RATING = {
+	MINIMUM: 500,
+	MAXIMUM: 3000
+}
+

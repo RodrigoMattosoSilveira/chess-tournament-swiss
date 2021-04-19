@@ -4,8 +4,8 @@ import shortid from "shortid";
 // todo: change it to service
 import userService from './user.service';
 import {user_states} from "../../contants/contants";
-import {EMAIL_VALIDATION, USER_DEFAULT_CONSTANTS, USER_ROLE} from "./user.constants"
-import {isValidEmail} from "../../utils/utils";
+import {EMAIL_VALIDATION, USER_DEFAULT_CONSTANTS, USER_RATING, USER_ROLE} from "./user.constants"
+import {isStringNumeric, isValidEmail} from "../../utils/utils";
 import userDao from './user.dao';
 import {EmailValidationCodeT, requiredCreateAttributes, patchableAttributes} from "./user.interfaces";
 
@@ -121,9 +121,24 @@ export class UserMiddleware {
 	}
 	
 	async roleIsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
+		let errorMessage = this.lRatingIsValid(req.body.role);
+		if (errorMessage.length === 0) {
+			next()
+		} else {
+			res.status(400).send({error: errorMessage});
+		}
 	}
 	
-	// rating must be numeric, be between 0 and 3000 (no one in the world is rated above 3000)
+	// rating must be numeric
+	async ratingIsNumeric(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if(isStringNumeric(req.body.rating)) {
+			next()
+		} else {
+			res.status(400).send({error: `User rating, ${req.body.rating}, is not numberic`});
+		}
+	}
+	
+	// rating is between USER_RATING.MINIMUM and USER_RATING.MAXIMUM
 	async ratingIsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
 	}
 	
@@ -256,6 +271,23 @@ export class UserMiddleware {
 			valid = false
 		}
 		return valid;
+	}
+	
+	/**
+	 * lRatingIsValid, must be numeric, and be between USER_RATING.MINIMUM and USER_RATING.MAXIMUM
+	 * @param rating, empty string is valid, error message otherwise
+	 */
+	lRatingIsValid(rating: string): string {
+		let errorMessage: string = "";
+		const nRating: number = +rating;
+		if (nRating < USER_RATING.MINIMUM) {
+			errorMessage = "User rating, " + rating + ", is less than minimum, " + USER_RATING.MINIMUM;
+		} else {
+			if (nRating > USER_RATING.MAXIMUM) {
+				errorMessage = "User rating, " + rating + ", is greater than maximum, " + USER_RATING.MAXIMUM;
+			}
+		}
+		return errorMessage
 	}
 }
 export default UserMiddleware.getInstance();

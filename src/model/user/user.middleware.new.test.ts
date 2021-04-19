@@ -1,7 +1,7 @@
 import express from 'express';
 
 import { UserMiddleware } from "./user.middleware.new";
-import {isValidEmail} from "../../utils/utils";
+import {isStringNumeric, isValidEmail} from "../../utils/utils";
 import userDao from './user.dao';
 jest.mock('./user.dao');
 
@@ -251,6 +251,17 @@ describe('User Middleware Unit Tests', () => {
 			expect(userMiddleware.lRoleIsValid("users")).toEqual(false);
 			done();
 		})
+	});
+	describe('Validate that rating is valid', () => {
+		it('valid rating', async done => {
+			expect (isStringNumeric("1300")).toEqual(true);
+			done();
+		});
+		it('invalid ratings', async done => {
+			expect(userMiddleware.lRatingIsValid("400")).toEqual("User rating, 400, is less than minimum, 500");
+			expect(userMiddleware.lRatingIsValid("3100")).toEqual("User rating, 3100, is greater than maximum, 3000");
+			done();
+		});
 	});
 });
 
