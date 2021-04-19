@@ -4,7 +4,7 @@ import shortid from "shortid";
 // todo: change it to service
 import userService from './user.service';
 import {user_states} from "../../contants/contants";
-import {EMAIL_VALIDATION, USER_DEFAULT_CONSTANTS, USER_RATING, USER_ROLE} from "./user.constants"
+import {EMAIL_VALIDATION, USER_DEFAULT_CONSTANTS, USER_RATING, USER_RATING_STATE, USER_ROLE} from "./user.constants"
 import {isStringNumeric, isValidEmail} from "../../utils/utils";
 import userDao from './user.dao';
 import {EmailValidationCodeT, requiredCreateAttributes, patchableAttributes} from "./user.interfaces";
@@ -289,6 +289,23 @@ export class UserMiddleware {
 		}
 		return errorMessage
 	}
+	
+	/**
+	 * lRatingStateIsValid, the user role
+	 * @param rate state
+	 * @returns boolean, true if rate state valid,false otherwise
+	 */
+	lRatingStateIsValid(ratingState: string): boolean {
+		let valid: boolean = true;
+		const upperCaseRatingState = ratingState.toUpperCase();
+		let ratingStates = Object.keys(USER_RATING_STATE);
+		const upperCaseRatingStates = ratingStates.map(x => x.toUpperCase());
+		if (upperCaseRatingStates.findIndex(key => key===upperCaseRatingState) === -1) {
+			valid = false
+		}
+		return valid;
+	}
+	
 }
 export default UserMiddleware.getInstance();
 

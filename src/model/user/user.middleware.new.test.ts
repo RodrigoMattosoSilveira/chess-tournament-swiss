@@ -263,5 +263,17 @@ describe('User Middleware Unit Tests', () => {
 			done();
 		});
 	});
+	describe('Validate that rating state is valid', () => {
+		it('valid rating state', async done => {
+			expect (userMiddleware.lRatingStateIsValid(USER_RATING_STATE.PROVISIONAL)).toEqual(true);
+			expect (userMiddleware.lRatingStateIsValid(USER_RATING_STATE.EFFECTIVE)).toEqual(true);
+			done();
+		});
+		it('invalid rating state', async done => {
+			expect (userMiddleware.lRatingStateIsValid("PROVISIONALl")).toEqual(false);
+			expect (userMiddleware.lRatingStateIsValid("EFFFECTIVE")).toEqual(false);
+			done();
+		});
+	});
 });
 
