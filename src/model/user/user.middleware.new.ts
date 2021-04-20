@@ -104,6 +104,10 @@ export class UserMiddleware {
 		}
 	}
 	
+	async hasOnlyValidPatchAttributes(req: express.Request, res: express.Response, next: express.NextFunction) {
+	
+	}
+	
 	async emailIsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
 		if (req.body.email && !isValidEmail(req.body.email)) {
 			res.status(400).send({error: `Invalid user email: ` + req.body.email});
@@ -121,44 +125,69 @@ export class UserMiddleware {
 	}
 	
 	async roleIsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
-		let errorMessage = this.lRatingIsValid(req.body.role);
-		if (errorMessage.length === 0) {
-			next()
+		if (req.body.role) {
+			let errorMessage = this.lRatingIsValid(req.body.role);
+			if (errorMessage.length === 0) {
+				next()
+			} else {
+				res.status(400).send({error: errorMessage});
+			}
 		} else {
-			res.status(400).send({error: errorMessage});
+			next();
 		}
 	}
 	
 	// rating must be numeric
 	async ratingIsNumeric(req: express.Request, res: express.Response, next: express.NextFunction) {
-		if(isStringNumeric(req.body.rating)) {
-			next()
+		if (req.body.rating) {
+			if(isStringNumeric(req.body.rating)) {
+				next()
+			} else {
+				res.status(400).send({error: `User rating, ${req.body.rating}, is not numeric`});
+			}
 		} else {
-			res.status(400).send({error: `User rating, ${req.body.rating}, is not numeric`});
+			next()
 		}
 	}
 	
 	// rating is between USER_RATING.MINIMUM and USER_RATING.MAXIMUM
 	async ratingIsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
-		let errorMessage = this.lRatingIsValid(req.body.rating);
-		if (errorMessage.length === 0) {
-			next()
+		if (req.body.rating) {
+			let errorMessage = this.lRatingIsValid(req.body.rating);
+			if (errorMessage.length === 0) {
+				next()
+			} else {
+				res.status(400).send({error: errorMessage});
+			}
 		} else {
-			res.status(400).send({error: errorMessage});
+			next()
 		}
 	}
 	
 	// rating state is valid
 	async ratingStateIsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
-		if(this.lRatingStateIsValid(req.body.ratingState)) {
-			next()
+		if (req.body.ratingState) {
+			if(this.lRatingStateIsValid(req.body.ratingState)) {
+				next()
+			} else {
+				res.status(400).send({error: `User rating state, ${req.body.ratingState}, is not valid`});
+			}
 		} else {
-			res.status(400).send({error: `User rating state, ${req.body.ratingState}, is not valid`});
+			next()
 		}
 	}
 	
 	// state is valid
 	async stateIsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if (req.body.state) {
+			if(this.lStateIsValid(req.body.state)) {
+				next()
+			} else {
+				res.status(400).send({error: `User state, ${req.body.state}, is not valid`});
+			}
+		} else {
+			next()
+		}
 	}
 	
 	//****************************** Auxiliary methods for testing purposes *******************************************
@@ -233,7 +262,8 @@ export class UserMiddleware {
 	/**
 	 * lHasOnlyRequiredCreateAttributes
 	 * @param body, the request body attributes
-	 * @returns string, empty if all attributes are valid, the list of invalid attributes otherwise
+	 * @returns string, empty if all body attributes are valid create attributes, the list of invalid body attributes
+	 * otherwise
 	 */
 	lHasOnlyRequiredCreateAttributes(body: any): string {
 		let errorMessage: string = "";
@@ -255,6 +285,26 @@ export class UserMiddleware {
 	 * @returns string, empty if all attributes are valid, the list of invalid attributes otherwise
 	 */
 	lHasValidPatchAttributes(body: any): string {
+		let errorMessage: string = "";
+		let bodyKeys = Object.keys(body);
+		for (let bodyKey of bodyKeys) {
+			if (patchableAttributes.findIndex(key => key===bodyKey) === -1) {
+				if (errorMessage.length > 0) {
+					errorMessage += ', ';
+				}
+				errorMessage += bodyKey;
+			}
+		}
+		return errorMessage
+	}
+	
+	/**
+	 * lHasOnlValidPatchAttributes
+	 * @param body, the request body attributes
+	 * @returns string, empty if all body attributes are valid patch attributes are valid, the list of invalid
+	 * body attributes otherwise
+	 */
+	lHasOnlValidPatchAttributes(body: any): string {
 		let errorMessage: string = "";
 		let bodyKeys = Object.keys(body);
 		for (let bodyKey of bodyKeys) {

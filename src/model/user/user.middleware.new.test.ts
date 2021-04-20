@@ -217,7 +217,38 @@ describe('User Middleware Unit Tests', () => {
 			expect(invalidPatchAttributes).toEqual("id");
 			done();
 		});
-	})
+	});
+	describe('only valid patch attributes', () => {
+		it('all valid patchable attributes present', async done => {
+			let body: IUserPatch = {
+				email:"a.b@c.com",
+				firstName: "Paul",
+				lastName: "White",
+				password: "ThoughToFigureOut",
+				role: USER_ROLE.USER,
+				rating: 1567,
+				state: USER_STATE.ACTIVE
+			}
+			let invalidPatchAttributes = userMiddleware.lHasOnlValidPatchAttributes(body)
+			expect(invalidPatchAttributes).toEqual("");
+			done();
+		});
+		it('an invalid patchable attributes present', async done => {
+			let body: any = {
+				email:"a.b@c.com",
+				emaill:"a.b@c.com",
+				firstName: "Paul",
+				lastName: "White",
+				password: "ThoughToFigureOut",
+				role: USER_ROLE.USER,
+				rating: 1567,
+				state: USER_STATE.ACTIVE
+			}
+			let invalidPatchAttributes = userMiddleware.lHasOnlValidPatchAttributes(body)
+			expect(invalidPatchAttributes).toEqual("emaill");
+			done();
+		});
+	});
 	describe('Validate that the email is unique', () => {
 		it('unique email', async done => {
 			let email: string = "unique.email@gmail.com";
