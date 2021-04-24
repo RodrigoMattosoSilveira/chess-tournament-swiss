@@ -1,4 +1,4 @@
-import {isValidEmail, isStringNumeric, isValidDate} from "./utils";
+import {isValidEmail, isStringNumeric, isValidDate, isPasswordStrong} from "./utils";
 
 describe('Util Unit Tests', () => {
 	describe('Validate that a string contains only numeric characters', () => {
@@ -42,4 +42,36 @@ describe('Util Unit Tests', () => {
 			done();
 		});
 	})
+	describe('Validate password strength', () => {
+		it('meets criteria', async done => {
+			const password: string = "U1a!qwe3";
+			expect(isPasswordStrong(password)).toEqual(true);
+			done();
+		});
+		it('not long enough', async done => {
+			const password: string = "U1a!qwe";
+			expect(isPasswordStrong(password)).toEqual(false);
+			done();
+		});
+		it('missing upper case', async done => {
+			const password: string = "u1a!qwe";
+			expect(isPasswordStrong(password)).toEqual(false);
+			done();
+		});
+		it('missing number', async done => {
+			const password: string = "Uda!qwew";
+			expect(isPasswordStrong(password)).toEqual(false);
+			done();
+		});
+		it('missing lower case', async done => {
+			const password: string = "UdA!QQQQ";
+			expect(isPasswordStrong(password)).toEqual(false);
+			done();
+		});
+		it('missing special character', async done => {
+			const password: string = "UdA1qqqq";
+			expect(isPasswordStrong(password)).toEqual(false);
+			done();
+		});
+	});
 });

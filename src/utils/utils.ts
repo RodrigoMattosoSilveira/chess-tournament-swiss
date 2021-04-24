@@ -44,7 +44,7 @@ export const isStringNumeric = (value: string): boolean => {
  * @return boolean, true if value represents a valid date, false otherwise
  */
 export const isValidDate = (value: string): boolean => {
-	console.log("\nUtils/isValidDate: " + value + "\n");
+	// console.log("\nUtils/isValidDate: " + value + "\n");
 	const regexp =new RegExp(/^((((0[13578])|([13578])|(1[02]))[\/](([1-9])|([0-2][0-9])|(3[01])))|(((0[469])|([469])|(11))[\/](([1-9])|([0-2][0-9])|(30)))|((2|02)[\/](([1-9])|([0-2][0-9]))))[\/]\d{4}$|^\d{4}$/g);
 	return regexp.test(value);
 }
@@ -63,4 +63,52 @@ export const isValidEmail = (value: string): boolean => {
 		validEmail = false;
 	}
 	return validEmail;
+}
+
+/**
+ * Assess whether a password satisfied the following criteria
+ * - it is longer than 7 characters
+ * - it has at least one upper case character
+ * - it has at least one number
+ * - it has at least one lower case character
+ * - it has at least one special character
+ *
+ * @param password
+ * @return boolean, true if password meets criteria, false otherwise
+ */
+export const isPasswordStrong = (password: string): boolean => {
+	// let strengthCounter: number = 0;
+	let passwordIsStrong: boolean = true;
+	
+	// To avoid TS7053
+	// https://stackoverflow.com/questions/56833469/typescript-error-ts7053-element-implicitly-has-an-any-type
+	let strengthValue: {[key: string]:boolean}= {
+		UPPERCASE: false,
+		LENGTH: false,
+		SPECIAL: false,
+		NUMBERS: false,
+		LOWERCASE: false
+	};
+	
+	if(password.length >= 8) {
+		strengthValue.LENGTH = true;
+		for(let index=0; index < password.length; index++) {
+			let char = password.charCodeAt(index);
+			if(!strengthValue.UPPERCASE && char >= 65 && char <= 90) {
+				strengthValue.UPPERCASE = true;
+			} else if(!strengthValue.NUMBERS && char >=48 && char <= 57){
+				strengthValue.NUMBERS = true;
+			} else if(!strengthValue.LOWERCASE && char >=97 && char <= 122){
+				strengthValue.LOWERCASE = true;
+			} else if(!strengthValue.SPECIAL && (char >=33 && char <= 47) || (char >=58 && char <= 64)) {
+				strengthValue.SPECIAL = true;
+			}
+		}
+	}
+	
+	for (let key of Object.keys(strengthValue)) {
+		passwordIsStrong = passwordIsStrong && strengthValue[key];
+	}
+	
+	return passwordIsStrong;
 }
