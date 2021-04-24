@@ -23,17 +23,17 @@ class UserController {
 		return UserController.instance;
 	}
 	
-	async listUsers(req: express.Request, res: express.Response) {
+	async list(req: express.Request, res: express.Response) {
 		const users = await userService.list(/* 100, 0 */);
 		res.status(200).send(users);
 	}
 	
-	async getUserById(req: express.Request, res: express.Response) {
+	async getById(req: express.Request, res: express.Response) {
 		const user = await userService.readById(req.params.userId);
 		res.status(200).send(user);
 	}
 	
-	async createUser(req: express.Request, res: express.Response) {
+	async create(req: express.Request, res: express.Response) {
 		req.body.password = await argon2.hash(req.body.password);
 		const userId = await userService.create(req.body);
 		res.status(201).send({id: userId});

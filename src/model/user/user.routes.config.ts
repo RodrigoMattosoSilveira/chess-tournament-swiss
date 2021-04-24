@@ -27,31 +27,40 @@ export class UserRoutes extends CommonRoutesConfig {
 	 */
 	configureRoutes() {
 		this.app.route(`/user`)
-			.get(UserController.listUsers)
+			.get(UserController.list)
 			.post(
-				UserMiddleware.validateRequiredUserBodyFields,
-				UserMiddleware.validateEmail,
-				UserMiddleware.validateSameEmailDoesntExist,
-				UserController.createUser);
+				UserMiddleware.hasRequiredCreateAttributes,
+				UserMiddleware.hasOnlyRequiredCreateAttributes,
+				UserMiddleware.emailIsValid,
+				UserMiddleware.emailIsUnique,
+				UserMiddleware.passwordIsStrong,
+				UserMiddleware.addAttributeDefaults,
+				UserController.create);
+
+		// This service does not support PUT / DELETE
+		this.app.put(`/user/:userId`,[
+			UserMiddleware.serviceDoesNotSupportPut,
+		]);
+		this.app.delete(`/user/:userId`,[
+			UserMiddleware.serviceDoesNotSupportDelete,
+		]);
 		
 		this.app.param(`userId`, UserMiddleware.extractUserId);
 		this.app.route(`/user/:userId`)
-			.all(UserMiddleware.validateUserExists)
-			.get(UserController.getUserById)
-			.delete(UserController.delete); // This service does not support DELETE
-		
-		// This service does not support PUT
-		this.app.put(`/user/:userId`,[
-			// UserMiddleware.validateRequiredUserBodyFields,
-			// UserMiddleware.validateSameEmailBelongToSameUser,
-			UserController.put
-		]);
+			.all(UserMiddleware.entityExists)
+			.get(UserController.getById);
 		
 		this.app.patch(`/user/:userId`, [
-			UserMiddleware.validateUserExists,
-			UserMiddleware.validateEmail,
-			UserMiddleware.validateSameEmailDoesntExist,
-			UserMiddleware.validateState,
+			UserMiddleware.hasValidPatchAttributes,
+			UserMiddleware.hasOnlyValidPatchAttributes,
+			UserMiddleware.emailIsValid,
+			UserMiddleware.emailIsUnique,
+			UserMiddleware.passwordIsStrong,
+			UserMiddleware.roleIsValid,
+			UserMiddleware.ratingIsNumeric,
+			UserMiddleware.ratingIsValid,
+			UserMiddleware.ratingStateIsValid,
+			UserMiddleware.stateIsValid,
 			UserController.patch
 		]);
 		

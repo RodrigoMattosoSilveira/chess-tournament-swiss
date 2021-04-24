@@ -1,7 +1,7 @@
 import express from 'express';
 
-import { UserMiddleware } from "./user.middleware.new";
-import {isStringNumeric, isValidEmail} from "../../utils/utils";
+import { UserMiddleware } from "./user.middleware";
+import * as utils from "../../utils/utils";
 import userDao from './user.dao';
 jest.mock('./user.dao');
 
@@ -38,13 +38,13 @@ describe('User Middleware Unit Tests', () => {
 		it('invalid email', async done => {
 			const inValidEmail: string = "a.b@c";
 			expect.assertions(1);
-			expect(isValidEmail(inValidEmail)).toEqual(false);
+			expect(utils.isValidEmail(inValidEmail)).toEqual(false);
 			done();
 		})
 		it('valid email', async done => {
 			const validEmail: string = "a.b@c.com";
 			expect.assertions(1);
-			expect(isValidEmail(validEmail)).toEqual(true);
+			expect(utils.isValidEmail(validEmail)).toEqual(true);
 			done();
 		})
 		it('valid email & unique email', async done => {
@@ -229,7 +229,7 @@ describe('User Middleware Unit Tests', () => {
 				rating: 1567,
 				state: USER_STATE.ACTIVE
 			}
-			let invalidPatchAttributes = userMiddleware.lHasOnlValidPatchAttributes(body)
+			let invalidPatchAttributes = userMiddleware.lHasOnlyValidPatchAttributes(body)
 			expect(invalidPatchAttributes).toEqual("");
 			done();
 		});
@@ -244,7 +244,7 @@ describe('User Middleware Unit Tests', () => {
 				rating: 1567,
 				state: USER_STATE.ACTIVE
 			}
-			let invalidPatchAttributes = userMiddleware.lHasOnlValidPatchAttributes(body)
+			let invalidPatchAttributes = userMiddleware.lHasOnlyValidPatchAttributes(body)
 			expect(invalidPatchAttributes).toEqual("emaill");
 			done();
 		});
@@ -285,7 +285,7 @@ describe('User Middleware Unit Tests', () => {
 	});
 	describe('Validate that rating is valid', () => {
 		it('valid rating', async done => {
-			expect (isStringNumeric("1300")).toEqual(true);
+			expect (utils.isStringNumeric("1300")).toEqual(true);
 			done();
 		});
 		it('invalid ratings', async done => {
