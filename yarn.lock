@@ -5435,6 +5435,11 @@ source-map@^0.7.3, source-map@~0.7.2:
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.7.3.tgz#5302f8169031735226544092e64981f751750383"
   integrity sha512-CkCj6giN3S+n9qrYiBTX5gystlENnRW5jZeNLHpe6aue+SrHcG5VYwujhW9s4dY31mEGsxBDrHR6oI69fTXsaQ==
 
+space-monad@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/space-monad/-/space-monad-1.0.0.tgz#82e5634bf9fff4618684637a5261039e54b30b82"
+  integrity sha512-+R4T54HQ403+rDxEXJ6cwzF+svRmvJU7Uz/WVUMPoRfFkQHsFkBIAtj9mN25Lo07+2TjwXIJwrnO7jsD12Jqkw==
+
 sparse-bitfield@^3.0.3:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/sparse-bitfield/-/sparse-bitfield-3.0.3.tgz#ff4ae6e68656056ba4b3e792ab3334d38273ca11"

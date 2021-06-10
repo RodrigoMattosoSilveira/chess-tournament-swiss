@@ -35,6 +35,7 @@
     "express-winston": "^4.0.5",
     "mongoose": "^5.12.0",
     "shortid": "^2.2.16",
+    "space-monad": "^1.0.0",
     "winston": "^3.3.3"
   },
   "devDependencies": {
