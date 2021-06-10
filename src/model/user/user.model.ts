@@ -8,3 +8,8 @@ export interface UserDto {
 	rating?: number;
 	state?: string; // active* or inactive
 }
+
+export interface UserError {
+	code: string;
+	message: string;
+}

@@ -1,9 +1,10 @@
 const fs = require('fs');
 import shortid from 'shortid';
 import debug from 'debug';
+import { Result, Ok, Err } from 'space-monad'
 const log: debug.IDebugger = debug('app:in-memory-dao');
 
-import {UserDto} from "./user.model";
+import {UserDto, UserError} from "./user.model";
 import {USER_STATE} from "../../contants/contants";
 import { UserMongo } from "./user-mongo";
 
