@@ -108,42 +108,32 @@ I found and adopted a very simple `monad`, the [space-monad](https://www.npmjs.c
 Prior to using it I wrote [unit tests](https://github.com/RodrigoMattosoSilveira/node-scripts/tree/master/monad) demonstrating how to use it in my own logic.
 
 In order to use it, I
-## Modeled the `DAO` error:
+## Modeled the `DAO` error, ok, and result objects:
 ````typescript
 // This is the same for all `entities`, and their calls
-export type DAOError = {
-	code: number,
-	content: string
-}
-````
-
-## Modeled the `UserDao` error:
-````typescript
-// This is the same for `user`, and their calls
-export type UserDaoResult = Result<DAOError, UserDto>
+export type DaoError = { code: number, content: string }
+export type DaoOk = { code: number, content: string }
+export type DaoResult = Result<DaoError, DaoOk>;
 ````
 
 ## Re-factored the `DAO` `create` method:
 We still use the `try/catch` constructor, but instead of throwing an error, we build a `Result` monad object and return it.
 ````typescript
-	create(user: UserDto): UserDaoResult {
-    let userDaoResult: UserDaoResult | undefined;
-    const userMongo = UserMongo.build({...user})
-    // await userMongo.save();
-    userMongo.save()
-        .then((user: UserDto) => {
-            userDaoResult = Ok(user);
-        })
-        .catch((error: any) => {
-            let thisError = {
-                code: 400,
-                content: JSON.stringify(error.errors)
-            }
-            userDaoResult = Err(thisError);
-        })
-    // @ts-ignore
-    return userDaoResult;
-}
+	create(user: UserDto): DaoResult {
+        let daoResult: DaoResult | undefined;
+        const userMongo = UserMongo.build({...user})
+        // await userMongo.save();
+        userMongo.save()
+            .then((user: UserDto) => {
+                // 201 = created
+                daoResult = Ok({code: 201, content: JSON.stringify(user)});
+            })
+            .catch((error: any) => {
+                daoResult = Err({code: 400, content: JSON.stringify(error.errors)});
+            })
+        // @ts-ignore
+        return daoResult;
+    }
 ````
 ## Re-factored the `CONTROLLER` `create` method:
 ````typescript
@@ -153,12 +143,12 @@ We still use the `try/catch` constructor, but instead of throwing an error, we b
 		let resultContent: string = '';
 		result.fold(
 			err => {
-				resultStatus = 400,
-				resultContent = err.content
+				resultStatus = 400;
+				resultContent = err.content;
 			},
 			result => {
-				resultStatus = 201,
-				resultContent = JSON.stringify(result)
+				resultStatus = 201;
+				resultContent = JSON.stringify(result);
 			},
 		)
 		res.status(resultStatus).send({resultContent});
