@@ -1,10 +1,11 @@
+import {DaoResult} from "../../common/generic.interfaces";
+
 const fs = require('fs');
 import debug from 'debug';
-import { Result, Ok, Err } from 'space-monad';
+import { Ok, Err } from 'space-monad';
 const log: debug.IDebugger = debug('app:in-memory-dao');
 
-import {UserDaoResult, UserDto} from "./user.model";
-import {DAOError} from "../../common/generic.interfaces";
+import { UserDto } from "./user.model";
 import { UserMongo } from "./user-mongo";
 
 /**
@@ -16,19 +17,17 @@ import { UserMongo } from "./user-mongo";
  */
 class UserDao {
 	private static instance: UserDao;
-	private static user: Array<UserDto> = [];
 
 	constructor() {
 		log('Created new instance of UserDao');
 	}
-	
+
 	static getInstance(): UserDao {
 		if (!UserDao.instance) {
 			UserDao.instance = new UserDao();
 			if (process.env.NODE_DATA === 'generated') {
 				try {
 					const data = fs.readFileSync('./generated-data/users.generated.json', 'utf8')
-					UserDao.user = JSON.parse(data)
 				} catch (err) {
 					console.error(err)
 				}
@@ -37,50 +36,88 @@ class UserDao {
 		return UserDao.instance;
 	}
 
-	create(user: UserDto): UserDaoResult {
-		let userDaoResult: UserDaoResult | undefined;
+	create(user: UserDto): DaoResult {
+		let daoResult: DaoResult | undefined;
 		const userMongo = UserMongo.build({...user})
 		// await userMongo.save();
 		userMongo.save()
 			.then((user: UserDto) => {
-				userDaoResult = Ok(user);
+				// 201 = created
+				daoResult = Ok({code: 201, content: JSON.stringify(user)});
 			})
 			.catch((error: any) => {
-				let thisError = {
-					code: 400,
-					content: JSON.stringify(error.errors)
-				}
-				userDaoResult = Err(thisError);
+				daoResult = Err({code: 400, content: JSON.stringify(error.errors)});
 			})
 		// @ts-ignore
-		return userDaoResult;
+		return daoResult;
 	}
 	
-	async getUsers() {
-		// return UserDao.user;
-		return UserMongo.find({})
+	list(): DaoResult {
+		let daoResult: DaoResult | undefined;
+		UserMongo.find({})
+			.then((user: UserDto[]) => {
+				// 200 = Ok
+				daoResult = Ok({code: 200, content: JSON.stringify(user)});
+			})
+			.catch((error: any) => {
+				daoResult = Err({code: 400, content: JSON.stringify(error.errors)});
+			})
+		// @ts-ignore
+		return daoResult;
 	}
-	
-	async getUserById(userId: string) {
-		// return UserDao.user.find((user: { id: string; }) => user.id === userId);
-		return UserMongo.findOne({id: userId}).lean();
+
+	readById(userId: string): DaoResult {
+		let daoResult: DaoResult | undefined;
+		// Find one entity whose `id` is 'id', otherwise `null`
+		UserMongo.findOne({id: userId}).lean()
+			.then((user: any) => {
+				if (user) {
+					// Found, 200 = Ok
+					daoResult = Ok({code: 200, content: JSON.stringify(user)});
+				}
+				else {
+					// Did not find, 204 = No Content
+					daoResult = Ok({code: 204, content: "No content"});
+				}
+			})
+			.catch((error: any) => {
+				daoResult = Err({code: 400, content: JSON.stringify(error.errors)});
+			})
+		// @ts-ignore
+		return daoResult;
 	}
-	
-	async emailExists(email: string): Promise<boolean> {
-		return await UserMongo.exists({email: email});
+
+	async idExists(id: string): Promise<DaoResult> {
+		return this.readById(id);
 	}
-	
-	async idExists(id: string): Promise<boolean> {
-		return await UserMongo.exists({id: id});
+
+	getByEmail(email: string): DaoResult {
+		let daoResult: DaoResult | undefined;
+		// Find one entity whose `id` is 'id', otherwise `null`
+		UserMongo.findOne({email: email}).lean()
+			.then((user: any) => {
+				if (user) {
+					// Found, 200 = Ok
+					daoResult = Ok({code: 200, content: JSON.stringify(user)});
+				}
+				else {
+					// Did not find, 204 = No Content
+					daoResult = Ok({code: 204, content: "No content"});
+				}
+			})
+			.catch((error: any) => {
+				daoResult = Err({code: 400, content: JSON.stringify(error.errors)});
+			})
+		// @ts-ignore
+		return daoResult;
 	}
-	
-	async putUserById(user: UserDto) {
-		const objIndex = UserDao.user.findIndex((obj: { id: string; }) => obj.id === user.id);
-		UserDao.user.splice(objIndex, 1, user);
-		return `${user.id} updated via put`;
+
+	async emailExists(email: string): Promise<DaoResult> {
+		return this.getByEmail(email);
 	}
-	
-	async patchUserById(user: UserDto): Promise<string> {
+
+	patchUserById(user: UserDto): DaoResult {
+		let daoResult: DaoResult | undefined;
 		// Do not use lean, so that we have the save method!
 		let conditions = {id: user.id};
 		let update = {}
@@ -93,26 +130,38 @@ class UserDao {
 		}
 		let options = {new: true};
 		// https://mongoosejs.com/docs/tutorials/findoneandupdate.html
-		await UserMongo.findOneAndUpdate(conditions, update, options).exec();
-		return user.id;
+		UserMongo.findOneAndUpdate(conditions, update, options).exec()
+			.then((user: any) => {
+				if (user) {
+					// Found, 200 = Ok
+					daoResult = Ok({code: 200, content: JSON.stringify(user)});
+				}
+				else {
+					// Did not find, 204 = No Content
+					daoResult = Ok({code: 204, content: "No content"});
+				}
+			})
+			.catch((error: any) => {
+				daoResult = Err({code: 400, content: JSON.stringify(error.errors)});
+			})
+		// @ts-ignore
+		return daoResult;
 	}
-	
-	async removeUserById(userId: string) {
-		const objIndex = UserDao.user.findIndex((obj: { id: string; }) => obj.id === userId);
-		UserDao.user.splice(objIndex, 1);
-		return `${userId} removed`;
-	}
-	
-	async getUserByEmail(email: string) {
-		const objIndex = UserDao.user.findIndex((obj: { email: string; }) => obj.email === email);
-		let currentUser = UserDao.user[objIndex];
-		if (currentUser) {
-			return currentUser;
-		} else {
-			return null;
-		}
-	}
-	
+
+	// Not supported
+	// async deleteById(userId: string): Promise<string> {
+	// 	const objIndex = UserDao.user.findIndex((obj: { id: string; }) => obj.id === userId);
+	// 	UserDao.user.splice(objIndex, 1);
+	// 	return `${userId} removed`;
+	// }
+
+	// Not supported
+	// async putUserById(user: UserDto) {
+	// 	const objIndex = UserDao.user.findIndex((obj: { id: string; }) => obj.id === user.id);
+	// 	UserDao.user.splice(objIndex, 1, user);
+	// 	return `${user.id} updated via put`;
+	// }
+
 }
 
 export default UserDao.getInstance();

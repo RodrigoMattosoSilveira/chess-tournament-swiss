@@ -1,6 +1,3 @@
-import { Result } from 'space-monad';
-import {DAOError} from "../../common/generic.interfaces";
-
 export interface UserDto {
 	id: string;
 	email: string;
@@ -11,5 +8,3 @@ export interface UserDto {
 	rating?: number;
 	state?: string; // active* or inactive
 }
-
-export type UserDaoResult = Result<DAOError, UserDto>

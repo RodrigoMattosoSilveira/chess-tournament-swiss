@@ -6,6 +6,7 @@ import {EMAIL_VALIDATION, USER_DEFAULT_CONSTANTS, USER_RATING, USER_RATING_STATE
 import * as utils from "../../utils/utils";
 import userDao from './user.dao';
 import {EmailValidationCodeT, requiredCreateAttributes, patchableAttributes} from "./user.interfaces";
+import { DaoResult } from "../../common/generic.interfaces";
 
 
 export class UserMiddleware {
@@ -251,7 +252,27 @@ export class UserMiddleware {
 	 * @returns boolean, true if an entity with this email exists, false otherwise
 	 */
 	async lEmailExists (email: string): Promise<boolean> {
-		return await userDao.emailExists(email);
+		let daoResult: DaoResult = await userDao.emailExists(email);
+		let exists: boolean = false
+		daoResult.fold(
+			err => {
+				exists = false;
+			},
+			result => {
+				switch (result.code) {
+					case 200:
+						exists = true;
+						break;
+					case 204:
+						exists = false;
+						break;
+					default:
+						exists = false;
+						break
+				}
+			},
+		);
+		return exists;
 	}
 	
 	/**
@@ -260,7 +281,27 @@ export class UserMiddleware {
 	 * @returns boolean, true if an entity with this id exists, false otherwise
 	 */
 	async lEntityExists (id: string): Promise<boolean> {
-		return  await userDao.idExists(id);
+		let daoResult: DaoResult = await userDao.idExists(id);
+		let exists: boolean = false
+		daoResult.fold(
+			err => {
+				exists = false;
+			},
+			result => {
+				switch (result.code) {
+					case 200:
+						exists = true;
+						break;
+					case 204:
+						exists = false;
+						break;
+					default:
+						exists = false;
+						break
+				}
+			},
+		);
+		return exists;
 	}
 	
 	/**

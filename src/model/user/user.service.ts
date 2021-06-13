@@ -1,7 +1,7 @@
 import userDao from './user.dao';
 import { CRUD } from "../../common/crud.interface";
-import {UserDaoResult, UserDto} from "./user.model";
-import { Result, Ok, Err } from 'space-monad';
+import { UserDto } from "./user.model";
+import { DaoResult } from "../../common/generic.interfaces";
 
 class UserService implements CRUD {
 	private static instance: UserService;
@@ -13,34 +13,36 @@ class UserService implements CRUD {
 		return UserService.instance;
 	}
 	
-	async create(resource: UserDto): Promise<UserDaoResult> {
+	async create(resource: UserDto): Promise<DaoResult> {
 		return userDao.create(resource);
 	}
-	
-	async deleteById(resourceId: string) {
-		return await userDao.removeUserById(resourceId);
+
+	async list(/*limit: number, page: number*/): Promise<DaoResult> { // limit and page are ignored until we upgrade our DAO
+		return userDao.list();
 	};
-	
-	async list(/*limit: number, page: number*/) { // limit and page are ignored until we upgrade our DAO
-		return await userDao.getUsers();
+
+	async readById(resourceId: string): Promise<DaoResult> {
+		return userDao.readById(resourceId);
 	};
-	
-	async patchById(resource: UserDto) {
-		return await userDao.patchUserById(resource)
-	};
-	
-	async readById(resourceId: string) {
-		return await userDao.getUserById(resourceId);
-	};
-	
-	async updateById(resource: UserDto) {
-		return await userDao.putUserById(resource);
-	};
-	
-	async getUserByEmail(email: string) {
-		return userDao.getUserByEmail(email);
-		
+
+	async getByEmail(email: string): Promise<DaoResult> {
+		return userDao.getByEmail(email);
+
 	}
+
+	async patchById(resource: UserDto): Promise<DaoResult> {
+		return userDao.patchUserById(resource)
+	};
+
+	// Not supported
+	// async deleteById(resourceId: string) {
+	// 	return await userDao.deleteById(resourceId);
+	// };
+
+	// Not supported
+	// async updateById(resource: UserDto) {
+	// 	return await userDao.putUserById(resource);
+	// };
 }
 
 export default UserService.getInstance();

@@ -1,13 +1,18 @@
 // a generic type to capture the result of a DAO read operation, where
+import {Result} from "space-monad";
+import {UserDto} from "../model/user/user.model";
+
 export type OneOrMany<Type> = Type | Type[];
 
-// A generic type to capture the result of a DAO operation
-export type DAOResponse<Type> = {
-	result?: OneOrMany<Type>;
-	error?: any
-}
-
-export type DAOError = {
+export type DaoError = {
 	code: number,
 	content: string
 }
+
+export type DaoOk = {
+	code: number,
+	content: string
+}
+
+export type DaoResult = Result<DaoError, DaoOk>;
+
