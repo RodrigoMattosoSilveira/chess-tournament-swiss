@@ -10,6 +10,6 @@ export interface UserDto {
 }
 
 export interface UserError {
-	code: string;
+	code: number;
 	message: string;
 }

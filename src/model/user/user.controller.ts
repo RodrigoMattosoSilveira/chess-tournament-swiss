@@ -1,5 +1,6 @@
 // we import express to add types to the request/response objects from our controller functions
 import express from 'express';
+import { Result, Ok, Err } from 'space-monad';
 
 // we import our newly created user services
 import userService from './user.service';
@@ -9,6 +10,7 @@ import argon2 from 'argon2';
 
 // we use debug with a custom context as described in Part 1
 import debug from 'debug';
+import {UserDto, UserError} from "./user.model";
 
 const log: debug.IDebugger = debug('app:user-controller');
 
@@ -34,9 +36,21 @@ class UserController {
 	}
 	
 	async create(req: express.Request, res: express.Response) {
-		req.body.password = await argon2.hash(req.body.password);
-		const userId = await userService.create(req.body);
-		res.status(201).send({id: userId});
+		const result: Result<UserError, UserDto> = await userService.create(req.body);
+		let resultStatus: number = 0;
+		let resultContent: string = '';
+		result.fold(
+			err => {
+				resultStatus = 400,
+					resultContent = err.message;
+			},
+			result => {
+				resultStatus = 201,
+					resultContent = JSON.stringify(result);
+
+			},
+		)
+		res.status(resultStatus).send({resultContent});
 	}
 	
 	async patch(req: express.Request, res: express.Response) {

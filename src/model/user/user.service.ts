@@ -1,6 +1,7 @@
 import userDao from './user.dao';
 import {CRUD} from "../../common/crud.interface";
-import {UserDto} from "./user.model";
+import {UserDto, UserError} from "./user.model";
+import { Result, Ok, Err } from 'space-monad';
 
 class UserService implements CRUD {
 	private static instance: UserService;
@@ -12,8 +13,8 @@ class UserService implements CRUD {
 		return UserService.instance;
 	}
 	
-	async create(resource: UserDto) {
-		return await userDao.addUser(resource);
+	async create(resource: UserDto): Promise<Result<UserError, UserDto>> {
+		return userDao.addUser(resource);
 	}
 	
 	async deleteById(resourceId: string) {

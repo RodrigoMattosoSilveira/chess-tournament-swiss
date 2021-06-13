@@ -1,7 +1,7 @@
 const fs = require('fs');
 import shortid from 'shortid';
 import debug from 'debug';
-import { Result, Ok, Err } from 'space-monad'
+import { Result, Ok, Err } from 'space-monad';
 const log: debug.IDebugger = debug('app:in-memory-dao');
 
 import {UserDto, UserError} from "./user.model";
@@ -39,13 +39,26 @@ class UserDao {
 		return UserDao.instance;
 	}
 	
-	async addUser(user: UserDto) {
-		user.id = shortid.generate();
-		user.state = USER_STATE.ACTIVE;
-		// UserDao.user.push(user);
+	addUser(user: UserDto): Result<UserError, UserDto> {
+		let thisError: UserError = {
+			code: 400,
+			message: "empty"
+		}
+		let result: Result<UserError, UserDto> = Err(thisError);
 		const userMongo = UserMongo.build({...user})
-		await userMongo.save();
-		return user.id;
+		// await userMongo.save();
+		userMongo.save()
+			.then((user: UserDto) => {
+				result = Ok(user);
+			})
+			.catch((error: any) => {
+				let thisError = {
+					code: 400,
+					message: JSON.stringify(error.errors)
+				}
+				result = Err(thisError);
+			})
+		return result;
 	}
 	
 	async getUsers() {
