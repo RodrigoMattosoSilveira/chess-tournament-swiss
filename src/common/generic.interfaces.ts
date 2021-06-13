@@ -6,3 +6,8 @@ export type DAOResponse<Type> = {
 	result?: OneOrMany<Type>;
 	error?: any
 }
+
+export type DAOError = {
+	code: number,
+	content: string
+}

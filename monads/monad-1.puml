@@ -1,0 +1,31 @@
+@startuml
+
+    participant "client: Client" as client
+    participant "router: CommonRoutesConfig" as router
+    participant "middleware: UserMiddleware" as middleware
+    participant "controller: UserController" as controller
+    participant "service: UserService" as service
+    participant "dao: UserDao" as dao
+
+    activate client
+    activate router
+    activate middleware
+    activate controller
+    activate service
+    activate dao
+
+    note over client: TD issues a user HTTP CRUD
+    client->router: submit request
+    router->middleware: Route the request
+    middleware->middleware: validate request
+
+    alt invalid
+        middleware->client: return HTTP status=400, validation errors
+    else valid
+        middleware->controller: route it fwd
+        controller->service: apply data logic
+        service->dao: apply business logic
+        dao->dao: execute datastore operation
+    end group
+
+@enduml

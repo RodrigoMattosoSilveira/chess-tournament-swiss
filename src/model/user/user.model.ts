@@ -1,3 +1,6 @@
+import { Result } from 'space-monad';
+import {DAOError} from "../../common/generic.interfaces";
+
 export interface UserDto {
 	id: string;
 	email: string;
@@ -9,7 +12,4 @@ export interface UserDto {
 	state?: string; // active* or inactive
 }
 
-export interface UserError {
-	code: number;
-	message: string;
-}
+export type UserDaoResult = Result<DAOError, UserDto>

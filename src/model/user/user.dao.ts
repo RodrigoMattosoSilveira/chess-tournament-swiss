@@ -1,13 +1,11 @@
 const fs = require('fs');
-import shortid from 'shortid';
 import debug from 'debug';
 import { Result, Ok, Err } from 'space-monad';
 const log: debug.IDebugger = debug('app:in-memory-dao');
 
-import {UserDto, UserError} from "./user.model";
-import {USER_STATE} from "../../contants/contants";
+import {UserDaoResult, UserDto} from "./user.model";
+import {DAOError} from "../../common/generic.interfaces";
 import { UserMongo } from "./user-mongo";
-
 
 /**
  * Using the singleton pattern, this class will always provide the same instance—and, critically, the same user
@@ -19,7 +17,7 @@ import { UserMongo } from "./user-mongo";
 class UserDao {
 	private static instance: UserDao;
 	private static user: Array<UserDto> = [];
-	
+
 	constructor() {
 		log('Created new instance of UserDao');
 	}
@@ -38,27 +36,24 @@ class UserDao {
 		}
 		return UserDao.instance;
 	}
-	
-	addUser(user: UserDto): Result<UserError, UserDto> {
-		let thisError: UserError = {
-			code: 400,
-			message: "empty"
-		}
-		let result: Result<UserError, UserDto> = Err(thisError);
+
+	create(user: UserDto): UserDaoResult {
+		let userDaoResult: UserDaoResult | undefined;
 		const userMongo = UserMongo.build({...user})
 		// await userMongo.save();
 		userMongo.save()
 			.then((user: UserDto) => {
-				result = Ok(user);
+				userDaoResult = Ok(user);
 			})
 			.catch((error: any) => {
 				let thisError = {
 					code: 400,
-					message: JSON.stringify(error.errors)
+					content: JSON.stringify(error.errors)
 				}
-				result = Err(thisError);
+				userDaoResult = Err(thisError);
 			})
-		return result;
+		// @ts-ignore
+		return userDaoResult;
 	}
 	
 	async getUsers() {
