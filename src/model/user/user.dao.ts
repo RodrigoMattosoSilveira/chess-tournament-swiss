@@ -7,6 +7,7 @@ const log: debug.IDebugger = debug('app:in-memory-dao');
 
 import { UserDto } from "./user.model";
 import { UserMongo } from "./user-mongo";
+import {UserDaoResult} from "./user.interfaces";
 
 /**
  * Using the singleton pattern, this class will always provide the same instance—and, critically, the same user
@@ -36,22 +37,22 @@ class UserDao {
 		return UserDao.instance;
 	}
 
-	create(user: UserDto): DaoResult {
-		let daoResult: DaoResult | undefined;
+	async create(user: UserDto): Promise<UserDaoResult> {
+		// Error handling
+		// https://stackoverflow.com/questions/50905750/error-handling-in-async-await
+		// https://blog.grossman.io/how-to-write-async-await-without-try-catch-blocks-in-javascript/
+		let userDaoResult: UserDaoResult;
 		const userMongo = UserMongo.build({...user})
-		// await userMongo.save();
-		userMongo.save()
-			.then((user: UserDto) => {
-				// 201 = created
-				daoResult = Ok({code: 201, content: JSON.stringify(user)});
-			})
-			.catch((error: any) => {
-				daoResult = Err({code: 400, content: JSON.stringify(error.errors)});
-			})
-		// @ts-ignore
-		return daoResult;
+		try {
+			let userSaved = await userMongo.save();
+			userDaoResult = Ok({code: 201, content: userSaved});
+		}
+		catch (error)  {
+			userDaoResult = Err({code: 400, content: JSON.stringify(error.errors)});
+		}
+		return userDaoResult;
 	}
-	
+
 	list(): DaoResult {
 		let daoResult: DaoResult | undefined;
 		UserMongo.find({})
@@ -67,7 +68,7 @@ class UserDao {
 	}
 
 	readById(userId: string): DaoResult {
-		let daoResult: DaoResult | undefined;
+		let daoResult: DaoResult | undefined = undefined;
 		// Find one entity whose `id` is 'id', otherwise `null`
 		UserMongo.findOne({id: userId}).lean()
 			.then((user: any) => {
@@ -87,32 +88,52 @@ class UserDao {
 		return daoResult;
 	}
 
-	async idExists(id: string): Promise<DaoResult> {
-		return this.readById(id);
+	idExists(id: string): boolean {
+		const daoResult: DaoResult | undefined = this.readById(id);
+		let exists: boolean = false;
+		daoResult.fold(
+			err => {
+				exists = false;
+			},
+			result => {
+				switch (result.code) {
+					case 200:
+						exists = true;
+						break;
+					case 204:
+						exists = false;
+						break;
+					default:
+						exists = false;
+						break
+				}
+			},
+		);
+		return exists;
 	}
 
-	getByEmail(email: string): DaoResult {
-		let daoResult: DaoResult | undefined;
+	getByEmail(email: string): boolean {
+		let exist: boolean = false;
 		// Find one entity whose `id` is 'id', otherwise `null`
 		UserMongo.findOne({email: email}).lean()
 			.then((user: any) => {
 				if (user) {
 					// Found, 200 = Ok
-					daoResult = Ok({code: 200, content: JSON.stringify(user)});
+					exist = true;
 				}
 				else {
 					// Did not find, 204 = No Content
-					daoResult = Ok({code: 204, content: "No content"});
+					exist = false;
 				}
 			})
 			.catch((error: any) => {
-				daoResult = Err({code: 400, content: JSON.stringify(error.errors)});
+				exist = false
 			})
 		// @ts-ignore
-		return daoResult;
+		return exist;
 	}
 
-	async emailExists(email: string): Promise<DaoResult> {
+	emailExists(email: string): boolean {
 		return this.getByEmail(email);
 	}
 

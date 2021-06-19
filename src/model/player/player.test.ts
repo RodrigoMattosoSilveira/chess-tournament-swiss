@@ -1,3 +1,5 @@
+import {UserDto} from "../user/user.model";
+
 const request = require('supertest');
 
 import app from './../../index';
@@ -43,11 +45,16 @@ describe('Player Entity', () => {
 				email: "a.b@c.com",
 				password: "easytobreak"
 			};
-			userDao.addUser(userEntity)
-				.then((id: string) => {
-					userId = id;
+			userDao.create(userEntity).fold(
+				err => {
+					// console.log('\nError creating a user to help POST a player: ' + err + '\n');
+					done(err)
+				},
+				daoOk => {
+					let userDao: UserDto = JSON.parse(daoOk.content);
+					userId = userDao.id;
 					// console.log('\nCreated user to help POST a player: ' + userId + '\n');
-					
+
 					// Create a tournament to help POST a player
 					tournamentEntity = {
 						name: "Blanchard Open - 2021",
@@ -65,12 +72,8 @@ describe('Player Entity', () => {
 							// console.log('\nError creating a tournament to help POST a player: ' + err + '\n');
 							done(err)
 						});
-					
-				})
-				.catch((err: any) => {
-					// console.log('\nError creating a user to help POST a player: ' + err + '\n');
-					done(err)
-				});
+				}
+			) // 20
 			done();
 		});
 		it('POST /player', async done => {

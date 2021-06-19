@@ -1,6 +1,6 @@
 import express from 'express';
-
-import { UserMiddleware } from "./user.middleware";
+import {Ok, Err, Result} from 'space-monad';
+import { UserUtil } from "./user.util";
 import * as utils from "../../utils/utils";
 import userDao from './user.dao';
 jest.mock('./user.dao');
@@ -11,21 +11,21 @@ import shortid from "shortid";
 import {EMAIL_VALIDATION, USER_DEFAULT_CONSTANTS, USER_RATING_STATE, USER_STATE, USER_ROLE} from "./user.constants";
 
 describe('User Middleware Unit Tests', () => {
-	let userMiddleware: UserMiddleware;
+	let userUtil: UserUtil;
 	it('User Middleware canonical unit test', async done => {
 		expect(1 + 1).toEqual(2);
 		done();
 	});
 	
 	beforeAll(async () => {
-		userMiddleware = UserMiddleware.getInstance();
+		userUtil = UserUtil.getInstance();
 	});
 	describe('addAttributeDefaults', () => {
 		it('as expected', async done => {
 			const req: any = {};
 			req.body = {};
 			expect.assertions(5);
-			userMiddleware.lAddAttributeDefaults(req);
+			userUtil.lAddAttributeDefaults(req);
 			expect(Object.keys(req.body).sort()).toEqual(["id", "role", "rating", "ratingState", "state"].sort());
 			expect(req.body.role).toEqual(USER_DEFAULT_CONSTANTS.ROLE);
 			expect(req.body.rating).toEqual(USER_DEFAULT_CONSTANTS.RATING);
@@ -47,54 +47,38 @@ describe('User Middleware Unit Tests', () => {
 			expect(utils.isValidEmail(validEmail)).toEqual(true);
 			done();
 		})
-		it('valid email & unique email', async done => {
+		it('valid email email w/ unique email', async done => {
 			let email: string = "a.b@c.com";
 			// userDao.emailExists = jest.fn(email =>  Promise.resolve(false));
 			// @ts-ignore
-			userDao.emailExists.mockResolvedValue(Promise.resolve(false));
-			expect(await userMiddleware.lCreateEmailIsValid(email)).toEqual(EMAIL_VALIDATION.VALID);
+			userDao.emailExists.mockResolvedValue(false);
+			expect(await userUtil.lEmailExists(email)).toEqual(false);
 			done();
 		})
-		it('valid email & existing email', async done => {
+		it('valid email w/ existing email', async done => {
 			let email: string = "a.b@c.com";
 			// userDao.emailExists = jest.fn(email =>  Promise.resolve(true));
 			// @ts-ignore
-			userDao.emailExists.mockResolvedValue(Promise.resolve(true));
-			expect(await userMiddleware.lCreateEmailIsValid(email)).toEqual(EMAIL_VALIDATION.ALREADY_EXISTS);
-			done();
-		})
-		it('invalid email & unique email', async done => {
-			let email: string = "a.b@c";
-			// userDao.emailExists = jest.fn(email =>  Promise.resolve(false));
-			// @ts-ignore
-			userDao.emailExists.mockResolvedValue(Promise.resolve(false));
-			expect(await userMiddleware.lCreateEmailIsValid(email)).toEqual(EMAIL_VALIDATION.INVALID);
-			done();
-		})
-		it('invalid email & existing email', async done => {
-			let email: string = "a.b@c";
-			// userDao.emailExists = jest.fn(email =>  Promise.resolve(true));
-			// @ts-ignore
-			userDao.emailExists.mockResolvedValue(Promise.resolve(true));
-			expect(await userMiddleware.lCreateEmailIsValid(email)).toEqual(EMAIL_VALIDATION.INVALID);
+			userDao.emailExists.mockResolvedValue(true);
+			expect(await userUtil.lEmailExists(email)).toEqual(true);
 			done();
 		})
 	});
 	describe('entity existence', () => {
-		it('non existing entity', async done => {
+		it('existing entity', async done => {
 			let id: string = "existing_user_id";
 			// @ts-ignore
-			userDao.idExists.mockResolvedValue(Promise.resolve(false));
-			expect(await userMiddleware.lEntityExists(id)).toEqual(false);
+			userDao.idExists.mockResolvedValue(true);
+			expect(await userUtil.lEntityExists(id)).toEqual(true);
 			expect(userDao.idExists).toHaveBeenCalled();
 			expect(userDao.idExists).toHaveBeenCalledWith(id);
 			done();
 		});
-		it('existing entity', async done => {
+		it('no existing entity', async done => {
 			let id: string = "non_existing_user_id";
 			// @ts-ignore
-			userDao.idExists.mockResolvedValue(Promise.resolve(true));
-			expect(await userMiddleware.lEntityExists(id)).toEqual(true);
+			userDao.idExists.mockResolvedValue(false);
+			expect(await userUtil.lEntityExists(id)).toEqual(false);
 			expect(userDao.idExists).toHaveBeenCalled();
 			expect(userDao.idExists).toHaveBeenCalledWith(id);
 			done();
@@ -108,7 +92,7 @@ describe('User Middleware Unit Tests', () => {
 				lastName: "White",
 				password: "ThoughToFigureOut"
 			}
-			let missingAttributes = userMiddleware.lHasRequiredCreateAttributes(body);
+			let missingAttributes = userUtil.lHasRequiredCreateAttributes(body);
 			expect(missingAttributes).toEqual("");
 			done();
 		});
@@ -118,7 +102,7 @@ describe('User Middleware Unit Tests', () => {
 				lastName: "White",
 				password: "ThoughToFigureOut"
 			}
-			let missingAttributes = userMiddleware.lHasRequiredCreateAttributes(body);
+			let missingAttributes = userUtil.lHasRequiredCreateAttributes(body);
 			expect(missingAttributes).toEqual("email");
 			done();
 		});
@@ -128,7 +112,7 @@ describe('User Middleware Unit Tests', () => {
 				lastName: "White",
 				password: "ThoughToFigureOut"
 			}
-			let missingAttributes = userMiddleware.lHasRequiredCreateAttributes(body);
+			let missingAttributes = userUtil.lHasRequiredCreateAttributes(body);
 			expect(missingAttributes).toEqual("firstName");
 			done();
 		});
@@ -138,7 +122,7 @@ describe('User Middleware Unit Tests', () => {
 				firstName: "John",
 				password: "ThoughToFigureOut"
 			}
-			let missingAttributes = userMiddleware.lHasRequiredCreateAttributes(body);
+			let missingAttributes = userUtil.lHasRequiredCreateAttributes(body);
 			expect(missingAttributes).toEqual("lastName");
 			done();
 		});
@@ -148,7 +132,7 @@ describe('User Middleware Unit Tests', () => {
 				firstName: "John",
 				lastName: "White",
 			}
-			let missingAttributes = userMiddleware.lHasRequiredCreateAttributes(body);
+			let missingAttributes = userUtil.lHasRequiredCreateAttributes(body);
 			expect(missingAttributes).toEqual("password");
 			done();
 		});
@@ -157,7 +141,7 @@ describe('User Middleware Unit Tests', () => {
 				email: "a.b@c.com",
 				lastName: "White",
 			}
-			let missingAttributes = userMiddleware.lHasRequiredCreateAttributes(body);
+			let missingAttributes = userUtil.lHasRequiredCreateAttributes(body);
 			expect(missingAttributes).toEqual("firstName, password");
 			done();
 		});
@@ -170,7 +154,7 @@ describe('User Middleware Unit Tests', () => {
 				lastName: "White",
 				password: "ThoughToFigureOut"
 			}
-			let errorMessage = userMiddleware.lHasOnlyRequiredCreateAttributes(body)
+			let errorMessage = userUtil.lHasOnlyRequiredCreateAttributes(body)
 			expect(errorMessage).toEqual("");
 			done();
 		});
@@ -182,7 +166,7 @@ describe('User Middleware Unit Tests', () => {
 				password: "ThoughToFigureOut",
 				extraneous: "attribute"
 			}
-			let errorMessage = userMiddleware.lHasOnlyRequiredCreateAttributes(body)
+			let errorMessage = userUtil.lHasOnlyRequiredCreateAttributes(body)
 			expect(errorMessage).toEqual("extraneous");
 			done();
 		})
@@ -198,7 +182,7 @@ describe('User Middleware Unit Tests', () => {
 				rating: 1567,
 				state: USER_STATE.ACTIVE
 			}
-			let invalidPatchAttributes = userMiddleware.lHasValidPatchAttributes(body)
+			let invalidPatchAttributes = userUtil.lHasValidPatchAttributes(body)
 			expect(invalidPatchAttributes).toEqual("");
 			done();
 		});
@@ -213,7 +197,7 @@ describe('User Middleware Unit Tests', () => {
 				rating: 1567,
 				state: USER_STATE.ACTIVE
 			}
-			let invalidPatchAttributes = userMiddleware.lHasValidPatchAttributes(body)
+			let invalidPatchAttributes = userUtil.lHasValidPatchAttributes(body)
 			expect(invalidPatchAttributes).toEqual("id");
 			done();
 		});
@@ -229,7 +213,7 @@ describe('User Middleware Unit Tests', () => {
 				rating: 1567,
 				state: USER_STATE.ACTIVE
 			}
-			let invalidPatchAttributes = userMiddleware.lHasOnlyValidPatchAttributes(body)
+			let invalidPatchAttributes = userUtil.lHasOnlyValidPatchAttributes(body)
 			expect(invalidPatchAttributes).toEqual("");
 			done();
 		});
@@ -244,7 +228,7 @@ describe('User Middleware Unit Tests', () => {
 				rating: 1567,
 				state: USER_STATE.ACTIVE
 			}
-			let invalidPatchAttributes = userMiddleware.lHasOnlyValidPatchAttributes(body)
+			let invalidPatchAttributes = userUtil.lHasOnlyValidPatchAttributes(body)
 			expect(invalidPatchAttributes).toEqual("emaill");
 			done();
 		});
@@ -254,7 +238,7 @@ describe('User Middleware Unit Tests', () => {
 			let email: string = "unique.email@gmail.com";
 			// @ts-ignore
 			userDao.emailExists.mockResolvedValue(Promise.resolve(false));
-			expect(await userMiddleware.lEmailExists(email)).toEqual(false);
+			expect(await userUtil.lEmailExists(email)).toEqual(false);
 			expect(userDao.emailExists).toHaveBeenCalled();
 			expect(userDao.emailExists).toHaveBeenCalledWith(email);
 			done();
@@ -263,7 +247,7 @@ describe('User Middleware Unit Tests', () => {
 			let email: string = "unique.email@rocketmail.com";
 			// @ts-ignore
 			userDao.emailExists.mockResolvedValue(Promise.resolve(true));
-			expect(await userMiddleware.lEmailExists(email)).toEqual(true);
+			expect(await userUtil.lEmailExists(email)).toEqual(true);
 			expect(userDao.emailExists).toHaveBeenCalled();
 			expect(userDao.emailExists).toHaveBeenCalledWith(email);
 			done();
@@ -271,15 +255,15 @@ describe('User Middleware Unit Tests', () => {
 	});
 	describe('Validate that role is valid', () => {
 		it('valid roles', async done => {
-			expect(userMiddleware.lRoleIsValid("system_admin")).toEqual(true);
-			expect(userMiddleware.lRoleIsValid("tournament_director")).toEqual(true);
-			expect(userMiddleware.lRoleIsValid("user")).toEqual(true);
+			expect(userUtil.lRoleIsValid("system_admin")).toEqual(true);
+			expect(userUtil.lRoleIsValid("tournament_director")).toEqual(true);
+			expect(userUtil.lRoleIsValid("user")).toEqual(true);
 			done();
 		});
 		it('invalid roles', async done => {
-			expect(userMiddleware.lRoleIsValid("system admin")).toEqual(false);
-			expect(userMiddleware.lRoleIsValid("tournament director")).toEqual(false);
-			expect(userMiddleware.lRoleIsValid("users")).toEqual(false);
+			expect(userUtil.lRoleIsValid("system admin")).toEqual(false);
+			expect(userUtil.lRoleIsValid("tournament director")).toEqual(false);
+			expect(userUtil.lRoleIsValid("users")).toEqual(false);
 			done();
 		})
 	});
@@ -289,32 +273,32 @@ describe('User Middleware Unit Tests', () => {
 			done();
 		});
 		it('invalid ratings', async done => {
-			expect(userMiddleware.lRatingIsValid("400")).toEqual("User rating, 400, is less than minimum, 500");
-			expect(userMiddleware.lRatingIsValid("3100")).toEqual("User rating, 3100, is greater than maximum, 3000");
+			expect(userUtil.lRatingIsValid("400")).toEqual("User rating, 400, is less than minimum, 500");
+			expect(userUtil.lRatingIsValid("3100")).toEqual("User rating, 3100, is greater than maximum, 3000");
 			done();
 		});
 	});
 	describe('Validate that rating state is valid', () => {
 		it('valid rating state', async done => {
-			expect (userMiddleware.lRatingStateIsValid(USER_RATING_STATE.PROVISIONAL)).toEqual(true);
-			expect (userMiddleware.lRatingStateIsValid(USER_RATING_STATE.EFFECTIVE)).toEqual(true);
+			expect (userUtil.lRatingStateIsValid(USER_RATING_STATE.PROVISIONAL)).toEqual(true);
+			expect (userUtil.lRatingStateIsValid(USER_RATING_STATE.EFFECTIVE)).toEqual(true);
 			done();
 		});
 		it('invalid rating state', async done => {
-			expect (userMiddleware.lRatingStateIsValid("PROVISIONALl")).toEqual(false);
-			expect (userMiddleware.lRatingStateIsValid("EFFFECTIVE")).toEqual(false);
+			expect (userUtil.lRatingStateIsValid("PROVISIONALl")).toEqual(false);
+			expect (userUtil.lRatingStateIsValid("EFFFECTIVE")).toEqual(false);
 			done();
 		});
 	});
 	describe('Validate that state is valid', () => {
 		it('valid rating state', async done => {
-			expect (userMiddleware.lStateIsValid(USER_STATE.ACTIVE)).toEqual(true);
-			expect (userMiddleware.lStateIsValid(USER_STATE.INACTIVE)).toEqual(true);
+			expect (userUtil.lStateIsValid(USER_STATE.ACTIVE)).toEqual(true);
+			expect (userUtil.lStateIsValid(USER_STATE.INACTIVE)).toEqual(true);
 			done();
 		});
 		it('invalid rating state', async done => {
-			expect (userMiddleware.lStateIsValid("ACTIVEe")).toEqual(false);
-			expect (userMiddleware.lStateIsValid("EFFFECTIVEe")).toEqual(false);
+			expect (userUtil.lStateIsValid("ACTIVEe")).toEqual(false);
+			expect (userUtil.lStateIsValid("EFFFECTIVEe")).toEqual(false);
 			done();
 		});
 	})

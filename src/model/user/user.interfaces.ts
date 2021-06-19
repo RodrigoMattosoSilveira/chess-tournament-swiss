@@ -1,4 +1,5 @@
-import {OneOrMany} from "../../common/generic.interfaces";
+import {DaoError, OneOrMany} from "../../common/generic.interfaces";
+import {Result} from "space-monad";
 
 /**
  * This is the canonical user entity interface.
@@ -65,5 +66,13 @@ export interface IUserResponse {
 	result?: OneOrMany<UserDto>;
 	error?: any;
 }
+
+export type UserResultOk = {
+	code: number,
+	content: OneOrMany<UserDto>
+}
+
+export type UserDaoResult = Result<DaoError, UserResultOk>;
+
 
 export type EmailValidationCodeT = number;

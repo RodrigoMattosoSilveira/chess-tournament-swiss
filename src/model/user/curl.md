@@ -1,6 +1,12 @@
 # Introduction
 We use `curl` to validate our API's manually, an useful capability during development.
 
+#Launch the mongodb service
+* Navigate to https://www.mongodb.com/cloud/atlas
+* Signin: see my lastpass account;
+
+  
+
 # POST
 Use the following `curl` command to create a user:
 ````bash
@@ -10,9 +16,7 @@ curl --location --request POST 'localhost:3000/user' \
 "firstName": "Rodrigo",
 "lastName": "Silveira",
 "email": "rodrigo.silveira@coolprovider.com",
-"password": "sup3rS3cr3tPassw0rd!23",
-"permissionLevel": 0,
-"rating": 1234
+"password": "sup3rS3cr3tPassw0rd!23"
 }'
 ````
 

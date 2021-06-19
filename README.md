@@ -59,3 +59,4 @@ Following are definitions specific to this system:
     * *_single-elimination_*
     * double-elimination_*
 * **Player** - An `account holder` playing in a tournament; used to collect a contestant's data relative to the tournament;
+4

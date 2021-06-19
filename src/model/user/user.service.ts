@@ -2,6 +2,7 @@ import userDao from './user.dao';
 import { CRUD } from "../../common/crud.interface";
 import { UserDto } from "./user.model";
 import { DaoResult } from "../../common/generic.interfaces";
+import {UserDaoResult} from "./user.interfaces";
 
 class UserService implements CRUD {
 	private static instance: UserService;
@@ -13,7 +14,7 @@ class UserService implements CRUD {
 		return UserService.instance;
 	}
 	
-	async create(resource: UserDto): Promise<DaoResult> {
+	async create(resource: UserDto): Promise<UserDaoResult> {
 		return userDao.create(resource);
 	}
 
@@ -25,7 +26,7 @@ class UserService implements CRUD {
 		return userDao.readById(resourceId);
 	};
 
-	async getByEmail(email: string): Promise<DaoResult> {
+	async getByEmail(email: string): Promise<boolean> {
 		return userDao.getByEmail(email);
 
 	}
