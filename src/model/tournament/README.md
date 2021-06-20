@@ -1,92 +1,26 @@
 # tournament
-Model a tournament
+Model a site tournament
 
 #curl
-## GET ALL TOURNAMENTS
-Use the following `curl` command to retrieve all tournaments:
-````bash
-curl --location --request GET 'localhost:3000/tournament' --header 'Content-Type: application/json'
-````
+See this folder's `curl.md` file for details.
 
-The service returns a tournament collection:
-````json
-[
-  {"name":"Tata Steel Chess 1","year":2021,"maxPlayers":48,"rounds":6,"type":"swiss","id":"v55YaUAmh","state":"planned","players":[]},
-  {"name":"Tata Steel Chess 2","year":2021,"maxPlayers":48,"rounds":6,"type":"swiss","id":"Fo4RU7lH3","state":"planned","players":[]}
-]
-````
+#Model
+See this folder's `tournament.interfaces.ts` file for details.
 
-## POST
-Use the following `curl` command to create a tournament:
-````bash
-curl --location --request POST 'localhost:3000/tournament' \
---header 'Content-Type: application/json' \
---data-raw '{
-"name": "Tata Steel Chess",
-"city": "Wijk aan Zee",
-"year": 2021,
-"maxPlayers": 48,
-"rounds": 6,
-"type": "swiss"
-}'
-````
-
-The service returns the created tournament's id:
-````json
-{
-
- "id":"v55YaUAmh"
-}
-````
-
-When experimenting with a particular tournment, the terminal to create an environment variable to help you:
-
-````bash
-$ REST_API_TOURNAMENT_ID=v55YaUAmh
-````
-
-## GET A TOURNAMENT
-Use the following `curl` command to retrieve a tournament:
-````bash
-$ curl --location --request GET "localhost:3000/tournament/$REST_API_TOURNAMENT_ID" --header 'Content-Type: application/json'
-````
-
-The service returns the tournament's entity attributes:
-````json
-{
-  "name":"Tata Steel Chess 2","year":2021,"maxPlayers":48,"rounds":6,"type":"swiss","id":"Fo4RU7lH3","state":"planned","players":[]
-}
-````
-
-## PATCH
-Use the following `curl` command to update the maximum number of players:
-````bash
-curl --location --request PATCH "localhost:3000/tournament/$REST_API_TOURNAMENT_ID" \
---header 'Content-Type: application/json' \
---data-raw '{
-    "maxPlayers": 20
-}'
-````
-
-The service returns the updated tournament's:
-````json
-{
-  "name":"Tata Steel Chess 2","year":2021,"maxPlayers":20,"rounds":6,"type":"swiss","id":"Fo4RU7lH3","state":"planned","players":[]
-}
-````
-
-You can use the PATCH command to update multiple attributes:
-````bash
-curl --location --request PATCH "localhost:3000/tournament/$REST_API_TOURNAMENT_ID" \
---header 'Content-Type: application/json' \
---data-raw '{
-    "maxPlayers": 47,
-    "state":"scheduled"
-}'
-````
-
-## PUT
-`This service does not support PUT`
-
-## DELETE
-`This service does not support DELETE`
+# Plan of Action
+- Re-factor tournament documentation (#22):
+    - Write a `CURL.m`d file;
+    - Update the `README.md` file;
+- Isolate all validation methods (#23):
+    - Write the `tournament.utils.ts` file with validation functions;
+    - re-factor the `tournament.route.ts` file to reflect the validation functions;
+    - Write the `tournament.middleware.test.ts` file with validation functions' unit tests;
+- Merge tournament.models.ts into tournament.interfaces.ts` (#24):
+    - Merge the `tournament.models.ts file` into `tournament.interfaces.ts`, and delete it;
+- Re-factor the tournament entity to use monads/try catch (#25):
+    - Re-factor the `tournament.dao.ts` file to use `monads & try/catch`;
+    - the same for the `service` and `controller` files
+    - Write the `tournament.dao.test.ts `file to validate `tournament.dao.ts`
+- Re-factor the tournament.dao.ts file to use mongo (#26);
+    - create the `tournament.mongo.ts` file
+    - Re-factor the `tournament.dao.test.ts` file, as necessary
