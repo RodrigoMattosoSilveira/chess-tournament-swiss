@@ -1,16 +1,15 @@
 import shortid from "shortid";
 import {
-    EMAIL_VALIDATION,
     USER_DEFAULT_CONSTANTS,
     USER_RATING,
     USER_RATING_STATE,
     USER_ROLE,
     USER_STATE
 } from "./user.constants";
-import {EmailValidationCodeT, patchableAttributes, requiredCreateAttributes} from "./user.interfaces";
-import * as utils from "../../utils/utils";
-import {DaoResult} from "../../common/generic.interfaces";
+import {patchableAttributes, requiredCreateAttributes} from "./user.interfaces";
 import userDao from "./user.dao";
+import {IUserMongoDoc} from "./user-mongo";
+import {UserDto} from "./user.interfaces";
 
 export class UserUtil {
     private static instance: UserUtil;
@@ -23,34 +22,15 @@ export class UserUtil {
     }
     //****************************** Auxiliary methods for testing purposes *******************************************
     /**
-     * lAddAttributeDefaults Fills up req.body generated attributes with their default values
-     * @param req
+     * lAddAttributeDefaults Fills up default attributes
+     * @param resource
      */
-    lAddAttributeDefaults = (req: any) => {
-        req.body.id =  shortid.generate();
-        req.body.role = USER_DEFAULT_CONSTANTS.ROLE;
-        req.body.rating = USER_DEFAULT_CONSTANTS.RATING;
-        req.body.ratingState = USER_DEFAULT_CONSTANTS.RATING_STATE;
-        req.body.state = USER_DEFAULT_CONSTANTS.STATE;
-    }
-
-    /**
-     * lCreateEmailIsValid Validates whether a string is a valid email and, if so, is unique
-     * @param email
-     * @returns EmailValidationCodeT
-     */
-    lCreateEmailIsValid (email: string): EmailValidationCodeT {
-        let emailValidationCode: EmailValidationCodeT = EMAIL_VALIDATION.VALID
-
-        if (!utils.isValidEmail(email)) {
-            emailValidationCode = EMAIL_VALIDATION.INVALID
-        } else {
-            if (this.lEmailExists(email)) {
-                emailValidationCode = EMAIL_VALIDATION.ALREADY_EXISTS;
-            }
-        }
-        // console.log("lCreateEmailIsValid: " + email + ", results in: " + emailValidationCode)
-        return emailValidationCode;
+    lAddAttributeDefaults = (resource: UserDto) => {
+        resource.id =  shortid.generate();
+        resource.role = USER_DEFAULT_CONSTANTS.ROLE;
+        resource.rating = USER_DEFAULT_CONSTANTS.RATING;
+        resource.ratingState = USER_DEFAULT_CONSTANTS.RATING_STATE;
+        resource.state = USER_DEFAULT_CONSTANTS.STATE;
     }
 
     /**
@@ -58,8 +38,8 @@ export class UserUtil {
      * @param email, the email of the sought entity
      * @returns boolean, true if an entity with this email exists, false otherwise
      */
-    lEmailExists (email: string): boolean {
-          return userDao.emailExists(email);
+    async lEmailExists (email: string): Promise<boolean> {
+          return await userDao.emailExists(email);
     }
 
     /**
@@ -67,8 +47,8 @@ export class UserUtil {
      * @param id, the id of the sought entity
      * @returns boolean, true if an entity with this id exists, false otherwise
      */
-    lEntityExists (id: string): boolean {
-        return userDao.idExists(id);
+    async lEntityExists (id: string): Promise<boolean> {
+        return await userDao.idExists(id);
     }
 
     /**
@@ -207,5 +187,21 @@ export class UserUtil {
             valid = false
         }
         return valid;
+    }
+
+    fromMongoToUser(mongo: IUserMongoDoc): UserDto  {
+        return  {
+            id: mongo.id,
+            firstName: mongo.firstName,
+            lastName: mongo.lastName,
+            email: mongo.email,
+            password: `No way Jose`,
+            rating: mongo.rating,
+            state: mongo.state
+        }
+    }
+
+    isUserDto (arg: any): arg is UserDto {
+       return arg.id !== undefined
     }
 }

@@ -17,13 +17,13 @@ import {Result} from "space-monad";
 export interface UserDto {
 	email: string;
 	firstName: string;
-	id: string;
+	id?: string;
 	lastName: string;
 	password: string;
-	role: string;
-	rating: number;
-	ratingState: string;
-	state: string;
+	rating?: number;
+	ratingState?: string;
+	role?: string;
+	state?: string; // active* or inactive
 }
 
 /**
@@ -62,13 +62,10 @@ export const patchableAttributes = ["email", "firstName", "lastName", "password"
  *  Interface representing the object returned from the DAO layer. Only one of the two can be present.
  *
  */
-export interface IUserResponse {
-	result?: OneOrMany<UserDto>;
-	error?: any;
-}
 
 export type UserResultOk = {
 	code: number,
+	// export type OneOrMany<Type> = Type | Type[];
 	content: OneOrMany<UserDto>
 }
 

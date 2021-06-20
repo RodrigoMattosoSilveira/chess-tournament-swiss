@@ -4,7 +4,7 @@
  *
  */
 import mongoose from "mongoose";
-import { UserDto} from "./user.model";
+import { UserDto} from "./user.interfaces";
 
 /**
  * Extend the mongoose Document interface and use it as a Type on calls requiring the mongoose Document interface.
@@ -20,11 +20,19 @@ export interface IUserMongo extends mongoose.Model<IUserMongoDoc> {
 }
 
 const userSchema = new mongoose.Schema({
+	email: {
+		type: String,
+		required: true
+	},
+	firstName: {
+		type: String,
+		required: true
+	},
 	id: {
 		type: String,
 		required: true
 	},
-	email: {
+	lastName: {
 		type: String,
 		required: true
 	},
@@ -32,20 +40,16 @@ const userSchema = new mongoose.Schema({
 		type: String,
 		required: true
 	},
-	firstName: {
-		type: String,
-		required: false
-	},
-	lastName: {
-		type: String,
-		required: false
-	},
-	permissionLevel: {
-		type: Number,
-		required: false
-	},
 	rating: {
 		type: Number,
+		required: false
+	},
+	ratingState: {
+		type: String,
+		required: false
+	},
+	role: {
+		type: String,
 		required: false
 	},
 	state: {

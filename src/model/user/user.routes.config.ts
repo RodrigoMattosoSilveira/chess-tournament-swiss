@@ -34,7 +34,6 @@ export class UserRoutes extends CommonRoutesConfig {
 				UserMiddleware.emailIsValid,
 				UserMiddleware.emailIsUnique,
 				UserMiddleware.passwordIsStrong,
-				UserMiddleware.addAttributeDefaults,
 				UserController.create);
 
 		// This service does not support PUT / DELETE

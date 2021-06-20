@@ -1,4 +1,4 @@
-import {UserDto} from "./user.model";
+import {UserDto} from "./user.interfaces";
 import {USER_STATE} from "../../contants/contants";
 import app from './../../index';
 import {server} from '../../index';
@@ -6,6 +6,7 @@ const request = require('supertest');
 import { Utils } from "../../utils/utils";
 import {UserMongo, IUserMongo, IUserMongoDoc} from "./user-mongo";
 import * as testDb from '../../utils/test-db';
+import {USER_DEFAULT_CONSTANTS} from "./user.constants";
 
 // describe('User Entity', () => {
 // 	const utils = new Utils();
@@ -172,32 +173,35 @@ describe('User Entity unit tests', () => {
 			
 			//	Use the in memory database to validate
 		let entityDto: UserDto = {
-				id: "somecrazynumber",
-				email: "Paul.Roberts@yahoo.com",
-				password: "$dfg&*mns12PP",
-				firstName: "Paul",
-				lastName: "Roberts",
-				permissionLevel: 0,
-				rating: 1234
-			}
-		let entityDto_1: UserDto = {
-			id: "anothercrazynumber",
-			email: "Joan.Jones@yahoo.com",
-			password: "$dfg&*mns12QQ",
-			firstName: "Joan",
-			lastName: "Jones",
-			permissionLevel: 0,
-			rating: 1243
-		}
-		let entityDto_2: UserDto = {
-			id: "yetanothercrazynumber",
-			email: "Francis.Franco@yahoo.com",
+			email: "Paul.Roberts@yahoo.com",
+			firstName: "Paul",
+			id: "somecrazynumber",
+			lastName: "Roberts",
 			password: "$dfg&*mns12PP",
+			rating: 1234,
+			ratingState: USER_DEFAULT_CONSTANTS.RATING_STATE,
+			state: USER_DEFAULT_CONSTANTS.STATE
+		};
+		let entityDto_1: UserDto = {
+			email: "Joan.Jones@yahoo.com",
+			firstName: "Joan",
+			id: "anothercrazynumber",
+			lastName: "Jones",
+			password: "$dfg&*mns12QQ",
+			rating: 1243,
+			ratingState: USER_DEFAULT_CONSTANTS.RATING_STATE,
+			state: USER_DEFAULT_CONSTANTS.STATE
+		};
+		let entityDto_2: UserDto = {
+			email: "Francis.Franco@yahoo.com",
 			firstName: "Francis",
+			id: "yetanothercrazynumber",
 			lastName: "Franco",
-			permissionLevel: 0,
-			rating: 1934
-		}
+			password: "$dfg&*mns12PP",
+			rating: 1234,
+			ratingState: USER_DEFAULT_CONSTANTS.RATING_STATE,
+			state: USER_DEFAULT_CONSTANTS.STATE
+		};
 		let savedEntity: IUserMongo;
 		let savedEntityError: any;
 		let readEntity: UserMongoReadEntity;

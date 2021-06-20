@@ -9,8 +9,8 @@ import argon2 from 'argon2';
 
 // we use debug with a custom context as described in Part 1
 import debug from 'debug';
-import {DaoResult} from "../../common/generic.interfaces";
-import {UserDaoResult} from "./user.interfaces";
+import {DaoError} from "../../common/generic.interfaces";
+import {UserDaoResult, UserResultOk} from "./user.interfaces";
 
 const log: debug.IDebugger = debug('app:user-controller');
 
@@ -36,17 +36,15 @@ class UserController {
 	}
 
 	async create(req: express.Request, res: express.Response) {
-		const daoResult: UserDaoResult = await userService.create(req.body);
-		let resultStatus: number = 0;
-		let resultContent: string = '';
-		daoResult.fold(
-			err => {
+		const userDaoResult: UserDaoResult = await userService.create(req.body);
+		userDaoResult.fold(
+			(err: DaoError) => {
 				res.status(err.code).send(err.content);
 			},
-			result => {
+			(result: UserResultOk) => {
 				res.status(result.code).send(result.content);
-			}
-		)
+			},
+		);
 	}
 	
 	async patch(req: express.Request, res: express.Response) {

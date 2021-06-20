@@ -32,3 +32,5 @@ export const USER_RATING = {
 	MAXIMUM: 3000
 }
 
+export const USER_SHOW_ATTRIBUTES = `email firstName id lastName rating ratingState role state`
+

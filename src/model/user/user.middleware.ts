@@ -1,12 +1,7 @@
 import express from 'express';
-import shortid from "shortid";
 
 // todo: change it to service
-import {EMAIL_VALIDATION, USER_DEFAULT_CONSTANTS, USER_RATING, USER_RATING_STATE, USER_ROLE, USER_STATE} from "./user.constants"
 import * as utils from "../../utils/utils";
-import userDao from './user.dao';
-import {EmailValidationCodeT, requiredCreateAttributes, patchableAttributes} from "./user.interfaces";
-import { DaoResult } from "../../common/generic.interfaces";
 import {UserUtil} from "./user.util";
 
 
@@ -20,27 +15,7 @@ export class UserMiddleware {
 		}
 		return UserMiddleware.instance;
 	}
-	
-	async addAttributeDefaults(req: express.Request, res: express.Response, next: express.NextFunction) {
-		UserMiddleware.userUtil.lAddAttributeDefaults(req);
-		next();
-	}
-	//
-	// // It is a valid email string and it is unique
-	// async createEmailIsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
-	// 	switch(await this.lCreateEmailIsValid(req.body.email)) {
-	// 		case  EMAIL_VALIDATION.VALID:
-	// 			next();
-	// 			break;
-	// 		case EMAIL_VALIDATION.INVALID:
-	// 			res.status(400).send({error: `Invalid user email: ` + req.body.email});
-	// 			break;
-	// 		case EMAIL_VALIDATION.ALREADY_EXISTS:
-	// 			res.status(400).send({error: `New user email already exists: ` + req.body.email});
-	// 			break;
-	// 	}
-	// }
-	
+
 	async entityExists(req: express.Request, res: express.Response, next: express.NextFunction) {
 		if (await UserMiddleware.userUtil.lEntityExists(req.body.id)) {
 			next()
@@ -121,10 +96,11 @@ export class UserMiddleware {
 	}
 	
 	async emailIsUnique(req: express.Request, res: express.Response, next: express.NextFunction) {
-		if (req.body.email && !UserMiddleware.userUtil.lEmailExists(req.body.email)) {
-			next()
-		} else {
+		let exists = await UserMiddleware.userUtil.lEmailExists(req.body.email);
+		if (exists) {
 			res.status(400).send(`User email already exists:  ${req.body.email}`);
+		} else {
+			next();
 		}
 	}
 	

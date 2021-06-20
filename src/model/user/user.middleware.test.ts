@@ -20,20 +20,6 @@ describe('User Middleware Unit Tests', () => {
 	beforeAll(async () => {
 		userUtil = UserUtil.getInstance();
 	});
-	describe('addAttributeDefaults', () => {
-		it('as expected', async done => {
-			const req: any = {};
-			req.body = {};
-			expect.assertions(5);
-			userUtil.lAddAttributeDefaults(req);
-			expect(Object.keys(req.body).sort()).toEqual(["id", "role", "rating", "ratingState", "state"].sort());
-			expect(req.body.role).toEqual(USER_DEFAULT_CONSTANTS.ROLE);
-			expect(req.body.rating).toEqual(USER_DEFAULT_CONSTANTS.RATING);
-			expect(req.body.ratingState).toEqual(USER_DEFAULT_CONSTANTS.RATING_STATE);
-			expect(req.body.state).toEqual(USER_DEFAULT_CONSTANTS.STATE);
-			done();
-		});
-	});
 	describe('createEmailIsValid', () => {
 		it('invalid email', async done => {
 			const inValidEmail: string = "a.b@c";
