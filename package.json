@@ -36,6 +36,7 @@
     "mongoose": "^5.12.0",
     "shortid": "^2.2.16",
     "space-monad": "^1.0.0",
+    "ts-transformer-keys": "^0.4.3",
     "winston": "^3.3.3"
   },
   "devDependencies": {

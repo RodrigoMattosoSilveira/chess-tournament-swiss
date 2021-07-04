@@ -6,7 +6,7 @@ import {
     USER_ROLE,
     USER_STATE
 } from "./user.constants";
-import {patchableAttributes, requiredCreateAttributes} from "./user.interfaces";
+import {USER_PATCH_KEYS, USER_CREATE_KEYS} from "./user.interfaces";
 import userDao from "./user.dao";
 import {IUserMongoDoc} from "./user-mongo";
 import {UserDto} from "./user.interfaces";
@@ -59,7 +59,7 @@ export class UserUtil {
     lHasRequiredCreateAttributes (body: any): string {
         let errorMessage: string = "";
         let bodyKeys = Object.keys(body);
-        for (let requiredAttribute of requiredCreateAttributes) {
+        for (let requiredAttribute of USER_CREATE_KEYS) {
             if (bodyKeys.findIndex(key => key===requiredAttribute) === -1) {
                 if (errorMessage.length > 0) {
                     errorMessage += ', ';
@@ -80,7 +80,7 @@ export class UserUtil {
         let errorMessage: string = "";
         let bodyKeys = Object.keys(body);
         for (let bodyKey of bodyKeys) {
-            if (requiredCreateAttributes.findIndex(key => key===bodyKey) === -1) {
+            if (USER_CREATE_KEYS.findIndex(key => key===bodyKey) === -1) {
                 if (errorMessage.length > 0) {
                     errorMessage += ', ';
                 }
@@ -99,7 +99,7 @@ export class UserUtil {
         let errorMessage: string = "";
         let bodyKeys = Object.keys(body);
         for (let bodyKey of bodyKeys) {
-            if (patchableAttributes.findIndex(key => key===bodyKey) === -1) {
+            if (USER_PATCH_KEYS.findIndex(key => key===bodyKey) === -1) {
                 if (errorMessage.length > 0) {
                     errorMessage += ', ';
                 }
@@ -119,7 +119,7 @@ export class UserUtil {
         let errorMessage: string = "";
         let bodyKeys = Object.keys(body);
         for (let bodyKey of bodyKeys) {
-            if (patchableAttributes.findIndex(key => key===bodyKey) === -1) {
+            if (USER_PATCH_KEYS.findIndex(key => key===bodyKey) === -1) {
                 if (errorMessage.length > 0) {
                     errorMessage += ', ';
                 }
@@ -199,9 +199,5 @@ export class UserUtil {
             rating: mongo.rating,
             state: mongo.state
         }
-    }
-
-    isUserDto (arg: any): arg is UserDto {
-       return arg.id !== undefined
     }
 }

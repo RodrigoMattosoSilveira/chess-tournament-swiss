@@ -1,6 +1,8 @@
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
 const NodemonPlugin = require('nodemon-webpack-plugin');
+const keysTransformer = require('ts-transformer-keys/transformer').default;
+
 const {
     NODE_ENV = 'production',
 } = process.env;
@@ -25,9 +27,15 @@ module.exports = {
         rules: [
             {
                 test: /\.ts$/,
-                use: [
-                    'ts-loader',
-                ]
+                loader: 'ts-loader', // or 'awesome-typescript-loader'
+                options: {
+                    // make sure not to set `transpileOnly: true` here, otherwise it will not work
+                    getCustomTransformers: program => ({
+                        before: [
+                            keysTransformer(program)
+                        ]
+                    })
+                }
             }
         ]
     },
