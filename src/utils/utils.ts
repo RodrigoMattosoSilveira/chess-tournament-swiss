@@ -1,3 +1,5 @@
+import {USER_CREATE_KEYS} from "../model/user/user.interfaces";
+
 export class Utils {
 	/**
 	 * Helper function to patch a USER and return the response object
@@ -111,4 +113,44 @@ export const isPasswordStrong = (password: string): boolean => {
 	}
 	
 	return passwordIsStrong;
+}
+
+/**
+ * hasRequiredKeys - validates that an tuple contains the required keys
+ * @param body - an Key:Value tuple
+ * @param requiredKeys - An array of string required keys
+ * @return boolean, empty if the required keys are in the tuple, the missing keys otherwise
+ */
+export const hasRequiredKeys = (body: any, requiredKeys: string[]): string => {
+	let errorMessage: string = "";
+	let bodyKeys = Object.keys(body);
+	for (let requiredKey of requiredKeys) {
+		if (bodyKeys.findIndex(key => key===requiredKey) === -1) {
+			if (errorMessage.length > 0) {
+				errorMessage += ', ';
+			}
+			errorMessage += requiredKey;
+		}
+	}
+	return errorMessage
+}
+
+/**
+ * hasRequiredKeys - validates that an tuple contains the required keys
+ * @param body - an Key:Value tuple
+ * @param requireKeys - An array of string required keys
+ * @return boolean, empty if only required keys are in the tuple, the non required keys otherwise
+ */
+export const hasOnlyRequiredKeys = (body: any, requireKeys: string[]): string => {
+	let errorMessage: string = "";
+	let bodyKeys = Object.keys(body);
+	for (let bodyKey of bodyKeys) {
+		if (requireKeys.findIndex(key => key===bodyKey) === -1) {
+			if (errorMessage.length > 0) {
+				errorMessage += ', ';
+			}
+			errorMessage += bodyKey;
+		}
+	}
+	return errorMessage
 }

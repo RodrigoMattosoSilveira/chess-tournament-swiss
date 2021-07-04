@@ -1,3 +1,4 @@
+//TODO Replace these with ENUMs
 export const USER_RATING_STATE = {
 	PROVISIONAL: "provisional",
 	EFFECTIVE: "effective"
@@ -31,6 +32,4 @@ export const USER_RATING = {
 	MINIMUM: 500,
 	MAXIMUM: 3000
 }
-
-export const USER_SHOW_ATTRIBUTES = `email firstName id lastName rating ratingState role state`
 

@@ -1,6 +1,10 @@
-import {isValidEmail, isStringNumeric, isValidDate, isPasswordStrong} from "./utils";
+import {isValidEmail, isStringNumeric, isValidDate, isPasswordStrong, hasRequiredKeys, hasOnlyRequiredKeys} from "./utils";
+import * as testDb from "./test-db";
+import {keys} from "ts-transformer-keys";
+import {IUserCreate} from "../model/user/user.interfaces";
 
 describe('Util Unit Tests', () => {
+	let SOMETHING_KEYS: string[];
 	describe('Validate that a string contains only numeric characters', () => {
 		it('a valid string', async done => {
 			const testString: string = "1234567890";
@@ -71,6 +75,89 @@ describe('Util Unit Tests', () => {
 		it('missing special character', async done => {
 			const password: string = "UdA1qqqq";
 			expect(isPasswordStrong(password)).toEqual(false);
+			done();
+		});
+	});
+
+	describe('Validate has Required Keys', () => {
+		beforeAll(() => {
+			interface ISomething {
+				email: string;
+				firstName: string;
+				lastName: string;
+				password: string;
+			}
+			SOMETHING_KEYS = keys<ISomething>();
+		});
+		it('expected keys are present', async done => {
+			let body:any = {
+				email: "a.b@c.com",
+				firstName: "John",
+				lastName: "White",
+				password: "ThoughToFigureOut"
+			}
+			expect(hasRequiredKeys(body, SOMETHING_KEYS)).toEqual("")
+			done();
+		});
+		it('a key is missing', async done => {
+			let body: any = {
+				firstName: "John",
+				lastName: "White",
+				password: "ThoughToFigureOut"
+			}
+			expect(hasRequiredKeys(body, SOMETHING_KEYS)).toEqual("email")
+			done();
+		});
+		it('a few keys are missing', async done => {
+			let body: any = {
+				email: "a.b@c.com",
+				lastName: "White",
+			}
+			expect(hasRequiredKeys(body, SOMETHING_KEYS)).toEqual("firstName, password")
+			done();
+		});
+	});
+	describe('Validate has only Required Keys', () => {
+		beforeAll(() => {
+			interface ISomething {
+				email: string;
+				firstName: string;
+				lastName: string;
+				password: string;
+			}
+			SOMETHING_KEYS = keys<ISomething>();
+		});
+		it('expected keys are present', async done => {
+			let body:any = {
+				email: "a.b@c.com",
+				firstName: "John",
+				lastName: "White",
+				password: "ThoughToFigureOut"
+			}
+			expect(hasOnlyRequiredKeys(body, SOMETHING_KEYS)).toEqual("")
+			done();
+		});
+		it('an expected key is present', async done => {
+			let body:any = {
+				email: "a.b@c.com",
+				firstName: "John",
+				lastName: "White",
+				password: "ThoughToFigureOut",
+				unexpected: "unexpected"
+			}
+			expect(hasOnlyRequiredKeys(body, SOMETHING_KEYS)).toEqual("unexpected")
+			done();
+		});
+		it('multiple expected keys are present', async done => {
+			let body:any = {
+				email: "a.b@c.com",
+				firstName: "John",
+				lastName: "White",
+				password: "ThoughToFigureOut",
+				unexpected: "unexpected",
+				anotherUnexpected: "anotherUnexpected"
+			}
+			expect(hasOnlyRequiredKeys(body, SOMETHING_KEYS)).toEqual("unexpected, anotherUnexpected")
 			done();
 		});
 	});

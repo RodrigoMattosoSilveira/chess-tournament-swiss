@@ -3,6 +3,8 @@ import express from 'express';
 // todo: change it to service
 import * as utils from "../../utils/utils";
 import {UserUtil} from "./user.util";
+import {USER_CREATE_KEYS, USER_PATCH_KEYS} from "./user.interfaces";
+import {hasOnlyRequiredKeys} from "../../utils/utils";
 
 
 export class UserMiddleware {
@@ -27,7 +29,7 @@ export class UserMiddleware {
 	// User create request has required user attributes
 	hasRequiredCreateAttributes(req: express.Request, res: express.Response, next: express.NextFunction) {
 		if (req.body) {
-			let missingAttributes = UserMiddleware.userUtil.lHasRequiredCreateAttributes(req.body)
+			let missingAttributes = utils.hasRequiredKeys(req.body, USER_CREATE_KEYS);
 			if (missingAttributes.length > 0) {
 				// console.log('\n' + 'UserMiddleware/hasRequiredCreateAttributes/message: ' + missingAttributes + '\n');
 				res.status(400).send(`User create request missing required attributes: ${missingAttributes}`);
@@ -43,7 +45,7 @@ export class UserMiddleware {
 	// User create request has only required attributes
 	async hasOnlyRequiredCreateAttributes(req: express.Request, res: express.Response, next: express.NextFunction) {
 		if (req.body) {
-			let errorMessage = UserMiddleware.userUtil.lHasOnlyRequiredCreateAttributes(req.body)
+			let errorMessage = utils.hasOnlyRequiredKeys(req.body, USER_CREATE_KEYS);
 			if (errorMessage.length > 0) {
 				// console.log('\n' + 'UserMiddleware/hasOnlyRequiredCreateAttributes/message: ' + errorMessage + '\n');
 				res.status(400).send(`User create request has invalid attributes: ${errorMessage}`);
@@ -55,26 +57,10 @@ export class UserMiddleware {
 			res.status(400).send(`User create request does not include any attributes`);
 		}
 	}
-	
-	// User patch request has valid attributes
-	async hasValidPatchAttributes(req: express.Request, res: express.Response, next: express.NextFunction) {
-		if (req.body) {
-			let nonPatchableAttributes = UserMiddleware.userUtil.lHasValidPatchAttributes(req.body)
-			if (nonPatchableAttributes.length > 0) {
-				// console.log('\n' + `User patch request has invalid attributes:  ${nonPatchableAttributes}` + '\n');
-				res.status(400).send(`User patch request has invalid attributes:  ${nonPatchableAttributes}`);
-			} else {
-				// console.log('\n' + 'UserMiddleware/hasValidPatchAttributes/message: All create attributes are valid' + '\n');
-				next()
-			}
-		}else {
-			res.status(400).send(`User patch request does not include any attributes`);
-		}
-	}
-	
+
 	async hasOnlyValidPatchAttributes(req: express.Request, res: express.Response, next: express.NextFunction) {
 		if (req.body) {
-			let errorMessage = UserMiddleware.userUtil.lHasOnlyValidPatchAttributes(req.body);
+			let errorMessage = hasOnlyRequiredKeys(req.body, USER_PATCH_KEYS);
 			if (errorMessage.length > 0) {
 				// console.log('\n' + 'UserMiddleware/hasOnlyValidPatchAttributes/message: ' + errorMessage + '\n');
 				res.status(400).send(`User path request has invalid attributes:  ${errorMessage}`);

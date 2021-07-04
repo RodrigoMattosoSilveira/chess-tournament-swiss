@@ -50,7 +50,6 @@ export class UserRoutes extends CommonRoutesConfig {
 			.get(UserController.getById);
 		
 		this.app.patch(`/user/:userId`, [
-			UserMiddleware.hasValidPatchAttributes,
 			UserMiddleware.hasOnlyValidPatchAttributes,
 			UserMiddleware.emailIsValid,
 			UserMiddleware.emailIsUnique,

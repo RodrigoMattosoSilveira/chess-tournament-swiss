@@ -3,9 +3,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
-## [0.0.11] - underway
+## [0.0.11.1] - underway
 ### Feature
-* Add MongoDB, support user first
+* Use [ts-transformer-key](https://github.com/kimamula/ts-transformer-keys) to collect entity keys into a string array.
+
+## [0.0.11] - 2021 06 20
+### Feature
+* Added MongoDB, support user first
 
 ## [0.0.10] - 2021 02 21
 ### Feature

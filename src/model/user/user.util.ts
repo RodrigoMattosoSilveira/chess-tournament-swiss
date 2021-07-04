@@ -6,7 +6,7 @@ import {
     USER_ROLE,
     USER_STATE
 } from "./user.constants";
-import {patchableAttributes, requiredCreateAttributes} from "./user.interfaces";
+import {USER_PATCH_KEYS, USER_CREATE_KEYS} from "./user.interfaces";
 import userDao from "./user.dao";
 import {IUserMongoDoc} from "./user-mongo";
 import {UserDto} from "./user.interfaces";
@@ -49,84 +49,6 @@ export class UserUtil {
      */
     async lEntityExists (id: string): Promise<boolean> {
         return await userDao.idExists(id);
-    }
-
-    /**
-     * lHasRequiredCreateAttributes
-     * @param body - the request body attributes
-     * @returns string, empty if all required attributes are present, the list of missing attributes otherwise
-     */
-    lHasRequiredCreateAttributes (body: any): string {
-        let errorMessage: string = "";
-        let bodyKeys = Object.keys(body);
-        for (let requiredAttribute of requiredCreateAttributes) {
-            if (bodyKeys.findIndex(key => key===requiredAttribute) === -1) {
-                if (errorMessage.length > 0) {
-                    errorMessage += ', ';
-                }
-                errorMessage += requiredAttribute;
-            }
-        }
-        return errorMessage
-    }
-
-    /**
-     * lHasOnlyRequiredCreateAttributes
-     * @param body, the request body attributes
-     * @returns string, empty if all body attributes are valid create attributes, the list of invalid body attributes
-     * otherwise
-     */
-    lHasOnlyRequiredCreateAttributes(body: any): string {
-        let errorMessage: string = "";
-        let bodyKeys = Object.keys(body);
-        for (let bodyKey of bodyKeys) {
-            if (requiredCreateAttributes.findIndex(key => key===bodyKey) === -1) {
-                if (errorMessage.length > 0) {
-                    errorMessage += ', ';
-                }
-                errorMessage += bodyKey;
-            }
-        }
-        return errorMessage
-    }
-
-    /**
-     * lHasValidPatchAttributes
-     * @param body, the request body attributes
-     * @returns string, empty if all attributes are valid, the list of invalid attributes otherwise
-     */
-    lHasValidPatchAttributes(body: any): string {
-        let errorMessage: string = "";
-        let bodyKeys = Object.keys(body);
-        for (let bodyKey of bodyKeys) {
-            if (patchableAttributes.findIndex(key => key===bodyKey) === -1) {
-                if (errorMessage.length > 0) {
-                    errorMessage += ', ';
-                }
-                errorMessage += bodyKey;
-            }
-        }
-        return errorMessage
-    }
-
-    /**
-     * lHasOnlyValidPatchAttributes
-     * @param body, the request body attributes
-     * @returns string, empty if all body attributes are valid patch attributes are valid, the list of invalid
-     * body attributes otherwise
-     */
-    lHasOnlyValidPatchAttributes(body: any): string {
-        let errorMessage: string = "";
-        let bodyKeys = Object.keys(body);
-        for (let bodyKey of bodyKeys) {
-            if (patchableAttributes.findIndex(key => key===bodyKey) === -1) {
-                if (errorMessage.length > 0) {
-                    errorMessage += ', ';
-                }
-                errorMessage += bodyKey;
-            }
-        }
-        return errorMessage
     }
 
     /**
@@ -199,9 +121,5 @@ export class UserUtil {
             rating: mongo.rating,
             state: mongo.state
         }
-    }
-
-    isUserDto (arg: any): arg is UserDto {
-       return arg.id !== undefined
     }
 }
