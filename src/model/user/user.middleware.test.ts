@@ -5,7 +5,7 @@ import * as utils from "../../utils/utils";
 import userDao from './user.dao';
 jest.mock('./user.dao');
 
-import { IUserCreate, IUserPatch } from "./user.interfaces";
+import {IUserCreate, IUserPatch, USER_CREATE_KEYS, USER_PATCH_KEYS} from "./user.interfaces";
 import * as testDb from "../../utils/test-db";
 import shortid from "shortid";
 import {EMAIL_VALIDATION, USER_DEFAULT_CONSTANTS, USER_RATING_STATE, USER_STATE, USER_ROLE} from "./user.constants";
@@ -78,7 +78,7 @@ describe('User Middleware Unit Tests', () => {
 				lastName: "White",
 				password: "ThoughToFigureOut"
 			}
-			let missingAttributes = userUtil.lHasRequiredCreateAttributes(body);
+			let missingAttributes = utils.hasRequiredKeys(body, USER_CREATE_KEYS)
 			expect(missingAttributes).toEqual("");
 			done();
 		});
@@ -88,7 +88,7 @@ describe('User Middleware Unit Tests', () => {
 				lastName: "White",
 				password: "ThoughToFigureOut"
 			}
-			let missingAttributes = userUtil.lHasRequiredCreateAttributes(body);
+			let missingAttributes = utils.hasRequiredKeys(body, USER_CREATE_KEYS)
 			expect(missingAttributes).toEqual("email");
 			done();
 		});
@@ -98,7 +98,7 @@ describe('User Middleware Unit Tests', () => {
 				lastName: "White",
 				password: "ThoughToFigureOut"
 			}
-			let missingAttributes = userUtil.lHasRequiredCreateAttributes(body);
+			let missingAttributes = utils.hasRequiredKeys(body, USER_CREATE_KEYS)
 			expect(missingAttributes).toEqual("firstName");
 			done();
 		});
@@ -108,7 +108,7 @@ describe('User Middleware Unit Tests', () => {
 				firstName: "John",
 				password: "ThoughToFigureOut"
 			}
-			let missingAttributes = userUtil.lHasRequiredCreateAttributes(body);
+			let missingAttributes = utils.hasRequiredKeys(body, USER_CREATE_KEYS)
 			expect(missingAttributes).toEqual("lastName");
 			done();
 		});
@@ -118,7 +118,7 @@ describe('User Middleware Unit Tests', () => {
 				firstName: "John",
 				lastName: "White",
 			}
-			let missingAttributes = userUtil.lHasRequiredCreateAttributes(body);
+			let missingAttributes = utils.hasRequiredKeys(body, USER_CREATE_KEYS)
 			expect(missingAttributes).toEqual("password");
 			done();
 		});
@@ -127,7 +127,7 @@ describe('User Middleware Unit Tests', () => {
 				email: "a.b@c.com",
 				lastName: "White",
 			}
-			let missingAttributes = userUtil.lHasRequiredCreateAttributes(body);
+			let missingAttributes = utils.hasRequiredKeys(body, USER_CREATE_KEYS)
 			expect(missingAttributes).toEqual("firstName, password");
 			done();
 		});
@@ -140,7 +140,7 @@ describe('User Middleware Unit Tests', () => {
 				lastName: "White",
 				password: "ThoughToFigureOut"
 			}
-			let errorMessage = userUtil.lHasOnlyRequiredCreateAttributes(body)
+			let errorMessage = utils.hasOnlyRequiredKeys(body, USER_CREATE_KEYS)
 			expect(errorMessage).toEqual("");
 			done();
 		});
@@ -152,7 +152,7 @@ describe('User Middleware Unit Tests', () => {
 				password: "ThoughToFigureOut",
 				extraneous: "attribute"
 			}
-			let errorMessage = userUtil.lHasOnlyRequiredCreateAttributes(body)
+			let errorMessage = utils.hasOnlyRequiredKeys(body, USER_CREATE_KEYS)
 			expect(errorMessage).toEqual("extraneous");
 			done();
 		})
@@ -168,7 +168,7 @@ describe('User Middleware Unit Tests', () => {
 				rating: 1567,
 				state: USER_STATE.ACTIVE
 			}
-			let invalidPatchAttributes = userUtil.lHasValidPatchAttributes(body)
+			let invalidPatchAttributes = utils.hasOnlyRequiredKeys(body, USER_PATCH_KEYS)
 			expect(invalidPatchAttributes).toEqual("");
 			done();
 		});
@@ -183,39 +183,8 @@ describe('User Middleware Unit Tests', () => {
 				rating: 1567,
 				state: USER_STATE.ACTIVE
 			}
-			let invalidPatchAttributes = userUtil.lHasValidPatchAttributes(body)
+			let invalidPatchAttributes = utils.hasOnlyRequiredKeys(body, USER_PATCH_KEYS)
 			expect(invalidPatchAttributes).toEqual("id");
-			done();
-		});
-	});
-	describe('only valid patch attributes', () => {
-		it('all valid patchable attributes present', async done => {
-			let body: IUserPatch = {
-				email:"a.b@c.com",
-				firstName: "Paul",
-				lastName: "White",
-				password: "ThoughToFigureOut",
-				role: USER_ROLE.USER,
-				rating: 1567,
-				state: USER_STATE.ACTIVE
-			}
-			let invalidPatchAttributes = userUtil.lHasOnlyValidPatchAttributes(body)
-			expect(invalidPatchAttributes).toEqual("");
-			done();
-		});
-		it('an invalid patchable attributes present', async done => {
-			let body: any = {
-				email:"a.b@c.com",
-				emaill:"a.b@c.com",
-				firstName: "Paul",
-				lastName: "White",
-				password: "ThoughToFigureOut",
-				role: USER_ROLE.USER,
-				rating: 1567,
-				state: USER_STATE.ACTIVE
-			}
-			let invalidPatchAttributes = userUtil.lHasOnlyValidPatchAttributes(body)
-			expect(invalidPatchAttributes).toEqual("emaill");
 			done();
 		});
 	});
