@@ -1,8 +1,5 @@
 import { keys } from 'ts-transformer-keys';
 
-import {DaoError, OneOrMany} from "../../common/generic.interfaces";
-import {Result} from "space-monad";
-
 /**
  * This is the canonical user entity interface.
  * - email: must be a valid email string and must be unique;
@@ -59,16 +56,3 @@ export interface IUserPatch {
 	state?: string;
 }
 export const USER_PATCH_KEYS = keys<IUserPatch>();
-
-/**
- *  Interface representing the object returned from the DAO layer. Only one of the two can be present.
- *
- */
-
-export type UserResultOk = {
-	code: number,
-	// export type OneOrMany<Type> = Type | Type[];
-	content: OneOrMany<UserDto>
-}
-
-export type UserDaoResult = Result<DaoError, UserResultOk>;

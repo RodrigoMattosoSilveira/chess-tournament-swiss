@@ -1,4 +1,5 @@
-import {UserDaoResult, UserDto, UserResultOk} from "../user/user.interfaces";
+import { DaoResult } from "../../common/generic.interfaces";
+import { OneMany } from '@rmstek/rms-ts-monad';
 
 const request = require('supertest');
 
@@ -8,6 +9,7 @@ import tournamentDao from "../tournament/tournament.dao";
 import userDao from "../user/user.dao";
 import {PLAYER_STATE, TOURNAMENT_TYPE} from "../../contants/contants";
 import {DaoError} from "../../common/generic.interfaces";
+import {UserDto} from "../user/user.interfaces";
 
 describe('Player Entity', () => {
 	const utils = new Utils();
@@ -19,7 +21,7 @@ describe('Player Entity', () => {
 	let userEntity: any;
 	let tournamentEntity: any;
 	let playerEntity: any;
-	let userDaoResult: UserDaoResult;
+	let daoResult: DaoResult<UserDto, UserDto[]>;
 	
 	describe('GET /player', () => {
 		it('GET /player', async done => {
@@ -49,41 +51,43 @@ describe('Player Entity', () => {
 				lastName: "Doe",
 				password: "easytobreak"
 			};
-			userDaoResult = await userDao.create(userEntity);
-			userDaoResult.fold(
-				(err: DaoError) => {
+			daoResult = await userDao.create(userEntity);
+			daoResult.content.fold(
+				(err: string) => {
 					// console.log('\nError creating a user to help POST a player: ' + err + '\n');
 					done(err)
 				},
-				(userResultOk: UserResultOk) => {
-					if (!("id" in userResultOk.content && userResultOk.content.id !== undefined)) {
-						done("Creating a user, expected an use and got an array")
-					}
-					else {
-						let userDao: UserDto = userResultOk.content;
-						userId = userDao.id;
-						// console.log('\nCreated user to help POST a player: ' + userId + '\n');
+				(result: OneMany<UserDto, UserDto[]>) => {
+					result.fold(
+						/* ifOne */  () => {
+							// @ts-ignore
+							let userDao: UserDto = result.get();
+							userId = userDao.id;
+							// console.log('\nCreated user to help POST a player: ' + userId + '\n');
 
-						// Create a tournament to help POST a player
-						tournamentEntity = {
-							name: "Blanchard Open - 2021",
-							maxPlayers: 32,
-							rounds: 6,
-							type: TOURNAMENT_TYPE.SWISS
-						}
-						tournamentDao.add(tournamentEntity)
-							.then((id: string) => {
-								tournamentId = id;
-								// console.log('\nCreated tournament to help POST a player: ' + tournamentId + '\n');
-								// console.log('\nCreated user and tournament to help POST a player: ' + userId + " " + tournamentId + '\n');
-							})
-							.catch((err: any) => {
-								// console.log('\nError creating a tournament to help POST a player: ' + err + '\n');
-								done(err)
-							});
-					}
+							// Create a tournament to help POST a player
+							tournamentEntity = {
+								name: "Blanchard Open - 2021",
+								maxPlayers: 32,
+								rounds: 6,
+								type: TOURNAMENT_TYPE.SWISS
+							}
+							tournamentDao.add(tournamentEntity)
+								.then((id: string) => {
+									tournamentId = id;
+									// console.log('\nCreated tournament to help POST a player: ' + tournamentId + '\n');
+									// console.log('\nCreated user and tournament to help POST a player: ' + userId + " " + tournamentId + '\n');
+								})
+								.catch((err: any) => {
+									// console.log('\nError creating a tournament to help POST a player: ' + err + '\n');
+									done(err)
+								});
+							},
+						/* ifMany */ () => {done("Should have received only record, got many");}
+					)
+
 				}
-			) // 20
+			)
 			done();
 		});
 		it('POST /player', async done => {
