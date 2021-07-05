@@ -1,3 +1,4 @@
+//TODO consider changing it from a singleton, to be a module that exports functions
 import shortid from "shortid";
 import {
     USER_DEFAULT_CONSTANTS,
@@ -11,6 +12,7 @@ import userDao from "./user.dao";
 import {IUserMongoDoc} from "./user-mongo";
 import {UserDto} from "./user.interfaces";
 
+//TODO refactor all function names to remove their l prefix
 export class UserUtil {
     private static instance: UserUtil;
 

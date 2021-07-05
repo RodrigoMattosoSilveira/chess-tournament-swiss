@@ -1,12 +1,10 @@
 import userDao from './user.dao';
 import { CRUD } from "../../common/crud.interface";
 import { UserDto } from "./user.interfaces";
-import { UserDaoResult } from "./user.interfaces";
-import {UserUtil} from "./user.util";
+import { DaoResult } from "../../common/generic.interfaces";
 
 class UserService implements CRUD {
 	private static instance: UserService;
-	private userUtil:UserUtil = UserUtil.getInstance();
 	
 	static getInstance(): UserService {
 		if (!UserService.instance) {
@@ -15,24 +13,19 @@ class UserService implements CRUD {
 		return UserService.instance;
 	}
 	
-	async create(resource: UserDto): Promise<UserDaoResult> {
-		this.userUtil.lAddAttributeDefaults(resource);
+	async create(resource: UserDto): Promise<DaoResult<UserDto, UserDto[]>> {
 		return await userDao.create(resource);
 	}
 
-	async list(/*limit: number, page: number*/): Promise<UserDaoResult> { // limit and page are ignored until we upgrade our DAO
-		return await userDao.list();
-	};
-
-	async readById(resourceId: string): Promise<UserDaoResult> {
+	async readById(resourceId: string): Promise<DaoResult<UserDto, UserDto[]>> {
 		return await userDao.readById(resourceId);
 	};
 
-	async getByEmail(email: string): Promise<UserDaoResult> {
-		return await userDao.getByEmail(email);
-	}
+	async list(/*limit: number, page: number*/): Promise<DaoResult<UserDto, UserDto[]>> { // limit and page are ignored until we upgrade our DAO
+		return await userDao.list();
+	};
 
-	async patchById(resource: UserDto): Promise<UserDaoResult> {
+	async patchById(resource: UserDto): Promise<DaoResult<UserDto, UserDto[]>> {
 		return await userDao.patchUserById(resource)
 	};
 
