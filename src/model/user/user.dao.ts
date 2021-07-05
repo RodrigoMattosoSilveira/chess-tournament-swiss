@@ -74,7 +74,7 @@ class UserDao {
 			let usersRead: IUserMongoDoc[] = await UserMongo.find({}).exec();
 			if (usersRead) {
 				// @ts-ignore
-				for (let userRead: IUserMongoDoc in usersRead) {
+				for (let userRead: IUserMongoDoc of usersRead) {
 					// @ts-ignore
 					let user: UserDto = this.userUtil.fromMongoToUser(userRead);
 					users.push(user);

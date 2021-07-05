@@ -69,8 +69,13 @@ class UserController {
 			(result: OneMany<UserDto, UserDto[]>) => {
 				// res.status(daoResult.code).send(result.content.get());
 				result.fold(
-					/* ifOne */  () => {res.status(500).send("Should have received a record collection, got one record");},
-					/* ifMany */ () => {res.status(daoResult.code).send(result.get());})
+					/* ifOne */  () => {
+						res.status(500).send("Should have received a record collection, got one record");
+						},
+					/* ifMany */ () => {
+						res.status(daoResult.code).send(result.get());
+					}
+				);
 			},
 		);
 
