@@ -3,9 +3,12 @@ import debug from 'debug';
 import { Ok, Err } from 'space-monad';
 const log: debug.IDebugger = debug('app:in-memory-dao');
 
-import {UserDto, UserResultOk, UserDaoResult} from "./user.interfaces";
-import {IUserMongoDoc, UserMongo} from "./user-mongo";
+import { DaoResult } from "../../common/generic.interfaces";
+import { One, Many } from '@rmstek/rms-ts-monad';
+import { UserDto} from "./user.interfaces";
+import { IUserMongoDoc, UserMongo} from "./user-mongo";
 import { UserUtil } from "./user.util";
+import { HttpResponseCode } from '../../contants/contants';
 
 /**
  * Using the singleton pattern, this class will always provide the same instance—and, critically, the same user
@@ -41,51 +44,54 @@ class UserDao {
 	 * @param user
 	 * @returns userDaoResult: UserDaoResult
 	 */
-	async create(user: UserDto): Promise<UserDaoResult> {
+	async create(user: UserDto): Promise< DaoResult<UserDto, UserDto[]>> {
 		// Error handling
 		// https://stackoverflow.com/questions/50905750/error-handling-in-async-await
 		// https://blog.grossman.io/how-to-write-async-await-without-try-catch-blocks-in-javascript/
-		let userDaoResult: UserDaoResult;
+		let daoResult: DaoResult<UserDto, UserDto[]>;
 		const userMongo = UserMongo.build({...user})
 		try {
 			let userSaved = await userMongo.save();
-			userDaoResult = Ok({code: 201, content: userSaved});
+			let useDto: UserDto = this.userUtil.fromMongoToUser(userSaved);
+			// 201 Created record
+			daoResult = {code: HttpResponseCode.created, content: Ok(One(useDto))};
 		}
 		catch (error)  {
-			userDaoResult = Err({code: 400, content: JSON.stringify(error.errors)});
+			// 500 Internal Server Error
+			daoResult = {code: HttpResponseCode.internal_server_error, content: Err("Unable to save user entity")};
 		}
-		return userDaoResult;
+		return daoResult;
 	}
 
 	/**
 	 * Returns all use documents
 	 */
-	async list(): Promise<UserDaoResult> {
-		let userDaoResult: UserDaoResult;
+	async list(): Promise< DaoResult<UserDto, UserDto[]>> {
+		let daoResult: DaoResult<UserDto, UserDto[]>;
 		let users: UserDto[] = [];
 		try {
 			// Read all documents
 			let usersRead: IUserMongoDoc[] = await UserMongo.find({}).exec();
 			if (usersRead) {
-				// Found, 200 = Ok
 				// @ts-ignore
 				for (let userRead: IUserMongoDoc in usersRead) {
 					// @ts-ignore
 					let user: UserDto = this.userUtil.fromMongoToUser(userRead);
 					users.push(user);
 				}
-				userDaoResult = Ok({code: 200, content: users});
+				// 200 Ok
+				daoResult = {code: HttpResponseCode.ok, content: Ok(Many(users))};
 			}
 			else {
-				// Did not find, 204 = No Content
-				userDaoResult = Err({code: 204, content: `Did not find any users`});
+				// 404 Not Found
+				daoResult = {code: HttpResponseCode.not_found, content: Err("Did not find any users")};
 			}
 		}
 		catch (error) {
-			userDaoResult = Err({code: 400, content: `Error reading all users`});
+			// 500 Internal Server Error
+			daoResult = {code: HttpResponseCode.internal_server_error, content: Err("Unable to read user entities")};
 		}
-		return userDaoResult;
-
+		return daoResult;
 	}
 
 	/**
@@ -93,25 +99,27 @@ class UserDao {
 	 * @param userId
 	 * @returns userDaoResult: UserDaoResult
 	 */
-	async readById(userId: string): Promise<UserDaoResult> {
-		let userDaoResult: UserDaoResult;
+	async readById(userId: string): Promise< DaoResult<UserDto, UserDto[]>> {
+		let daoResult: DaoResult<UserDto, UserDto[]>;
 		// Find one entity whose `id` is 'id', otherwise `null`
 		try {
 			let userRead = await UserMongo.findOne({id: userId}, `id firstName lastName email rating state`).exec();
 			if (userRead) {
 				// Found, 200 = Ok
 				let user: UserDto = this.userUtil.fromMongoToUser(userRead);
-				userDaoResult = Ok({code: 200, content: user});
+				// 200 Ok
+				daoResult = {code: HttpResponseCode.ok, content: Ok(One(user))};
 			}
 			else {
-				// Did not find, 204 = No Content
-				userDaoResult = Err({code: 204, content: `Did not find user with id = ${userId} `});
+				// 404 Not Found
+				daoResult = {code: HttpResponseCode.not_found, content: Err(`Did not find any user with id: ${userId}`)};
 			}
 		}
 		catch (error) {
-			userDaoResult = Err({code: 400, content: `Error searching for user with id = ${userId} `});
+			// 500 Internal Server Error
+			daoResult = {code: HttpResponseCode.internal_server_error, content: Err(`Did not find any user with id: ${userId}`)};
 		}
-		return userDaoResult;
+		return daoResult;
 	}
 
 	/**
@@ -120,26 +128,17 @@ class UserDao {
 	 * @returns exists: boolean
 	 */
 	async idExists(id: string): Promise<boolean> {
-		let exists: boolean = false;
-		let userDaoResult: UserDaoResult = await this.readById(id);
-		userDaoResult.fold(
-			(/*err*/) => {
+		let exists: boolean;
+		let daoResult: DaoResult<UserDto, UserDto[]> = await this.readById(id);
+		switch (daoResult.code) {
+			case /* 200 */
+			HttpResponseCode.ok:
+				exists = true;
+				break;
+			default:
 				exists = false;
-			},
-			(result: UserResultOk) => {
-				switch (result.code) {
-					case 200:
-						exists = true;
-						break;
-					case 204:
-						exists = false;
-						break;
-					default:
-						exists = false;
-						break
-				}
-			},
-		);
+				break;
+		}
 		return exists;
 	}
 
@@ -148,24 +147,27 @@ class UserDao {
 	 * @param email
 	 * @returns userDaoResult: UserDaoResult
 	 */
-	async getByEmail(email: string): Promise<UserDaoResult> {
+	async getByEmail(email: string): Promise< DaoResult<UserDto, UserDto[]>> {
 		// Error handling
 		// https://stackoverflow.com/questions/50905750/error-handling-in-async-await
 		// https://blog.grossman.io/how-to-write-async-await-without-try-catch-blocks-in-javascript/
-		let userDaoResult: UserDaoResult;
+		let daoResult: DaoResult<UserDto, UserDto[]>;
 		try {
 			let userRead = await UserMongo.findOne({email: email}).lean();
 			if (userRead) {
-				userDaoResult = Ok({code: 200, content: userRead});
+				// 200 Ok
+				daoResult = {code: HttpResponseCode.ok, content: Ok(One(userRead))};
 			}
 			else {
-				userDaoResult = Err({code: 204, content: `User with email ${ email } not found`});
+				// 404 Not Found
+				daoResult = {code: HttpResponseCode.not_found, content: Err(`Did not find any user with email: ${email}`)};
 			}
 		}
 		catch (err) {
-			userDaoResult = Err({code: 400, content: `Error reading user with email ${ email }`});
+			// 500 Internal Server Error
+			daoResult = {code: HttpResponseCode.internal_server_error, content: Err(`Ser error search user email: ${email}`)};
 		}
-		return userDaoResult;
+		return daoResult;
 	}
 
 	/**
@@ -174,31 +176,21 @@ class UserDao {
 	 * @returns exists: boolean
 	 */
 	async emailExists(email: string): Promise<boolean> {
-		let exists: boolean = false;
-		let userDaoResult: UserDaoResult = await this.getByEmail(email)
-		userDaoResult.fold(
-			(/*err*/) => {
+		let exists: boolean;
+		let daoResult: DaoResult<UserDto, UserDto[]> = await this.getByEmail(email)
+		switch (daoResult.code) {
+			case /* 200 */ HttpResponseCode.ok:
+				exists = true;
+				break;
+			default:
 				exists = false;
-			},
-			(result: UserResultOk) => {
-				switch (result.code) {
-					case 200:
-						exists = true;
-						break;
-					case 204:
-						exists = false;
-						break;
-					default:
-						exists = false;
-						break
-				}
-			},
-		);
+				break;
+		}
 		return exists;
 	}
 
-	patchUserById(user: UserDto):  Promise<UserDaoResult> {
-		let userDaoResult: UserDaoResult | undefined;
+	patchUserById(user: UserDto):  Promise< DaoResult<UserDto, UserDto[]>> {
+		let daoResult: DaoResult<UserDto, UserDto[]>;
 		// Do not use lean, so that we have the save method!
 		let conditions = {id: user.id};
 		let update = {}
@@ -214,19 +206,21 @@ class UserDao {
 		UserMongo.findOneAndUpdate(conditions, update, options).exec()
 			.then((user: any) => {
 				if (user) {
-					// Found, 200 = Ok
-					userDaoResult = Ok({code: 200, content: user});
+					// 200 Ok
+					daoResult = {code: HttpResponseCode.ok, content: Ok(One(user))};
 				}
 				else {
 					// Did not find, 204 = No Content
-					userDaoResult = Err({code: 204, content: `Did not patch; user id ${user.id } not found`});
+					// 404 Not Found
+					daoResult = {code: HttpResponseCode.not_found, content: Err(`Did not find any user id ${user.id}, not patched`)};
 				}
 			})
-			.catch((error: any) => {
-				userDaoResult = Err({code: 400, content: JSON.stringify(error.errors)});
+			.catch(() => {
+				// 500 Internal Server Error
+				daoResult = {code: HttpResponseCode.internal_server_error, content: Err(`Service error patching user id: ${user.id}`)};
 			})
 		// @ts-ignore
-		return userDaoResult;
+		return daoResult;
 	}
 
 	// Not supported
