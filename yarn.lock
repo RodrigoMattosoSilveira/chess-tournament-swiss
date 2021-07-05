@@ -484,6 +484,11 @@
   resolved "https://registry.yarnpkg.com/@phc/format/-/format-1.0.0.tgz#b5627003b3216dc4362125b13f48a4daa76680e4"
   integrity sha512-m7X9U6BG2+J+R1lSOdCiITLLrxm+cWlNI3HUFA92oLO77ObGNzaKdh8pMLqdZcshtkKuV84olNNXDfMc4FezBQ==
 
+"@rmstek/rms-ts-monad@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@rmstek/rms-ts-monad/-/rms-ts-monad-1.0.1.tgz#4194c1f8f784c5a4db63e7162dde0d0655349b4b"
+  integrity sha512-EX4MdDiR0TBnx27J6Kwx/nJ7GC1BbU4RJ2kwTJYvXd+7uEMsRXvuFi6AHh4XlrNT/bKweSjA3tX+tjsYNTtrEQ==
+
 "@shelf/jest-mongodb@^1.2.3":
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/@shelf/jest-mongodb/-/jest-mongodb-1.2.3.tgz#7cb34f0bcb71871b0d1c8d16a4f1fdb18b1620df"

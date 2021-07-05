@@ -3,9 +3,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+## [0.0.12] - underway
+### Feature
+* Implement the `mongoDB` capability for `tournament`. It will be a long journey:
+  * `#33` - Replace local link of `@rmstek/rms-ts-monad` with published package;
+  * Refactor `DAO` to use MongoDB and return a [Result](https://www.npmjs.com/package/space-monad) monad, using the the [OneMany](https://github.com/RodrigoMattosoSilveira/rms-ts-monads) monad, as necessary;
+  * Add `tournament.dao` tests using JEST.MOCK; re-factor `user.dao` to adopt it;
+  * Refactor `Service` / `Controller` to use the [Result](https://www.npmjs.com/package/space-monad) and [OneMany](https://github.com/RodrigoMattosoSilveira/rms-ts-monads) Monads;
+  * Add `tournament.dao` tests using JEST.MOCK; re-factor `user.dao` to adopt it;
+  * Refactor `Middleware` to use the [keys](https://www.npmjs.com/package/ts-transformer-keys) and the utilities that use hard coded values;
+  * Write `Middleware` unit tests;
+  * Refactor `Utils` to be a simple module that exports its functions
+  * Move the node scripts, `create-users`, `create-tournament` to the application; write tests to validate them;
+   
 ## [0.0.11.1] - underway
 ### Feature
 * Use [ts-transformer-key](https://github.com/kimamula/ts-transformer-keys) to collect entity keys into a string array.
+* Integrated [OneMany](https://github.com/RodrigoMattosoSilveira/rms-ts-monads) monad;
+* Refactored some of the `middleware` methods to live in a generic file;
 
 ## [0.0.11] - 2021 06 20
 ### Feature

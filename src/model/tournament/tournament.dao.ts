@@ -7,11 +7,7 @@ import {TournamentDto} from "./tournament.model";
 import {TOURNAMENT_PATCHABLE_ATTRIBUTES, TOURNAMENT_STATE} from "../../contants/contants";
 
 /**
- * Using the singleton pattern, this class will always provide the same instance—and, critically, the same user
- * array, when we import it in other files. For that, we declare two things:
- * The static variable, instance, to hold a single object of the UsersDao class.
- * The static getInstance() function, which will first create a new UsersDao (if needed) and return the current
- * instance.
+ * Using the singleton pattern, this class will always provide the same instance.
  */
 class TournamentDao {
 	private static instance: TournamentDao;

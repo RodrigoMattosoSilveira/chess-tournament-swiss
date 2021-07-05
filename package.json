@@ -26,6 +26,7 @@
     "env-user": "REST_API_USER_ID=xuBs3_tvU"
   },
   "dependencies": {
+    "@rmstek/rms-ts-monad": "^1.0.1",
     "argon2": "^0.27.1",
     "axios": "^0.21.1",
     "cors": "^2.8.5",
