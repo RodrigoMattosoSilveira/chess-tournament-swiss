@@ -162,6 +162,7 @@ describe('User Middleware Unit Tests', () => {
 			let body: IUserPatch = {
 				email:"a.b@c.com",
 				firstName: "Paul",
+				id: "nowayjose",
 				lastName: "White",
 				password: "ThoughToFigureOut",
 				role: USER_ROLE.USER,
@@ -178,13 +179,14 @@ describe('User Middleware Unit Tests', () => {
 				firstName: "Paul",
 				lastName: "White",
 				id: "invalid id",
+				id1: "invalid id invalid id",
 				password: "ThoughToFigureOut",
 				role: USER_ROLE.USER,
 				rating: 1567,
 				state: USER_STATE.ACTIVE
 			}
 			let invalidPatchAttributes = utils.hasOnlyRequiredKeys(body, USER_PATCH_KEYS)
-			expect(invalidPatchAttributes).toEqual("id");
+			expect(invalidPatchAttributes).toEqual("id1");
 			done();
 		});
 	});

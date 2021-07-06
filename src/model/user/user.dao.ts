@@ -5,7 +5,7 @@ const log: debug.IDebugger = debug('app:in-memory-dao');
 
 import { DaoResult } from "../../common/generic.interfaces";
 import { One, Many } from '@rmstek/rms-ts-monad';
-import { UserDto} from "./user.interfaces";
+import {USER_PATCH_KEYS, UserDto} from "./user.interfaces";
 import { IUserMongoDoc, UserMongo} from "./user-mongo";
 import { UserUtil } from "./user.util";
 import { HttpResponseCode } from '../../contants/contants';
@@ -194,8 +194,7 @@ class UserDao {
 		// Do not use lean, so that we have the save method!
 		let conditions = {id: user.id};
 		let update = {}
-		const allowedPatchFields = ["email", "firstName", "lastName", "password", "permissionLevel", "rating", "state"];
-		for (let field of allowedPatchFields) {
+		for (let field of USER_PATCH_KEYS) {
 			if (field in user) {
 				// @ts-ignore
 				update[field] = user[field];

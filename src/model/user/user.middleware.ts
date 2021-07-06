@@ -91,10 +91,14 @@ export class UserMiddleware {
 	}
 	
 	async passwordIsStrong(req: express.Request, res: express.Response, next: express.NextFunction) {
-		if (req.body.password && await utils.isPasswordStrong(req.body.password)) {
-			next()
+		if (!req.body.password) {
+			next();
 		} else {
-			res.status(400).send(`User password is weak: ${req.body.password}`);
+			if (false == await utils.isPasswordStrong(req.body.password)) {
+				res.status(400).send(`User password is weak: ${req.body.password}`);
+			} else {
+				next();
+			}
 		}
 	}
 	
