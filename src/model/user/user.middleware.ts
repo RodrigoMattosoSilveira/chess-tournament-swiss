@@ -75,7 +75,7 @@ export class UserMiddleware {
 	
 	async emailIsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
 		if (req.body.email && !utils.isValidEmail(req.body.email)) {
-			res.status(400).send({error: `Invalid user email: ` + req.body.email});
+			res.status(400).send(`Invalid user email: ` + req.body.email);
 		} else {
 			next();
 		}
