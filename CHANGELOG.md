@@ -5,17 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 ## [0.0.12] - underway
 ### Feature
-* Implement the `mongoDB` capability for `tournament`. It will be a long journey:
-  * `#33` - Replace local link of `@rmstek/rms-ts-monad` with published package;
-  * Refactor `DAO` to use MongoDB and return a [Result](https://www.npmjs.com/package/space-monad) monad, using the the [OneMany](https://github.com/RodrigoMattosoSilveira/rms-ts-monads) monad, as necessary;
-  * Add `tournament.dao` tests using JEST.MOCK; re-factor `user.dao` to adopt it;
-  * Refactor `Service` / `Controller` to use the [Result](https://www.npmjs.com/package/space-monad) and [OneMany](https://github.com/RodrigoMattosoSilveira/rms-ts-monads) Monads;
-  * Add `tournament.dao` tests using JEST.MOCK; re-factor `user.dao` to adopt it;
-  * Refactor `Middleware` to use the [keys](https://www.npmjs.com/package/ts-transformer-keys) and the utilities that use hard coded values;
-  * Write `Middleware` unit tests;
-  * Refactor `Utils` to be a simple module that exports its functions
-  * Move the node scripts, `create-users`, `create-tournament` to the application; write tests to validate them;
-   
+ * Implement the `mongoDB` capability for `tournament`;
+   * See the [Migrate the tournament entity to use mongo/monads](https://github.com/RodrigoMattosoSilveira/chess-tournament-swiss/milestone/1) milestone for the list of implemented issues; 
+   * See [this list](https://github.com/RodrigoMattosoSilveira/chess-tournament-swiss/issues/37) for the issues yet to be created and implemented;
+    
 ## [0.0.11.1] - underway
 ### Feature
 * Use [ts-transformer-key](https://github.com/kimamula/ts-transformer-keys) to collect entity keys into a string array.
