@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Feature
  * Implement the `mongoDB` capability for `tournament`;
    * See the [Migrate the tournament entity to use mongo/monads](https://github.com/RodrigoMattosoSilveira/chess-tournament-swiss/milestone/1) milestone for the list of implemented issues; 
-   * See [this list](https://github.com/RodrigoMattosoSilveira/chess-tournament-swiss/issues/37) for the issues yet to be created and implemented;
+   * See [this list](./TODO.md) for the issues yet to be created and implemented;
     
 ## [0.0.11.1] - underway
 ### Feature
