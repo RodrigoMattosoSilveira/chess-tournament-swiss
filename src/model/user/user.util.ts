@@ -11,6 +11,7 @@ import {USER_PATCH_KEYS, USER_CREATE_KEYS} from "./user.interfaces";
 import userDao from "./user.dao";
 import {IUserMongoDoc} from "./user-mongo";
 import {UserDto} from "./user.interfaces";
+import { USER_DTO_KEYS } from "./user.interfaces";
 
 //TODO refactor all function names to remove their l prefix
 export class UserUtil {
@@ -114,14 +115,11 @@ export class UserUtil {
     }
 
     fromMongoToUser(mongo: IUserMongoDoc): UserDto  {
-        return  {
-            id: mongo.id,
-            firstName: mongo.firstName,
-            lastName: mongo.lastName,
-            email: mongo.email,
-            password: `No way Jose`,
-            rating: mongo.rating,
-            state: mongo.state
-        }
+        let user: UserDto = {email: "", firstName: "", lastName: "", password: ""};
+         USER_DTO_KEYS.forEach(el => {
+             // @ts-ignore
+             el !== "password" ? mongo[el] ? user[el] = mongo[el] : null : null;
+        })
+        return  user;
     }
 }

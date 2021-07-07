@@ -103,7 +103,7 @@ class UserDao {
 		let daoResult: DaoResult<UserDto, UserDto[]>;
 		// Find one entity whose `id` is 'id', otherwise `null`
 		try {
-			let userRead = await UserMongo.findOne({id: userId}, `id firstName lastName email rating state`).exec();
+			let userRead = await UserMongo.findOne({id: userId}).exec();
 			if (userRead) {
 				// Found, 200 = Ok
 				let user: UserDto = this.userUtil.fromMongoToUser(userRead);
@@ -202,10 +202,11 @@ class UserDao {
 		}
 		let options = {new: true};
 		// https://mongoosejs.com/docs/tutorials/findoneandupdate.html
-		UserMongo.findOneAndUpdate(conditions, update, options).exec()
+		UserMongo.findOneAndUpdate(conditions, update, options)
 			.then((user: any) => {
 				if (user) {
 					// 200 Ok
+					delete user.password;
 					daoResult = {code: HttpResponseCode.ok, content: Ok(One(user))};
 				}
 				else {
