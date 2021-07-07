@@ -104,11 +104,11 @@ export class UserMiddleware {
 	
 	async roleIsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
 		if (req.body.role) {
-			let errorMessage = UserMiddleware.userUtil.lRatingIsValid(req.body.role);
-			if (errorMessage.length === 0) {
+			let errorMessage = UserMiddleware.userUtil.lRoleIsValid(req.body.role);
+			if(UserMiddleware.userUtil.lRoleIsValid(req.body.role)) {
 				next()
 			} else {
-				res.status(400).send(errorMessage);
+				res.status(400).send(`User role, ${req.body.role}, is not valid`);
 			}
 		} else {
 			next();
