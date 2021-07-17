@@ -81,7 +81,14 @@ app.get('/', (req: express.Request, res: express.Response) => {
 	res.status(200).send(`Server up and running!`)
 });
 
-if (process.env.NODE_ENV !== 'test') {
+// use the mychess_test db for testing
+let db_name = "swiss_pairing";
+if (process.env.SWISS_PAIRING_RUN_TYPE === 'E2E') {
+	db_name = "swiss_pairing_e2e";
+}
+
+// UT means unit tests
+if (process.env.NODE_ENV !== 'UT') {
 // This actually starts our server. Once it’s started, Node.js will run our callback function, which reports that we’re
 // running, followed by the names of all the routes we’ve configured—so far, just UserRoutes.
 	
@@ -89,7 +96,7 @@ if (process.env.NODE_ENV !== 'test') {
 	console.log(`process.env.MONGO_PASSWORD: ` + process.env.MONGO_PASSWORD);
 	console.log(`process.env.MONGO_DB: ` + process.env.MONGO_DB);
 	// const uri: string = "mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@rms-mongo-cluster-chess.z4pdw.mongodb.net/${process.env.MONGO_DB}?retryWrites=true&w=majority";
-	const uri: string = "mongodb+srv://systemAdmin:hUr9bvrr4AQiDJf@rms-mongo-cluster-chess.z4pdw.mongodb.net/mychess";
+	const uri: string = `mongodb+srv://systemAdmin:hUr9bvrr4AQiDJf@rms-mongo-cluster-chess.z4pdw.mongodb.net/${db_name}`;
 	const options = { useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true }
 	mongoose.set("useFindAndModify", false)
 	
