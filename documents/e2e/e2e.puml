@@ -2,19 +2,21 @@
 'https://plantuml.com/class-diagram
 
 class ExpressServer
-class MongoServer
 
 class CloudApplication
-class E2EApplication
-note bottom of E2EApplication
-     // mongodb-memory-server <i>import</i> pattern
-     // mongodb-memory-server <i>describe</i> pattern
-     // mongodb-memory-server <i>beforeAll</i> pattern
-     // mongodb-memory-server <i>afterAll</i> pattern
+note bottom of CloudApplication
+     MongoDB/Mongoose connection pattern
+end note
+
+class E2ETest
+note bottom of E2ETest
+     mongodb-memory-server <i>import</i> pattern
+     mongodb-memory-server <i>describe</i> pattern
+     mongodb-memory-server <i>beforeAll</i> pattern
+     mongodb-memory-server <i>afterAll</i> pattern
 end note
 
 CloudApplication o-- ExpressServer
-CloudApplication o-- MongoServer
 
-E2EApplication  o-- ExpressServer
+E2ETest  o-- ExpressServer
 @enduml
