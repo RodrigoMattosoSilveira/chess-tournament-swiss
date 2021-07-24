@@ -12,7 +12,6 @@ import mongoose from "mongoose";
 import {MongoMemoryServer} from "mongodb-memory-server";
 const mongoOptions = { useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true }
 
-
 // Configuration
 import {IConfig} from "../config/config.interface";
 let config: IConfig = require('../config/config.dev.json');
@@ -56,6 +55,10 @@ export const createExpressApp = (): express.Application => {
     return app;
 }
 
+/**
+ * Given and express application, it creates an http server for it
+ * @param expressApplication
+ */
 export const createHttpServer = (expressApplication: express.Application): http.Server => {
     return http.createServer(expressApplication);
 }

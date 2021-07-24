@@ -17,12 +17,13 @@ I chose the following:
 
 #Architecture
 The recommended approach is:
-* Decouple the definition of the Express Server, `express server`, from the logic to define the MongoDB server, `mongo`;
-* Write a helper module to define, but not start the `Cloud Application`;
-* Write a helper pattern for how to set up and launch the `mongo` server;
-* Write a helper pattern for how to set up and launch the `mongodb-memory-server`, server;
-* Couple the `express server` server and `mongo` helper pattern into `index.ts`, to launch the `Cloud Application`;
-* Couple the `express server` server and `mongodb-memory-server` into e2e tests, to validate RestFull APIs calls to operate on `application entities`;
+* Decouple the definition of the Express Server, `express server`, Http Server, `http server`, from the logic to define the MongoDB server, `mongo`;
+* Write a helper module to define, but not start the `express application`;
+* Write a helper module to define, but not start the `http server`;
+* Write a helper module to define and start the`mongo` server;
+* Write a helper module to define and start the`mongodb-memory-server` server;
+* Refactor `index.ts` to aggregate the `express server`, `http server`, and `mongo`;
+* Refactor `e2e teasts` to aggregate the `express server`, `http server`, and `mongodb-memory-server`;
 
 This illustrations the approached suggested above:
 ![Alt text](./images/e2e-1.png)
@@ -30,67 +31,140 @@ This illustrations the approached suggested above:
 #Sample Source
 Below is a simplified view.
 
-##Express Server
-We use this module to launch the express server,  `Cloud Application`, and `e2e` tests;
+##Express Application
+We use this module to create the express application,  aggregated to the `Cloud Application`, and `e2e` tests;
 ````typescript
-// expressServer.ts
+// server.ts
 
-import express from 'express';
-const routes = require("./routes")
+// import statements
 
-function createExpressServer() {
-	const expressServer = express()
-	expressServer.use(express.json())
-	expressServer.use("/api", routes)
-	server = http.createServer(expressServer);
-	return expressServer
+export const createExpressApp = (): express.Application => {
+    // app.use configurations
+
+    // app routes 
+    
+    // Helper routes
+    // Route to ensure the express server is working properly
+    app.get('/hello', (req: express.Request, res: express.Response) => {
+        res.status(200).send(`Express Server up and running!`)
+    });
+
+    // Route to quit the express server
+    app.get('/quit', (req: express.Request, res: express.Response) => {
+        mongoose.connection.db.dropDatabase(() => {
+            mongoose.connection.close()
+                .then()
+                .catch((error: any) => {})
+        });
+        res.status(200).send(`Express Server terminated!`);
+        process.exit(0)
+    });
+
+    return app;
+}
+````
+
+##Http Server
+We use this module to create the express application,  aggregated to the `Cloud Application`, and `e2e` tests;
+````typescript
+// server.ts
+
+// import statements
+
+export const createHttpServer = (expressApplication: express.Application): http.Server => {
+    return http.createServer(expressApplication);
 }
 
-module.exports = createExpressServer
 ````
-##MongoDB Pattern,  mongo
-We pair this pattern with the `express server` module to launch the `Cloud Application`;
-````typescript
-const mongoose = require("mongoose")
 
-mongoose
-	.connect("mongodb://localhost:27017/acmedb", { useNewUrlParser: true })
-	.then(() => {
-		// express server initialization logic goes here, see Cloud Application
-	})
+##MongoDB Atlas
+We use this module to configure and launch the MongoDB Atlas, aggregated to `Cloud Application`;
+````typescript
+// server.ts
+
+// import statements
+
+// Configuration
+import {IConfig} from "../config/config.interface";
+let config: IConfig = require('../config/config.dev.json');
+
+export const mongoDbAtlas = (expressApplication: express.Application): void => {
+    const httpServer: http.Server = createHttpServer(expressApplication);
+    mongoose.set("useFindAndModify", false)
+    mongoose
+        .connect(config.mongoDbAtlasURI, mongoOptions)
+        .then(() => {
+            console.log(`MongoDB Atlas server running: ` + config.mongoDbAtlasURI);
+            httpServer.listen(config.expressServerPort, () => {
+                console.log(`Express Server running at http://localhost:${config.expressServerPort}`);
+            });
+        })
+        .catch(error => {
+            console.log(`Unable to connect to MongoDB Atlas server ` + JSON.stringify(error));
+            throw error
+        })
+}
+
+````
+
+##MongoDB In Memory
+We use this module to configure and launch the MongoDB Atlas, aggregated to `e2e tests`;
+````typescript
+// server.ts
+
+// import statements
+
+// Configuration
+import {IConfig} from "../config/config.interface";
+let config: IConfig = require('../config/config.dev.json');
+
+export const mongoDbInMemory = (expressApplication: express.Application): void => {
+    process.env.JWT_KEY = "abc";
+    const httpServer: http.Server = createHttpServer(expressApplication);
+    let mongoMemoryServer = new MongoMemoryServer();
+    mongoMemoryServer.getUri()
+        .then((mongoMemoryServerURI: string) => {
+            mongoose
+                .connect(mongoMemoryServerURI, mongoOptions)
+                .then(() => {
+                    console.log(`MongoDB In Memory server running: ` + mongoMemoryServerURI);
+                    httpServer.listen(config.expressServerPort, () => {
+                        console.log("Express Server has started!")
+                    })
+                })
+        })
+}
+
+
 ````
 
 ##Cloud Application
-This is a simple example of how to integrate the `mongo` pattern with the `express server` module to launch the `Cloud Application`:
+This is a simple example of how to aggregate the `express application`, `http server`, and the `mongodb atlas` to launch the `Cloud Application`
 ````typescript
 // index.ts
-import express = from "express";
-import mongoose from "mongoose";
-const createExpressServer = require("./expressServer") // new
 
-const uri: string = `mongodb+srv://systemAdmin:hUr9bvrr4AQiDJf@rms-mongo-cluster-chess.z4pdw.mongodb.net/swiss-pairing}`;
-const options = { useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true }
-const expressServerPort = 3000;
-mongoose.set("useFindAndModify", false)
-mongoose
-	.connect(uri, options)
-	.then(() => {
-		console.log("Mongo Server has started!")
-		const expressServer = createExpressServer() // new
-		expressServer.listen(expressServerPort, () => {
-			console.log("Express Server has started!")
-		})
-	})
+// import statements
+
+// Aggregate the express application
+const app: express.Application = createExpressApp();
+
+// Aggregate the http server
+const server: http.Server = createHttpServer(app);
+
+// Aggregate the MongoDB Atlas server
+mongoDbAtlas(app);
+
+export default app;
+export { server }
 ````
 
-##mongodb-memory-server patterns
-We use this pattern to configure and launch the `mongodb-memory-server`:
+##E2e Test
+This is a simple example of how to aggregate the `express application`, `http server`, and the `mongodb im memory` to launch `e2e tests`
 ````typescript
 
 // *************************************************
 // mongodb-memory-server import pattern
 // *************************************************
-import { MongoClient } from 'mongodb';
 import { MongoMemoryServer } from '../index';
 import mongoose from "mongoose";
 
@@ -105,73 +179,28 @@ describe('Single MongoMemoryServer', () => {
 		useNewUrlParser: true,
 		useUnifiedTopoloty: true
 	}
-	const app: Express.Application;
-	
-	beforeAll(async done => {
-		// mongodb-memory-server beforeAll pattern
-		mongoURI = await mongo.GetUri();
-		await mongoose.connect(mongoURI, options);
-		done();
-	});
+    let expressApplication: express.Application;
+    let httpServer: http.Server;
+
+    beforeAll(async (done) => {
+        expressApplication = createExpressApp();
+        httpServer = createHttpServer(expressApplication);
+        mongoDbInMemory(expressApplication);
+        done()
+    })
 
 	// tests clauses, not shown here
 
-	afterAll(async done => {
-		// *************************************************
-		// mongodb-memory-server afterAll pattern
-		// *************************************************
-		await mongo.stop();
-		await mongoose.connection.close();
-		done();
-	})
+    afterAll(async (done) => {
+        response = await request(httpServer)
+            .get('/quit')
+            .expect(200)
+             .then(response => {
+                console.log("\nindex/response :" + JSON.stringify(response) + '\n');
+                expect(response.text).toEqual('Express Server terminated!');
+                done()
+            })
+            .catch(err => done(err))
+    })
 })
-````
-
-##E2e Test
-This is a simple example of how to integrate the `mongodb-memory-server` pattern with the `express server` module to launch `e2e` tests:
-````typescript
-// e2e.test.ts
-
-// *************************************************
-// mongodb-memory-server import pattern
-// *************************************************
-import { MongoClient } from 'mongodb';
-import { MongoMemoryServer } from '../index';
-const mongoose = require("mongoose")
-const createExpressServer = require("./expressServer") // new
-
-
-describe("Canonical Tests", () => {
-	// mongodb-pattern describe preamble
-	beforeAll(async done => {
-		const expressServer = createExpressServer()
-		// mongodb-memory-server beforeAll pattern
-	});
-	
-    it(`returns 201 on sucessfull signup`, async done => {
-        const user = {
-            firstName: "Marco",
-            lastName: "Maciel",
-            email: "Marco.Maciel@yahoo.com",
-            password: "CuXK3mv^10c2"
-        };
-        await supertest(expressServer)
-            .post("/user")
-            .expect(201)
-            .then((response) => {
-                // Check the response type and length
-                expect(Array.isArray(response.body)).toBeFalsy()
-                 
-                // Check the response data
-                expect(response.body.firstName).toBe(user.firstName);
-                expect(response.body.lastName).toBe(user.lastName);
-                expect(response.body.email).toBe(user.email);
-            });
-        done();
-	});
-    
-	afterAll(async done => {
-		// mongodb-memory-server afterAll pattern
-	})
-});
 ````
