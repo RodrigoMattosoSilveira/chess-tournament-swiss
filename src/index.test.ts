@@ -1,15 +1,25 @@
-import app from './index';
-import {server} from "./index";
+import express from "express";
+import http from "http";
 const request = require('supertest');
+
+import {createExpressApp, createHttpServer} from "./server/server";
 
 describe('app', () => {
 	let response: any;
-	it('should return a successful response for GET /', async done => {
-		response = await request(app)
-			.get('/')
+	let expressApplication: express.Application;
+	let httpServer: http.Server;
+	beforeAll(async (done) => {
+		expressApplication = createExpressApp();
+		httpServer = createHttpServer(expressApplication);
+		done()
+	})
+
+	it('should return a successful response for GET /hello', async done => {
+		response = await request(expressApplication)
+			.get('/hello')
 			.expect(200);
 		console.log("\nindex/response :" + JSON.stringify(response) + '\n');
-		expect(response.text).toEqual('Server up and running!');
+		expect(response.text).toEqual('Express Server up and running!');
 		done();
 		
 	});
@@ -18,8 +28,11 @@ describe('app', () => {
 	// https://github.com/visionmedia/supertest/issues/520
 	// to handle a combination of TCPSERVERWRAP and  EADDRINUSE: address already in use errors
 	afterAll(async (done) => {
-		await server.close() // CLOSE THE SERVER CONNECTION
-		await new Promise<void>(resolve => setTimeout(() => resolve(), 500)); // PLUS THE HACK PROVIDED BY @yss14
+		response = await request(expressApplication)
+			.get('/quit')
+			.expect(200);
+		console.log("\nindex/response :" + JSON.stringify(response) + '\n');
+		expect(response.text).toEqual('Express Server terminated!');
 		done()
 	})
 });

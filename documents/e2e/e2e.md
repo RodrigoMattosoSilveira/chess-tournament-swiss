@@ -9,11 +9,11 @@ This document describes the approach I took to integrate the `mongodb-memory-ser
 
 #Technology Stack
 I chose the following:
-* **Jest** - I'm already using it for unit tests; it is well suited for `e2e` tests as well;
-* **Supertest**  - It is an excellent pairing with 'Jest', with many blogs describing how to integrate them;
-* **MongoDB** The document database used by the cloud application;
-* **mongoose** A MongoDB object modeling for NodeJS;
-* **mongodb-memory-server** - This is a new technology element; will speed up and simplify `e2e` testing; since it is not the same as `MongoDB Atlas`, where I host our database, I'll have to ensure to test the connection to it;
+* **[MongoDB](https://www.mongodb.com/)** The document database used by the cloud application;
+* **[mongoose](https://www.npmjs.com/package/mongoose)** A MongoDB object modeling for NodeJS;
+* **[mongodb-memory-server](https://www.npmjs.com/package/mongodb-memory-server)** - This is a new technology element; will speed up and simplify `e2e` testing; since it is not the same as `MongoDB Atlas`, where I host our database, I'll have to ensure to test the connection to it;
+* **[Jest](https://jestjs.io/)** - I'm already using it for unit tests; it is well suited for `e2e` tests as well;
+* **[Supertest](https://www.npmjs.com/package/supertest)**  - It is an excellent pairing with 'Jest', with many blogs describing how to integrate them;
 
 #Architecture
 The recommended approach is:
