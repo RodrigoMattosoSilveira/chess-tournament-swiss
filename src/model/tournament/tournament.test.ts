@@ -1,11 +1,16 @@
 import express from 'express';
+import http from "http";
 const request = require('supertest');
 
 import {TOURNAMENT_STATE, TOURNAMENT_TYPE} from "../../contants/contants";
 import { Utils } from "../../utils/utils";
-import {createExpressApp, createHttpServer, mongoDbInMemory} from "../../server/server";
-import mongoose from "mongoose";
-import http from "http";
+import {
+	createExpressApp,
+	createHttpServer,
+	mongoDbInMemory,
+	expressApplicationShutDown,
+	mongoInMemoryShutDown
+} from "../../server/server";
 
 describe('Tournament Entity', () => {
 	const utils = new Utils();
@@ -18,7 +23,7 @@ describe('Tournament Entity', () => {
 		expressApplication = createExpressApp();
 		httpServer = createHttpServer(expressApplication);
 		mongoDbInMemory(expressApplication);
-		done()
+		done();
 	})
 	it('GET /tournament', async done => {
 		response = await request(httpServer)
@@ -180,11 +185,8 @@ describe('Tournament Entity', () => {
 	// https://github.com/visionmedia/supertest/issues/520
 	// to handle a combination of TCPSERVERWRAP and  EADDRINUSE: address already in use errors
 	afterAll(async (done) => {
-		response = await request(httpServer)
-			.get('/quit')
-			.expect(200);
-		console.log("\nindex/response :" + JSON.stringify(response) + '\n');
-		expect(response.text).toEqual('Express Server terminated!');
+		mongoInMemoryShutDown();
+		expressApplicationShutDown();
 		done()
 	})
 });

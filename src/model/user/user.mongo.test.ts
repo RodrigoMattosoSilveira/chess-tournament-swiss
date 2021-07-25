@@ -13,13 +13,9 @@ describe('User MongoDB Unit Tests', () => {
 	 * Note:
 	 * - these tests validate the MONGO/MONGOOSE setup, completely bypassing the
 	 *   middleware;
-	 * - the application must be running;
+	 * - use the in memory database
 	 *
-	 * See How to setup Jest for Node.js + Mongoose + TypeScript projects,
-	 * https://kimlehtinen.com/how-to-setup-jest-for-node-js-mongoose-typescript-projects/
-	 *
-	 * Its prescription for setting up th MongoDB model are faulty. I relied on
-	 * Typescript With MongoDB and Node/Express,
+	 * See Typescript With MongoDB and Node/Express,
 	 * https://medium.com/swlh/typescript-with-mongoose-and-node-express-24073d51d2ee
 	 *
 	 */

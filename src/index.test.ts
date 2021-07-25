@@ -4,7 +4,7 @@ const request = require('supertest');
 
 import {createExpressApp, createHttpServer} from "./server/server";
 
-describe('app', () => {
+describe('Express Application', () => {
 	let response: any;
 	let expressApplication: express.Application;
 	let httpServer: http.Server;

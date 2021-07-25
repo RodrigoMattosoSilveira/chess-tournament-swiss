@@ -1,13 +1,17 @@
 import express from "express";
+import http from "http";
 import * as bodyparser from "body-parser";
 import cors from "cors";
+
+// Routes
 import {CommonRoutesConfig} from "../common/common.routes.config";
 import {UserRoutes} from "../model/user/user.routes.config";
 import {TournamentRoutes} from "../model/tournament/tournament.routes.config";
 import {PlayerRoutes} from "../model/player/player.route.config";
 import {GameRoutes} from "../model/game/game.routes.config";
 import {RoundRoutes} from "../model/round/round.routes.config";
-import http from "http";
+
+// MongoDB
 import mongoose from "mongoose";
 import {MongoMemoryServer} from "mongodb-memory-server";
 const mongoOptions = { useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true }
@@ -15,7 +19,11 @@ const mongoOptions = { useCreateIndex: true, useNewUrlParser: true, useUnifiedTo
 // Configuration
 import {IConfig} from "../config/config.interface";
 let config: IConfig = require('../config/config.dev.json');
+let httpServers: http.Server[] = [];
 
+/** ********************************************************************************************************************
+ * Express Application, Http Server
+ ******************************************************************************************************************** */
 export const createExpressApp = (): express.Application => {
     const app: express.Application = express();
     // here we add middleware to parse all incoming requests as JSON
@@ -34,13 +42,8 @@ export const createExpressApp = (): express.Application => {
 
     // Route to quit the express server
     app.get('/quit', (req: express.Request, res: express.Response) => {
-        mongoose.connection.db.dropDatabase(() => {
-            mongoose.connection.close()
-                .then()
-                .catch((error: any) => {})
-        });
-        res.status(200).send(`Express Server terminated!`);
-        process.exit(0)
+        mongoAtlasShutDown();
+        expressApplicationShutDown();
     });
 
     // here we add the UserRoutes to our array, after sending the Express.js application object to have the routes added to
@@ -56,16 +59,39 @@ export const createExpressApp = (): express.Application => {
 }
 
 /**
- * Given and express application, it creates an http server for it
+ * Creates an http server for a given express application.
  * @param expressApplication
  */
 export const createHttpServer = (expressApplication: express.Application): http.Server => {
-    return http.createServer(expressApplication);
+    const httpServer: http.Server = http.createServer(expressApplication);
+    httpServers.push(httpServer);
+    return httpServer;
 }
 
 /**
- * mongoDbAtlas - initializes and starts the MongoDB Atlas service
- *
+ * Shuts down all http servers
+ */
+export const expressApplicationShutDown = (): void => {
+    console.log('Received kill signal, shutting down gracefully');
+    httpServers.forEach((httpServer: http.Server) => {
+        httpServer.close(() => {
+            console.log('Closed httpServer connection');
+            process.exit(0);
+        });
+
+        setTimeout(() => {
+            console.error('Could not close connection in time, forcefully shutting down');
+            process.exit(1);
+        }, 10000);
+    })
+}
+
+/** ********************************************************************************************************************
+ * Mongo Atlas and in memory
+ ******************************************************************************************************************** */
+
+/**
+ * Initializes and starts the MongoDB Atlas service
  */
 export const mongoDbAtlas = (expressApplication: express.Application): void => {
     const httpServer: http.Server = createHttpServer(expressApplication);
@@ -85,7 +111,7 @@ export const mongoDbAtlas = (expressApplication: express.Application): void => {
 }
 
 /**
- * mongoDbInMemory - Initializes the in-memory MongoDB database
+ * Initializes the in-memory MongoDB database
  */
 export const mongoDbInMemory = (expressApplication: express.Application): void => {
     process.env.JWT_KEY = "abc";
@@ -103,3 +129,24 @@ export const mongoDbInMemory = (expressApplication: express.Application): void =
                 })
         })
 }
+
+/**
+ * Shut down the MongoDB Atlas service connection
+ */
+export const mongoAtlasShutDown = (): void => {
+    mongoose.connection.close()
+        .then(() => {console.log(`Close MongoAlas connection`)})
+        .catch((err: any) => {console.log(`Unable to close MongoAlas connection`)})
+}
+
+/**
+ * Shut down the MongoDB in memory service connection
+ */
+export const mongoInMemoryShutDown = (): void => {
+    mongoose.connection.db.dropDatabase(() => {
+        console.log(`Dropped the database`);
+        mongoose.connection.close()
+            .then( () => {console.log(`Closed mongoose connection`);})
+            .catch((error: any) => {})
+    });
+};
