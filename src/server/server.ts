@@ -111,6 +111,15 @@ export const mongoDbAtlas = (expressApplication: express.Application): void => {
 }
 
 /**
+ * Shut down the MongoDB Atlas service connection
+ */
+export const mongoAtlasShutDown = (): void => {
+    mongoose.connection.close()
+        .then(() => {console.log(`Close MongoAlas connection`)})
+        .catch((err: any) => {console.log(`Unable to close MongoAlas connection`)})
+}
+
+/**
  * Initializes the in-memory MongoDB database
  */
 export const mongoDbInMemory = (expressApplication: express.Application): void => {
@@ -128,15 +137,6 @@ export const mongoDbInMemory = (expressApplication: express.Application): void =
                     })
                 })
         })
-}
-
-/**
- * Shut down the MongoDB Atlas service connection
- */
-export const mongoAtlasShutDown = (): void => {
-    mongoose.connection.close()
-        .then(() => {console.log(`Close MongoAlas connection`)})
-        .catch((err: any) => {console.log(`Unable to close MongoAlas connection`)})
 }
 
 /**

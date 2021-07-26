@@ -4,24 +4,24 @@
 class CloudApplication
 class E2ETest
 class Express
-class ExpressServer
+class ExpressApplication
 class Http
 class HttpServer
 class MongoDB
 class MongoAtlas
 class MongoInMemory
 
-ExpressServer o-- Express
+ExpressApplication o-- Express
 HttpServer o-- Http
 
 MongoAtlas o-- MongoDB
 MongoInMemory o-- MongoDB
 
-CloudApplication o-- ExpressServer
+CloudApplication o-- ExpressApplication
 CloudApplication o-- HttpServer
 CloudApplication o-- MongoAtlas
 
-E2ETest o-- ExpressServer
+E2ETest o-- ExpressApplication
 E2ETest o-- HttpServer
 E2ETest o-- MongoInMemory
 @enduml
