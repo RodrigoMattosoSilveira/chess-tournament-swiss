@@ -1,21 +1,18 @@
-import {Utils} from "../../utils/utils";
-
+// TODO: review test in detail for new architecture
+import express from "express";
 const request = require('supertest');
 
 import {RoundDto} from "./round.model";
 import roundDao from './round.dao';
 import roundService from './round.service';
-import roundController from './round.controller';
 import {ROUND_STATE} from "./round.constants";
-import express from "express";
-import app from "../../index";
-import {PLAYER_STATE, TOURNAMENT_TYPE} from "../../contants/contants";
 
-// import { Utils } from "../../utils/utils";
-// import tournamentDao from "../tournament/tournament.dao";
-// import userDao from "../user/user.dao";
-// import {PLAYER_STATE, TOURNAMENT_TYPE} from "../../contants/contants";
-// import {start} from "repl";
+import {AMongoDb, MongoInMemory} from "../../server/mongodb";
+import {ISwissPairingServers} from "../../server/swiss-pairings-interface";
+import {launchServers, stopServers} from "../../server/swiss-pairing";
+
+import {IConfig} from "../../config/config.interface";
+let config: IConfig = require('../../config/config.dev.json');
 
 describe('Round Entity', () => {
 	let entityDto: RoundDto;
@@ -25,10 +22,26 @@ describe('Round Entity', () => {
 	let roundEntity: any;
 	let patchedEntityDto: any;
 	let entityCollection: any;
-	const utils = new Utils();
 	let resource = '/round';
 	let response: any;
-	
+	let mongodb: AMongoDb;
+	let swissPairingServers: ISwissPairingServers;
+	let app: express.Application;
+
+	beforeAll(async () => {
+		mongodb = new MongoInMemory(config.mongoDbInMemoryURI, config.mongodbOptions)
+		swissPairingServers = launchServers(mongodb);
+		app = swissPairingServers.applicationServer;
+	});
+
+	afterEach(async () => {
+		await mongodb.clear();
+	});
+
+	afterAll(async () => {
+		stopServers(mongodb, swissPairingServers.httpServer);
+	});
+
 	describe('DAO Operations', () => {
 		it('add', async done => {
 			entityDto = {

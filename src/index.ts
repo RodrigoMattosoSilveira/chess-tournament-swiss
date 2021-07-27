@@ -1,11 +1,10 @@
-import express from 'express';
-import * as http from "http";
+// Configuration
+import {IConfig} from "./config/config.interface";
+let config: IConfig = require('./config/config.dev.json');
 
-import {createExpressApp, createHttpServer, mongoDbAtlas} from "./server/server";
+import { MongoAtlas } from "./server/mongodb";
+import {launchServers} from "./server/swiss-pairing";
+import {ISwissPairingServers} from "./server/swiss-pairings-interface";
 
-const app: express.Application = createExpressApp();
-const server: http.Server = createHttpServer(app);
-mongoDbAtlas(app);
-
-export default app;
-export { server }
+const mongodb = new MongoAtlas(config.mongoDbAtlasURI, config.mongodbOptions)
+const swissPairingServers: ISwissPairingServers = launchServers(mongodb);

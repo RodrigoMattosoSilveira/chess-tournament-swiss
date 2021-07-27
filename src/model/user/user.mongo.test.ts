@@ -1,12 +1,15 @@
+// Transform these into
+
+import express from "express";
 import {UserDto} from "./user.interfaces";
-import {USER_STATE} from "../../contants/contants";
-import app from './../../index';
-import {server} from '../../index';
-const request = require('supertest');
-import { Utils } from "../../utils/utils";
 import {UserMongo, IUserMongo, IUserMongoDoc} from "./user-mongo";
-import * as testDb from '../../utils/test-db';
 import {USER_DEFAULT_CONSTANTS} from "./user.constants";
+import {AMongoDb, MongoAtlas, MongoInMemory} from "../../server/mongodb";
+import {ISwissPairingServers} from "../../server/swiss-pairings-interface";
+import {launchServers} from "../../server/swiss-pairing";
+
+import {IConfig} from "../../config/config.interface";
+let config: IConfig = require('../../config/config.dev.json');
 
 describe('User MongoDB Unit Tests', () => {
 	/**
@@ -50,14 +53,18 @@ describe('User MongoDB Unit Tests', () => {
 	let readEntity: UserMongoReadEntity;
 	let readEntities: IUserMongoDoc[];
 	let updatedEntity: UserMongoReadEntity;
-
+	let mongodb: AMongoDb;
+	let swissPairingServers: ISwissPairingServers;
+	let app: express.Application;
 
 	beforeAll(async () => {
-		await testDb.connect()
+		mongodb = new MongoInMemory(config.mongoDbInMemoryURI, config.mongodbOptions)
+		swissPairingServers = launchServers(mongodb);
+		app = swissPairingServers.applicationServer;
 	});
 
 	afterEach(async () => {
-		await testDb.clearDatabase()
+		await mongodb.clear();
 		// @ts-ignore
 		savedEntity = null;
 		savedEntityError = null;
@@ -68,7 +75,7 @@ describe('User MongoDB Unit Tests', () => {
 	});
 
 	afterAll(async () => {
-		await testDb.closeDatabase()
+		await mongodb.close();
 	});
 
 	// Type experiment

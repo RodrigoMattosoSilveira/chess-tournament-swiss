@@ -1,16 +1,22 @@
 import mongoose from "mongoose";
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
-abstract class MongoDb {
+/**
+ * An abstract class describing the MongoDB operations
+ */
+export abstract class AMongoDb {
     protected constructor (protected uri: string, protected options: any ) {}
 
     abstract connect = async (): Promise<void> => {};
     abstract close = async (): Promise<void> => {};
-    abstract clearDb = async (): Promise<void> => {};
+    abstract clear = async (): Promise<void> => {};
     abstract clearCollection = async (collection: any): Promise<void> => { await collection.deleteMany({}); };
 }
 
-export class MongoAtlas extends MongoDb {
+/**
+ * A AMongoDb instance describing the operations to manage an MongoDB Atlas instance
+ */
+export class MongoAtlas extends AMongoDb {
     constructor (uri: string, options: any ) {
         super (uri, options);
     }
@@ -29,7 +35,7 @@ export class MongoAtlas extends MongoDb {
     close = async (): Promise<void> => {
         await mongoose.connection.close();
     }
-    clearDb = async (): Promise<void> => {
+    clear = async (): Promise<void> => {
         const collections = mongoose.connection.collections;
 
         for (const key in collections) {
@@ -42,7 +48,10 @@ export class MongoAtlas extends MongoDb {
     }
 }
 
-export class MongoInMemory extends MongoDb {
+/**
+ * A AMongoDb instance describing the operations to manage an In Memory MongoDB instance
+ */
+export class MongoInMemory extends AMongoDb {
     constructor (uri: string, options: any ) {
         super (uri, options);
     }
@@ -58,15 +67,31 @@ export class MongoInMemory extends MongoDb {
         await mongoose.connection.close();
         await this.mongodb.stop();
     }
-    clearDb = async (): Promise<void> => {
-        const collections = mongoose.connection.collections;
+    clear = async (): Promise<void> => {
+        const collections: { [p: string]: mongoose.Collection } = mongoose.connection.collections;
 
         for (const key in collections) {
             const collection = collections[key];
             await this.clearCollection(collection)
         }
     }
-    clearCollection = async (collection: any): Promise<void> => {
+    clearCollection = async (collection: mongoose.Collection): Promise<void> => {
         await collection.deleteMany({});
     }
+}
+
+/**
+ * A AMongoDb instance describing an non existing database; used for unit tests
+ */
+export class MongoNone extends AMongoDb {
+    constructor(uri: string, options: any) {
+        super(uri, options);
+    }
+
+    protected mongodb: any;
+    protected uri: string = "";
+    connect = async (): Promise<void> => {};
+    close = async (): Promise<void> => {}
+    clear = async (): Promise<void> => {}
+    clearCollection = async (): Promise<void> => {}
 }

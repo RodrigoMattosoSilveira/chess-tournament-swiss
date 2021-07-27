@@ -1,32 +1,41 @@
-import express from 'express';
+// TODO: review test in detail for new architecture
+import express from "express";
 import http from "http";
 const request = require('supertest');
 
 import {TOURNAMENT_STATE, TOURNAMENT_TYPE} from "../../contants/contants";
 import { Utils } from "../../utils/utils";
-import {
-	createExpressApp,
-	createHttpServer,
-	mongoDbInMemory,
-	expressApplicationShutDown,
-	mongoInMemoryShutDown
-} from "../../server/server";
+
+import {AMongoDb, MongoInMemory} from "../../server/mongodb";
+import {ISwissPairingServers} from "../../server/swiss-pairings-interface";
+import {launchServers, stopServers} from "../../server/swiss-pairing";
+
+import {IConfig} from "../../config/config.interface";
+let config: IConfig = require('../../config/config.dev.json');
 
 describe('Tournament Entity', () => {
 	const utils = new Utils();
 	let resource = '/tournament';
 	let response: any;
-	let expressApplication: express.Application;
-	let httpServer: http.Server;
+	let mongodb: AMongoDb;
+	let swissPairingServers: ISwissPairingServers;
+	let app: express.Application;
 
-	beforeAll(async (done) => {
-		expressApplication = createExpressApp();
-		httpServer = createHttpServer(expressApplication);
-		mongoDbInMemory(expressApplication);
-		done();
-	})
+	beforeAll(async () => {
+		mongodb = new MongoInMemory(config.mongoDbInMemoryURI, config.mongodbOptions)
+		swissPairingServers = launchServers(mongodb);
+		app = swissPairingServers.applicationServer;
+	});
+
+	afterEach(async () => {
+		await mongodb.clear();
+	});
+
+	afterAll(async () => {
+		stopServers(mongodb, swissPairingServers.httpServer);
+	});
 	it('GET /tournament', async done => {
-		response = await request(httpServer)
+		response = await request(app)
 			.get(resource)
 			.set('Accept', 'application/json')
 			.expect('Content-Type', /json/)
@@ -45,7 +54,7 @@ describe('Tournament Entity', () => {
 		}
 
 		// POST the entity
-		await request(httpServer)
+		await request(app)
 			.post(resource)
 			.send(entityDto)
 			.set('Accept', 'application/json')
@@ -60,7 +69,7 @@ describe('Tournament Entity', () => {
 			.catch((err: any) => done(err));
 		
 		// GET the entity
-		await request(httpServer)
+		await request(app)
 			.get(resource + '/' + entityDto.id)
 			.set('Accept', 'application/json')
 			.expect(200)
@@ -92,7 +101,7 @@ describe('Tournament Entity', () => {
 		beforeAll(async done => {
 			// POST the entity, will validate PATCH against it
 			console.log('\nTournament Entity/PATCH beforeAll \n');
-			await request(httpServer)
+			await request(app)
 				.post(resource)
 				.send(entityDto)
 				.set('Accept', 'application/json')
@@ -112,81 +121,72 @@ describe('Tournament Entity', () => {
 		});
 		it('PATCH /tournament:id city', async done => {
 			const patchMe = {"city": "Campinas"};
-			let response = await utils.patchEntity(request(httpServer), resource + '/' + entityDto.id, patchMe);
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
 			expect(response.body.city).toEqual(patchMe.city);
 			done();
 		});
 		
 		it('PATCH /tournament:id month', async done => {
 			const patchMe = {"month": 7};
-			let response = await utils.patchEntity(request(httpServer), resource + '/' + entityDto.id, patchMe);
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
 			expect(response.body.month).toEqual(patchMe.month);
 			done();
 		});
 		
 		it('PATCH /tournament:id year', async done => {
 			const patchMe = {"year": 1912};
-			let response = await utils.patchEntity(request(httpServer), resource + '/' + entityDto.id, patchMe);
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
 			expect(response.body.year).toEqual(patchMe.year);
 			done();
 		});
 		
 		it('PATCH /tournament:id rounds', async done => {
 			const patchMe = {"rounds": 1912};
-			let response = await utils.patchEntity(request(httpServer), resource + '/' + entityDto.id, patchMe);
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
 			expect(response.body.rounds).toEqual(patchMe.rounds);
 			done();
 		});
 		
 		it('PATCH /tournament:id maxPlayers', async done => {
 			const patchMe = {"maxPlayers": 21};
-			let response = await utils.patchEntity(request(httpServer), resource + '/' + entityDto.id, patchMe);
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
 			expect(response.body.maxPlayers).toEqual(patchMe.maxPlayers);
 			done();
 		});
 		
 		it('PATCH /tournament:id type', async done => {
 			const patchMe = {"type": TOURNAMENT_TYPE.ELIMINATION};
-			let response = await utils.patchEntity(request(httpServer), resource + '/' + entityDto.id, patchMe);
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
 			expect(response.body.type).toEqual(patchMe.type);
 			done();
 		});
 		
 		it('PATCH /tournament:id players', async done => {
 			const patchMe = {"players": [1234, 2345, 3456]};
-			let response = await utils.patchEntity(request(httpServer), resource + '/' + entityDto.id, patchMe);
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
 			expect(response.body.players).toEqual(patchMe.players);
 			done();
 		});
 		
 		it('PATCH /tournament:id state', async done => {
 			const patchMe = {"state": TOURNAMENT_STATE.COMPLETE};
-			let response = await utils.patchEntity(request(httpServer), resource + '/' + entityDto.id, patchMe);
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
 			expect(response.body.state).toEqual(patchMe.state);
 			done();
 		});
 		
 		it('PATCH /tournament:id winPoints', async done => {
 			const patchMe = {"winPoints": 2};
-			let response = await utils.patchEntity(request(httpServer), resource + '/' + entityDto.id, patchMe);
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
 			expect(response.body.winPoints).toEqual(patchMe.winPoints);
 			done();
 		});
 		
 		it('PATCH /tournament:id tiePoints', async done => {
 			const patchMe = {"tiePoints": 1.5};
-			let response = await utils.patchEntity(request(httpServer), resource + '/' + entityDto.id, patchMe);
+			let response = await utils.patchEntity(request(app), resource + '/' + entityDto.id, patchMe);
 			expect(response.body.tiePoints).toEqual(patchMe.tiePoints);
 			done();
 		});
 	});
-
-	// Used https://github.com/visionmedia/supertest/issues/520
-	// https://github.com/visionmedia/supertest/issues/520
-	// to handle a combination of TCPSERVERWRAP and  EADDRINUSE: address already in use errors
-	afterAll(async (done) => {
-		mongoInMemoryShutDown();
-		expressApplicationShutDown();
-		done()
-	})
 });

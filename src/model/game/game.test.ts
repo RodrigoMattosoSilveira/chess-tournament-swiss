@@ -1,25 +1,26 @@
+// TODO: review test in detail for new architecture
+
+import express from "express";
+
 import {GAME_STATES} from "./game.constants";
 
 const request = require('supertest');
 
-import app from './../../index';
 import { Utils } from "../../utils/utils";
-import userService from "../user/user.service";
-import tournamentService from "../tournament/tournament.service";
-import playerService from "../player/player.service"
-import tournamentDao from "../tournament/tournament.dao";
-import userDao from "../user/user.dao";
-import {PLAYER_STATE, TOURNAMENT_TYPE} from "../../contants/contants";
+import {TOURNAMENT_TYPE} from "../../contants/contants";
+import {AMongoDb, MongoInMemory} from "../../server/mongodb";
+import {ISwissPairingServers} from "../../server/swiss-pairings-interface";
+
+import {launchServers, stopServers} from "../../server/swiss-pairing";
+
+import {IConfig} from "../../config/config.interface";
+let config: IConfig = require('../../config/config.dev.json');
+
 
 describe('Game Entity', () => {
 	const utils = new Utils();
 	let resource = '/game';
 	let response: any;
-	let tournamentId: string;
-	let userId_1: string;
-	let userId_2: string;
-	let playerId_1: string;
-	let playerId_2: string;
 	let gameId: string;
 	let userEntity_1: any;
 	let userEntity_2: any;
@@ -28,7 +29,15 @@ describe('Game Entity', () => {
 	let playerEntity_2: any;
 	let gameEntity: any;
 	let gamePatch: any;
+	let mongodb: AMongoDb;
+	let swissPairingServers: ISwissPairingServers;
+	let app: express.Application;
+
 	beforeAll(async done => {
+		mongodb = new MongoInMemory(config.mongoDbInMemoryURI, config.mongodbOptions)
+		swissPairingServers = launchServers(mongodb);
+		app = swissPairingServers.applicationServer;
+
 		// add tournament
 		tournamentEntity = {
 			name: "Blanchard Open 2021",
@@ -60,6 +69,14 @@ describe('Game Entity', () => {
 		}
 		done();
 	})
+
+	afterEach(async () => {
+		await mongodb.clear();
+	});
+
+	afterAll(async () => {
+		stopServers(mongodb, swissPairingServers.httpServer);
+	});
 	describe('GET', () => {
 		it('/game', async done => {
 			response = await request(app)
