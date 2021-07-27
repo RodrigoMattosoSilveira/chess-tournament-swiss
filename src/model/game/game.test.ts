@@ -70,12 +70,14 @@ describe('Game Entity', () => {
 		done();
 	})
 
-	afterEach(async () => {
+	afterEach(async done => {
 		await mongodb.clear();
+		done()
 	});
 
-	afterAll(async () => {
+	afterAll(async done => {
 		stopServers(mongodb, swissPairingServers.httpServer);
+		done();
 	});
 	describe('GET', () => {
 		it('/game', async done => {

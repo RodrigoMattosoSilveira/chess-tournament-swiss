@@ -21,18 +21,21 @@ describe('Tournament Entity', () => {
 	let swissPairingServers: ISwissPairingServers;
 	let app: express.Application;
 
-	beforeAll(async () => {
+	beforeAll(async done => {
 		mongodb = new MongoInMemory(config.mongoDbInMemoryURI, config.mongodbOptions)
 		swissPairingServers = launchServers(mongodb);
 		app = swissPairingServers.applicationServer;
+		done();
 	});
 
-	afterEach(async () => {
+	afterEach(async done => {
 		await mongodb.clear();
+		done();
 	});
 
-	afterAll(async () => {
+	afterAll(async done => {
 		stopServers(mongodb, swissPairingServers.httpServer);
+		done();
 	});
 	it('GET /tournament', async done => {
 		response = await request(app)

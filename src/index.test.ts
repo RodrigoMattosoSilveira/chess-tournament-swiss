@@ -1,17 +1,28 @@
 import express from "express";
 import http from "http";
 const request = require('supertest');
+import {IConfig} from "./config/config.interface";
+let config: IConfig = require('./config/config.dev.json');
 
-import {createExpressApp, createHttpServer} from "./server/server";
+import {AMongoDb, MongoAtlas, MongoInMemory} from "./server/mongodb";
+import {launchServers} from "./server/swiss-pairing";
+import {ISwissPairingServers} from "./server/swiss-pairings-interface";
 
-describe('Express Application', () => {
+const mongodb = new MongoAtlas(config.mongoDbAtlasURI, config.mongodbOptions)
+launchServers(mongodb);
+
+describe('Swiss Pairing Application Test', () => {
 	let response: any;
 	let expressApplication: express.Application;
-	let httpServer: http.Server;
+	let mongodb: AMongoDb;
+	let swissPairingServers: ISwissPairingServers;
+	let app: express.Application;
+
 	beforeAll(async (done) => {
-		expressApplication = createExpressApp();
-		httpServer = createHttpServer(expressApplication);
-		done()
+		mongodb = new MongoInMemory(config.mongoDbInMemoryURI, config.mongodbOptions)
+		swissPairingServers = launchServers(mongodb);
+		app = swissPairingServers.applicationServer;
+		done();
 	})
 
 	it('should return a successful response for GET /hello', async done => {
