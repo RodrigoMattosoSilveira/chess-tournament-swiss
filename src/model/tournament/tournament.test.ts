@@ -1,13 +1,42 @@
-import app from './../../index';
-import {server} from '../../index';
-import {TOURNAMENT_STATE, TOURNAMENT_TYPE} from "../../contants/contants";
+// TODO: review test in detail for new architecture
+import express from "express";
+import http from "http";
 const request = require('supertest');
+
+import {TOURNAMENT_STATE, TOURNAMENT_TYPE} from "../../contants/contants";
 import { Utils } from "../../utils/utils";
+
+import {AMongoDb, MongoInMemory} from "../../server/mongodb";
+import {ISwissPairingServers} from "../../server/swiss-pairings-interface";
+import {launchServers, stopServers} from "../../server/swiss-pairing";
+
+import {IConfig} from "../../config/config.interface";
+let config: IConfig = require('../../config/config.dev.json');
 
 describe('Tournament Entity', () => {
 	const utils = new Utils();
 	let resource = '/tournament';
 	let response: any;
+	let mongodb: AMongoDb;
+	let swissPairingServers: ISwissPairingServers;
+	let app: express.Application;
+
+	beforeAll(async done => {
+		mongodb = new MongoInMemory(config.mongoDbInMemoryURI, config.mongodbOptions)
+		swissPairingServers = launchServers(mongodb);
+		app = swissPairingServers.applicationServer;
+		done();
+	});
+
+	afterEach(async done => {
+		await mongodb.clear();
+		done();
+	});
+
+	afterAll(async done => {
+		stopServers(mongodb, swissPairingServers.httpServer);
+		done();
+	});
 	it('GET /tournament', async done => {
 		response = await request(app)
 			.get(resource)
@@ -163,13 +192,4 @@ describe('Tournament Entity', () => {
 			done();
 		});
 	});
-
-	// Used https://github.com/visionmedia/supertest/issues/520
-	// https://github.com/visionmedia/supertest/issues/520
-	// to handle a combination of TCPSERVERWRAP and  EADDRINUSE: address already in use errors
-	afterAll(async (done) => {
-		await server.close() // CLOSE THE SERVER CONNECTION
-		await new Promise<void>(resolve => setTimeout(() => resolve(), 500)); // PLUS THE HACK PROVIDED BY @yss14
-		done()
-	})
 });

@@ -59,4 +59,34 @@ Following are definitions specific to this system:
     * *_single-elimination_*
     * double-elimination_*
 * **Player** - An `account holder` playing in a tournament; used to collect a contestant's data relative to the tournament;
-4
+
+
+#Implementation Notes
+
+##Testing
+We use `unit` and `e2e` tests to validate functionality; use `integration` tests to validate the `dao` layer returned objects;
+
+I'm still thinking about `performance` tests.
+
+###Unit tests
+We will aggregate `expressServer` and `httpServer`, into `Jest` tests; note that our aggregation architecture, enables us to write and run these tests without launching the application and having the database available;
+
+###Integration tests
+We will aggregate `expressServer` and `httpServer`, into `Jest` tests; note that our aggregation architecture, enables us to write and run these tests without launching the application and having the database available;
+
+###E2E tests
+We will aggregate `expressServer`, `httpServer`, and either `mongoAtlas` or `mongoInMemory` into `Jest/Supertest` tests; we will aggregate `mongoInMemory` for the bulk of the testing, and `mongoAtlas` to validate our MongoDB Atlas service; note that, even though we are using a database service, we control it in within the test suites, precluding the requirement for having the application running;
+
+###Testing Details
+* **Middleware** - Use `unit` tests to ensure all validations work as expected;
+* **Controller** - Bypass `controller` `unit` testing for now, we have very little logic in this layer;
+* **Service** - Bypass `service` `unit` testing for now, we have very little logic in this layer;
+* **Dao** - Use `integration` tests, mocking the DAO methods, to ensure that the `service` and `controller` layers handle the `dao` responses correctly ;
+* **URL in memory** - Use `e2e` tests, aggregating the `mongoInMem` server, to validate the pipeline via a round trip of a Restfull entity operation request;
+* **URL Atlas** - Use `e2e` tests, aggregating the `mongoAtlas` server, to validate the MongoDB Atlas is working;
+
+Each entity will have the following test set (using the `User` entity  as an example):
+* **User Middleware** - user.middleware.test.ts
+* **User DAO** - user.dao.test.ts
+* **User URL** - user.url.test.ts
+* **User Atlas** - user.atlas.test.ts

@@ -1,14 +1,10 @@
-import express from 'express';
-import {Ok, Err, Result} from 'space-monad';
 import { UserUtil } from "./user.util";
 import * as utils from "../../utils/utils";
 import userDao from './user.dao';
 jest.mock('./user.dao');
 
 import {IUserCreate, IUserPatch, USER_CREATE_KEYS, USER_PATCH_KEYS} from "./user.interfaces";
-import * as testDb from "../../utils/test-db";
-import shortid from "shortid";
-import {EMAIL_VALIDATION, USER_DEFAULT_CONSTANTS, USER_RATING_STATE, USER_STATE, USER_ROLE} from "./user.constants";
+import {USER_RATING_STATE, USER_STATE, USER_ROLE} from "./user.constants";
 
 describe('User Middleware Unit Tests', () => {
 	let userUtil: UserUtil;
@@ -17,8 +13,9 @@ describe('User Middleware Unit Tests', () => {
 		done();
 	});
 	
-	beforeAll(async () => {
+	beforeAll(async done => {
 		userUtil = UserUtil.getInstance();
+		done();
 	});
 	describe('createEmailIsValid', () => {
 		it('invalid email', async done => {

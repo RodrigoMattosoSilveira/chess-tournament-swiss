@@ -1,25 +1,24 @@
+// Transform these into
+
+import express from "express";
 import {UserDto} from "./user.interfaces";
-import {USER_STATE} from "../../contants/contants";
-import app from './../../index';
-import {server} from '../../index';
-const request = require('supertest');
-import { Utils } from "../../utils/utils";
 import {UserMongo, IUserMongo, IUserMongoDoc} from "./user-mongo";
-import * as testDb from '../../utils/test-db';
 import {USER_DEFAULT_CONSTANTS} from "./user.constants";
+import {AMongoDb, MongoInMemory} from "../../server/mongodb";
+import {ISwissPairingServers} from "../../server/swiss-pairings-interface";
+import {launchServers} from "../../server/swiss-pairing";
+
+import {IConfig} from "../../config/config.interface";
+let config: IConfig = require('../../config/config.dev.json');
 
 describe('User MongoDB Unit Tests', () => {
 	/**
 	 * Note:
 	 * - these tests validate the MONGO/MONGOOSE setup, completely bypassing the
 	 *   middleware;
-	 * - the application must be running;
+	 * - use the in memory database
 	 *
-	 * See How to setup Jest for Node.js + Mongoose + TypeScript projects,
-	 * https://kimlehtinen.com/how-to-setup-jest-for-node-js-mongoose-typescript-projects/
-	 *
-	 * Its prescription for setting up th MongoDB model are faulty. I relied on
-	 * Typescript With MongoDB and Node/Express,
+	 * See Typescript With MongoDB and Node/Express,
 	 * https://medium.com/swlh/typescript-with-mongoose-and-node-express-24073d51d2ee
 	 *
 	 */
@@ -54,14 +53,19 @@ describe('User MongoDB Unit Tests', () => {
 	let readEntity: UserMongoReadEntity;
 	let readEntities: IUserMongoDoc[];
 	let updatedEntity: UserMongoReadEntity;
+	let mongodb: AMongoDb;
+	let swissPairingServers: ISwissPairingServers;
+	let app: express.Application;
 
-
-	beforeAll(async () => {
-		await testDb.connect()
+	beforeAll(async done => {
+		mongodb = new MongoInMemory(config.mongoDbInMemoryURI, config.mongodbOptions)
+		swissPairingServers = launchServers(mongodb);
+		app = swissPairingServers.applicationServer;
+		done();
 	});
 
-	afterEach(async () => {
-		await testDb.clearDatabase()
+	afterEach(async done => {
+		await mongodb.clear();
 		// @ts-ignore
 		savedEntity = null;
 		savedEntityError = null;
@@ -69,10 +73,12 @@ describe('User MongoDB Unit Tests', () => {
 		// @ts-ignore
 		readEntities = null;
 		updatedEntity = null;
+		done();
 	});
 
-	afterAll(async () => {
-		await testDb.closeDatabase()
+	afterAll(async done => {
+		await mongodb.close();
+		done();
 	});
 
 	// Type experiment
@@ -81,7 +87,7 @@ describe('User MongoDB Unit Tests', () => {
 		expect(1 + 1).toEqual(2);
 		done();
 	});
-	it('User Mongo save unit test', async () => {
+	it('User Mongo save unit test', async done => {
 		expect.assertions(4)
 		// create new post model instance
 		const userMongo = UserMongo.build({...entityDto})
@@ -102,8 +108,9 @@ describe('User MongoDB Unit Tests', () => {
 		// check that content is expected
 		//@ts-ignore
 		expect(savedEntity.firstName).toEqual(entityDto.firstName);
+		done();
 	});
-	it('User Mongo save unit test error', async () => {
+	it('User Mongo save unit test error', async done => {
 		expect.assertions(2)
 		// create a user document
 		const userMongo = UserMongo.build({...entityDto});
@@ -119,8 +126,9 @@ describe('User MongoDB Unit Tests', () => {
 			})
 		expect(savedEntity).toBeFalsy();
 		expect(savedEntityError).toBeTruthy();
+		done();
 	});
-	it('User Mongo fineOne unit test', async () => {
+	it('User Mongo fineOne unit test', async done => {
 		// create user than read it
 		const userMongo = UserMongo.build({...entityDto})
 		savedEntity = await userMongo.save()
@@ -134,8 +142,9 @@ describe('User MongoDB Unit Tests', () => {
 		// check that content is expected
 		//@ts-ignore
 		expect(readEntity.firstName).toEqual(entityDto.firstName)
+		done();
 	});
-	it('User Mongo findAll unit test', async () => {
+	it('User Mongo findAll unit test', async done => {
 		// create 3 users than read them
 		let userMongo = UserMongo.build({...entityDto});
 		savedEntity = await userMongo.save();
@@ -152,8 +161,9 @@ describe('User MongoDB Unit Tests', () => {
 		let names = readEntities.map((doc: IUserMongoDoc) => doc.lastName).sort();
 		expect(names.length).toBe(3);
 		expect(names).toEqual(["Franco", "Jones", "Roberts", ]);
+		done();
 	});
-	it('User Mongo findOneAndUpdate unit test', async () => {
+	it('User Mongo findOneAndUpdate unit test', async done => {
 		// https://mongoosejs.com/docs/tutorials/findoneandupdate.html
 		const userMongo = UserMongo.build({...entityDto})
 		savedEntity = await userMongo.save();
@@ -168,7 +178,8 @@ describe('User MongoDB Unit Tests', () => {
 		}).exec();
 		expect(updatedEntity).toBeTruthy();
 		//@ts-ignore
-		expect(updatedEntity.lastName).toEqual( "NewLastName")
+		expect(updatedEntity.lastName).toEqual( "NewLastName");
+		done();
 	});
 
 });
