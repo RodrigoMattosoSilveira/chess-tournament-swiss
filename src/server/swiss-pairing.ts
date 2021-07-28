@@ -78,20 +78,35 @@ export const stopServers = (mongodb: AMongoDb, httpServer: http.Server): void =>
 	mongodb.close()
 		.then(() => {
 			console.log('Closed database connection');
+
+			// Used https://github.com/visionmedia/supertest/issues/520
+			// https://github.com/visionmedia/supertest/issues/520
+			// to handle a combination of TCPSERVERWRAP and  EADDRINUSE: address already in use errors
+			httpServer.close(() => {
+				console.log('Closed httpServer and express connections');
+				process.exit(0);
+			});
+
+			setTimeout(() => {
+				console.error('Could not close connection in time, forcefully shutting down');
+				process.exit(1);
+			}, 10000);
 		})
+		.catch((err) => {
 
-	// Used https://github.com/visionmedia/supertest/issues/520
-	// https://github.com/visionmedia/supertest/issues/520
-	// to handle a combination of TCPSERVERWRAP and  EADDRINUSE: address already in use errors
-	httpServer.close(() => {
-		console.log('Closed httpServer and express connections');
-		process.exit(0);
-	});
+			// Used https://github.com/visionmedia/supertest/issues/520
+			// https://github.com/visionmedia/supertest/issues/520
+			// to handle a combination of TCPSERVERWRAP and  EADDRINUSE: address already in use errors
+			httpServer.close(() => {
+				console.log('Closed httpServer and express connections');
+				process.exit(0);
+			});
 
-	setTimeout(() => {
-		console.error('Could not close connection in time, forcefully shutting down');
-		process.exit(1);
-	}, 10000);
+			setTimeout(() => {
+				console.error('Could not close connection in time, forcefully shutting down');
+				process.exit(1);
+			}, 10000);
+		})
 }
 
 

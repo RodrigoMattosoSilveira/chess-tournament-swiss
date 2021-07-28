@@ -15,7 +15,7 @@
     "start:dev": "NODE_ENV=development NODE_DATA=MONGODB NODE_OPTIONS=--unhandled-rejections=strict webpack",
     "test": "jest --detectOpenHandles",
     "test_idx":   "jest  --detectOpenHandles -t 'Swiss Pairing Index Test'",
-    "test_umw":   "jest  --detectOpenHandles -t 'User Middleware Unit Tests'",
+    "test_umw":   "NODE_ENV=test jest  --verbose --detectOpenHandles -t 'User Middleware Unit Tests'",
     "test_umg":   "jest  --detectOpenHandles -t 'User MongoDB Unit Tests'",
     "test_u_urls": "jest --detectOpenHandles -t 'User URL Tests'",
     "test__all": "run-s test_umw test_umg test_u_urls",

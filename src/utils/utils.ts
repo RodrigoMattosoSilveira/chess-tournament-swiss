@@ -1,5 +1,3 @@
-import {USER_CREATE_KEYS} from "../model/user/user.interfaces";
-
 export class Utils {
 	/**
 	 * Helper function to patch a USER and return the response object

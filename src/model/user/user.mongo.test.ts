@@ -4,7 +4,7 @@ import express from "express";
 import {UserDto} from "./user.interfaces";
 import {UserMongo, IUserMongo, IUserMongoDoc} from "./user-mongo";
 import {USER_DEFAULT_CONSTANTS} from "./user.constants";
-import {AMongoDb, MongoAtlas, MongoInMemory} from "../../server/mongodb";
+import {AMongoDb, MongoInMemory} from "../../server/mongodb";
 import {ISwissPairingServers} from "../../server/swiss-pairings-interface";
 import {launchServers} from "../../server/swiss-pairing";
 
@@ -57,13 +57,14 @@ describe('User MongoDB Unit Tests', () => {
 	let swissPairingServers: ISwissPairingServers;
 	let app: express.Application;
 
-	beforeAll(async () => {
+	beforeAll(async done => {
 		mongodb = new MongoInMemory(config.mongoDbInMemoryURI, config.mongodbOptions)
 		swissPairingServers = launchServers(mongodb);
 		app = swissPairingServers.applicationServer;
+		done();
 	});
 
-	afterEach(async () => {
+	afterEach(async done => {
 		await mongodb.clear();
 		// @ts-ignore
 		savedEntity = null;
@@ -72,10 +73,12 @@ describe('User MongoDB Unit Tests', () => {
 		// @ts-ignore
 		readEntities = null;
 		updatedEntity = null;
+		done();
 	});
 
-	afterAll(async () => {
+	afterAll(async done => {
 		await mongodb.close();
+		done();
 	});
 
 	// Type experiment
@@ -84,7 +87,7 @@ describe('User MongoDB Unit Tests', () => {
 		expect(1 + 1).toEqual(2);
 		done();
 	});
-	it('User Mongo save unit test', async () => {
+	it('User Mongo save unit test', async done => {
 		expect.assertions(4)
 		// create new post model instance
 		const userMongo = UserMongo.build({...entityDto})
@@ -105,8 +108,9 @@ describe('User MongoDB Unit Tests', () => {
 		// check that content is expected
 		//@ts-ignore
 		expect(savedEntity.firstName).toEqual(entityDto.firstName);
+		done();
 	});
-	it('User Mongo save unit test error', async () => {
+	it('User Mongo save unit test error', async done => {
 		expect.assertions(2)
 		// create a user document
 		const userMongo = UserMongo.build({...entityDto});
@@ -122,8 +126,9 @@ describe('User MongoDB Unit Tests', () => {
 			})
 		expect(savedEntity).toBeFalsy();
 		expect(savedEntityError).toBeTruthy();
+		done();
 	});
-	it('User Mongo fineOne unit test', async () => {
+	it('User Mongo fineOne unit test', async done => {
 		// create user than read it
 		const userMongo = UserMongo.build({...entityDto})
 		savedEntity = await userMongo.save()
@@ -137,8 +142,9 @@ describe('User MongoDB Unit Tests', () => {
 		// check that content is expected
 		//@ts-ignore
 		expect(readEntity.firstName).toEqual(entityDto.firstName)
+		done();
 	});
-	it('User Mongo findAll unit test', async () => {
+	it('User Mongo findAll unit test', async done => {
 		// create 3 users than read them
 		let userMongo = UserMongo.build({...entityDto});
 		savedEntity = await userMongo.save();
@@ -155,8 +161,9 @@ describe('User MongoDB Unit Tests', () => {
 		let names = readEntities.map((doc: IUserMongoDoc) => doc.lastName).sort();
 		expect(names.length).toBe(3);
 		expect(names).toEqual(["Franco", "Jones", "Roberts", ]);
+		done();
 	});
-	it('User Mongo findOneAndUpdate unit test', async () => {
+	it('User Mongo findOneAndUpdate unit test', async done => {
 		// https://mongoosejs.com/docs/tutorials/findoneandupdate.html
 		const userMongo = UserMongo.build({...entityDto})
 		savedEntity = await userMongo.save();
@@ -171,7 +178,8 @@ describe('User MongoDB Unit Tests', () => {
 		}).exec();
 		expect(updatedEntity).toBeTruthy();
 		//@ts-ignore
-		expect(updatedEntity.lastName).toEqual( "NewLastName")
+		expect(updatedEntity.lastName).toEqual( "NewLastName");
+		done();
 	});
 
 });

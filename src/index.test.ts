@@ -8,9 +8,6 @@ import {AMongoDb, MongoAtlas, MongoInMemory} from "./server/mongodb";
 import {launchServers} from "./server/swiss-pairing";
 import {ISwissPairingServers} from "./server/swiss-pairings-interface";
 
-const mongodb = new MongoAtlas(config.mongoDbAtlasURI, config.mongodbOptions)
-launchServers(mongodb);
-
 describe('Swiss Pairing Index Test', () => {
 	let response: any;
 	let mongodb: AMongoDb;
