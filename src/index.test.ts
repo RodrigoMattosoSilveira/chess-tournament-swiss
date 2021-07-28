@@ -11,9 +11,8 @@ import {ISwissPairingServers} from "./server/swiss-pairings-interface";
 const mongodb = new MongoAtlas(config.mongoDbAtlasURI, config.mongodbOptions)
 launchServers(mongodb);
 
-describe('Swiss Pairing Application Test', () => {
+describe('Swiss Pairing Index Test', () => {
 	let response: any;
-	let expressApplication: express.Application;
 	let mongodb: AMongoDb;
 	let swissPairingServers: ISwissPairingServers;
 	let app: express.Application;
@@ -26,7 +25,7 @@ describe('Swiss Pairing Application Test', () => {
 	})
 
 	it('should return a successful response for GET /hello', async done => {
-		response = await request(expressApplication)
+		response = await request(app)
 			.get('/hello')
 			.expect(200);
 		console.log("\nindex/response :" + JSON.stringify(response) + '\n');
@@ -39,7 +38,7 @@ describe('Swiss Pairing Application Test', () => {
 	// https://github.com/visionmedia/supertest/issues/520
 	// to handle a combination of TCPSERVERWRAP and  EADDRINUSE: address already in use errors
 	afterAll(async (done) => {
-		response = await request(expressApplication)
+		response = await request(app)
 			.get('/quit')
 			.expect(200);
 		console.log("\nindex/response :" + JSON.stringify(response) + '\n');
