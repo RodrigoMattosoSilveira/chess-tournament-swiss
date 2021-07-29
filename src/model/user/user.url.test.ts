@@ -1,27 +1,54 @@
-import {AxiosResponse} from "axios";
+import express from "express";
 const axios = require('axios');
+
+import {AxiosResponse} from "axios";
+import {AMongoDb, MongoInMemory} from "../../server/mongodb";
+import {ISwissPairingServers} from "../../server/swiss-pairings-interface";
+import {launchServers} from "../../server/swiss-pairing";
+
+import {IConfig} from "../../config/config.interface";
+let config: IConfig = require('../../config/config.dev.json');
 
 describe("User URL Tests", () => {
 	let userEmail: string;
 	let userFirstName: string;
 	let userId: string;
 	let userLastName: string;
-	let userPassword: string;
 	let userRating: number;
 	let userRatingState: string;
 	let userRole: string;
 	let userState: string;
+	let mongodb: AMongoDb;
+	let swissPairingServers: ISwissPairingServers;
+	let app: express.Application;
+	let swissPairingURI: string = `${config.swissPairingURL}:${config.expressServerPort}`
+
+	beforeAll(async done => {
+		mongodb = new MongoInMemory(config.mongoDbInMemoryURI, config.mongodbOptions)
+		swissPairingServers = launchServers(mongodb);
+		app = swissPairingServers.applicationServer;
+		done();
+	});
+
+	afterEach(async done => {
+		await mongodb.clear();
+		done();
+	});
+
+	afterAll(async done => {
+		await mongodb.close();
+		done();
+	});
 	describe("Canonical Tests", () => {
 		it('this pipeline', async done => {
 			expect(1+1).toEqual(2);
 			done();
 		});
-		it("app is running", async done => {
-			await axios.get('http://localhost:3000/')
+		it("Swiss Pairing up and running", async done => {
+			await axios.get('/hello')
 			.then(function (response: AxiosResponse) {
-				// console.log(response);
 				console.log(`Got reply:  ${response.data}`);
-				expect(response.data).toEqual("Server up and running!")
+				expect(response.data).toEqual("Swiss Pairing up and running!")
 			})
 			.catch(function (error: any) {
 				console.log(error);
@@ -29,7 +56,7 @@ describe("User URL Tests", () => {
 			done();
 		});
 		it("should `CREATE` a user", async done => {
-			await axios.post('http://localhost:3000/user', {
+			await axios.post(`${swissPairingURI}/user/`, {
 				firstName: "Marco",
 				lastName: "Maciel",
 				email: "Marco.Maciel@yahoo.com",
@@ -53,26 +80,26 @@ describe("User URL Tests", () => {
 			})
 			.catch(function (error: any) {
 				console.log(error);
-				expect(false).toEqual(true)
+				expect(1+1).toEqual(3)
 				done();
 			});
 			done();
 		});
-		it("should `READ` a user", async done => {
-			await axios.get(`http://localhost:3000/user/` + userId)
-				.then(function (response: AxiosResponse) {
-					// console.log(response);
-					expect(response.data.firstName).toEqual("Marco")
-					expect(response.data.lastName).toEqual("Maciel")
-					expect(response.data.email).toEqual("Marco.Maciel@yahoo.com")
-					done();
-				})
-				.catch(function (error: any) {
-					console.log(error);
-					expect(false).toEqual(true)
-					done();
-				});
-			done();
-		});
+		// it("should `READ` a user", async done => {
+		// 	await axios.get(`http://localhost:3000/user/` + userId)
+		// 		.then(function (response: AxiosResponse) {
+		// 			// console.log(response);
+		// 			expect(response.data.firstName).toEqual("Marco")
+		// 			expect(response.data.lastName).toEqual("Maciel")
+		// 			expect(response.data.email).toEqual("Marco.Maciel@yahoo.com")
+		// 			done();
+		// 		})
+		// 		.catch(function (error: any) {
+		// 			console.log(error);
+		// 			expect(false).toEqual(true)
+		// 			done();
+		// 		});
+		// 	done();
+		// });
 	});
 });

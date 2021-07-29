@@ -1,4 +1,5 @@
 {
+  "swissPairingURL": "http://localhost",
   "expressServerPort": 3000,
   "mongoDbAtlasURI": "mongodb+srv://systemAdmin:hUr9bvrr4AQiDJf@rms-mongo-cluster-chess.z4pdw.mongodb.net/swiss-pairing",
   "mongoDbInMemoryURI": "",
