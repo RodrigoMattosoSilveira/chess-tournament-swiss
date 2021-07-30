@@ -5,7 +5,7 @@ const log: debug.IDebugger = debug('app:in-memory-dao');
 
 import { DaoResult } from "../../common/generic.interfaces";
 import { One, Many } from '@rmstek/rms-ts-monad';
-import {USER_PATCH_KEYS, UserDto} from "./user.interfaces";
+import {IUserPatch, USER_PATCH_KEYS, UserDto} from "./user.interfaces";
 import { IUserMongoDoc, UserMongo} from "./user-mongo";
 import { UserUtil } from "./user.util";
 import { HttpResponseCode } from '../../contants/contants';
@@ -189,7 +189,8 @@ class UserDao {
 		return exists;
 	}
 
-	patchUserById(user: UserDto):  Promise< DaoResult<UserDto, UserDto[]>> {
+	patchUserById(user: IUserPatch):  Promise< DaoResult<UserDto, UserDto[]>> {
+		// console.log(`UserDao/Patch: ${JSON.stringify(user)}`);
 		let daoResult: DaoResult<UserDto, UserDto[]>;
 		// Do not use lean, so that we have the save method!
 		let conditions = {id: user.id};

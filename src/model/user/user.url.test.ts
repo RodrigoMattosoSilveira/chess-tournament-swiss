@@ -1,5 +1,6 @@
-const axios = require('axios');
-import {AxiosResponse} from "axios";
+import {IUserCreate, IUserPatch} from "./user.interfaces";
+
+const request = require("supertest");
 
 import app from "../../server/app";
 import {AMongoDb, MongoInMemory} from "../../server/mongodb";
@@ -17,7 +18,6 @@ describe("User URL Tests", () => {
 	let userRole: string;
 	let userState: string;
 	let mongodb: AMongoDb;
-	let swissPairingURI: string = `${config.swissPairingURL}:${config.expressServerPort}`
 
 	beforeAll(async done => {
 		mongodb = new MongoInMemory(config.mongoDbInMemoryURI, config.mongodbOptions)
@@ -32,10 +32,10 @@ describe("User URL Tests", () => {
 		done();
 	});
 
-	afterEach(async done => {
-		await mongodb.clear();
-		done();
-	});
+	// afterEach(async done => {
+	// 	await mongodb.clear();
+	// 	done();
+	// });
 
 	afterAll(async done => {
 		await mongodb.close();
@@ -46,62 +46,64 @@ describe("User URL Tests", () => {
 			expect(1+1).toEqual(2);
 			done();
 		});
-		it("Swiss Pairing up and running", async done => {
-			await axios.get('/hello')
-			.then(function (response: AxiosResponse) {
-				console.log(`Got reply:  ${response.data}`);
-				expect(response.data).toEqual("Swiss Pairing up and running!")
-			})
-			.catch(function (error: any) {
-				console.log(error);
-			});
-			done();
+		it("Swiss Pairing up and running", async () => {
+			return request(app)
+				.get("/hello")
+				.then((response: any) => {
+					expect(response.statusCode).toBe(200);
+					expect(response.text).toEqual("Swiss Pairing up and running!")
+				});
 		});
-		it("should `CREATE` a user", async done => {
-			await axios.post(`${swissPairingURI}/user/`, {
+		it("should `CREATE` a user", async () => {
+			let userNew: IUserCreate = {
 				firstName: "Marco",
 				lastName: "Maciel",
 				email: "Marco.Maciel@yahoo.com",
 				password: "CuXK3mv^10c2"
-			})
-			.then(function (response: AxiosResponse) {
-				// console.log(response);
-				console.log("Created user: " + response.data);
-				expect(response.data.firstName).toEqual("Marco")
-				expect(response.data.lastName).toEqual("Maciel")
-				expect(response.data.email).toEqual("Marco.Maciel@yahoo.com")
-				userEmail = response.data.email;
-				userFirstName = response.data.firstName;
-				userId = response.data.id;
-				userLastName = response.data.lastName;
-				userRating = response.data.rating;
-				userRatingState  = response.data.ratingState;
-				userRole = response.data.role;
-				userState = response.data.state;
-				done();
-			})
-			.catch(function (error: any) {
-				console.log(error);
-				expect(1+1).toEqual(3)
-				done();
-			});
-			done();
+			}
+			return request(app)
+				.post("/user")
+				.send(userNew)
+				.then((response: any) => {
+					expect(response.statusCode).toBe(201);
+					expect(response.body.firstName).toEqual("Marco")
+					expect(response.body.lastName).toEqual("Maciel")
+					expect(response.body.email).toEqual("Marco.Maciel@yahoo.com")
+					userEmail = response.body.email;
+					userFirstName = response.body.firstName;
+					userId = response.body.id;
+					userLastName = response.body.lastName;
+					userRating = response.body.rating;
+					userRatingState  = response.body.ratingState;
+					userRole = response.body.role;
+					userState = response.body.state;
+				});
 		});
-		// it("should `READ` a user", async done => {
-		// 	await axios.get(`http://localhost:3000/user/` + userId)
-		// 		.then(function (response: AxiosResponse) {
-		// 			// console.log(response);
-		// 			expect(response.data.firstName).toEqual("Marco")
-		// 			expect(response.data.lastName).toEqual("Maciel")
-		// 			expect(response.data.email).toEqual("Marco.Maciel@yahoo.com")
-		// 			done();
-		// 		})
-		// 		.catch(function (error: any) {
-		// 			console.log(error);
-		// 			expect(false).toEqual(true)
-		// 			done();
-		// 		});
-		// 	done();
-		// });
+		it("should `READ` a user", async () => {
+			return request(app)
+				.get(`/user/${userId}`)
+				.then((response: any) => {
+					expect(response.statusCode).toBe(200);
+					expect(response.body.firstName).toEqual(userFirstName)
+					expect(response.body.lastName).toEqual(userLastName)
+					expect(response.body.email).toEqual(userEmail)
+					expect(response.body.rating).toEqual(userRating)
+					expect(response.body.ratingState).toEqual(userRatingState)
+					expect(response.body.role).toEqual(userRole)
+					expect(response.body.state).toEqual(userState)
+				});
+		});
+		it("should `PATCH` a user", async () => {
+			let userPatch: IUserPatch = {
+				"firstName": "Serafino"
+			}
+			return request(app)
+				.patch(`/user/${userId}`)
+				.send(userPatch)
+				.then((response: any) => {
+					expect(response.statusCode).toEqual(200);
+					expect(response.body.firstName).toEqual(userPatch.firstName)
+				});
+		});
 	});
 });

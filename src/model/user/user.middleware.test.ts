@@ -159,7 +159,6 @@ describe('User Middleware Unit Tests', () => {
 			let body: IUserPatch = {
 				email:"a.b@c.com",
 				firstName: "Paul",
-				id: "nowayjose",
 				lastName: "White",
 				password: "ThoughToFigureOut",
 				role: USER_ROLE.USER,
