@@ -1,10 +1,8 @@
-import express from "express";
 const axios = require('axios');
-
 import {AxiosResponse} from "axios";
+
+import app from "../../server/app";
 import {AMongoDb, MongoInMemory} from "../../server/mongodb";
-import {ISwissPairingServers} from "../../server/swiss-pairings-interface";
-import {launchServers} from "../../server/swiss-pairing";
 
 import {IConfig} from "../../config/config.interface";
 let config: IConfig = require('../../config/config.dev.json');
@@ -19,14 +17,18 @@ describe("User URL Tests", () => {
 	let userRole: string;
 	let userState: string;
 	let mongodb: AMongoDb;
-	let swissPairingServers: ISwissPairingServers;
-	let app: express.Application;
 	let swissPairingURI: string = `${config.swissPairingURL}:${config.expressServerPort}`
 
 	beforeAll(async done => {
 		mongodb = new MongoInMemory(config.mongoDbInMemoryURI, config.mongodbOptions)
-		swissPairingServers = launchServers(mongodb);
-		app = swissPairingServers.applicationServer;
+		mongodb.connect()
+			.then(() => {
+				console.log(`MongoDB Server running`);
+				done();
+			})
+			.catch((err: any) => {
+				done (err);
+			})
 		done();
 	});
 

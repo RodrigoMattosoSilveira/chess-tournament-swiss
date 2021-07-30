@@ -1,14 +1,11 @@
 // TODO: review test in detail for new architecture
-import express from "express";
-import http from "http";
 const request = require('supertest');
+import app from "../../server/app";
 
 import {TOURNAMENT_STATE, TOURNAMENT_TYPE} from "../../contants/contants";
 import { Utils } from "../../utils/utils";
 
 import {AMongoDb, MongoInMemory} from "../../server/mongodb";
-import {ISwissPairingServers} from "../../server/swiss-pairings-interface";
-import {launchServers, stopServers} from "../../server/swiss-pairing";
 
 import {IConfig} from "../../config/config.interface";
 let config: IConfig = require('../../config/config.dev.json');
@@ -18,13 +15,20 @@ describe('Tournament Entity', () => {
 	let resource = '/tournament';
 	let response: any;
 	let mongodb: AMongoDb;
-	let swissPairingServers: ISwissPairingServers;
-	let app: express.Application;
 
 	beforeAll(async done => {
 		mongodb = new MongoInMemory(config.mongoDbInMemoryURI, config.mongodbOptions)
-		swissPairingServers = launchServers(mongodb);
-		app = swissPairingServers.applicationServer;
+		mongodb.connect()
+			.then(() => {
+				console.log(`MongoDB Server running`);
+				app.listen(config.expressServerPort, () => {
+					console.log(`Express HTTP Server running`);
+				});
+				done();
+			})
+			.catch((err: any) => {
+				done (err);
+			})
 		done();
 	});
 
@@ -34,7 +38,7 @@ describe('Tournament Entity', () => {
 	});
 
 	afterAll(async done => {
-		stopServers(mongodb, swissPairingServers.httpServer);
+		await mongodb.close();
 		done();
 	});
 	it('GET /tournament', async done => {

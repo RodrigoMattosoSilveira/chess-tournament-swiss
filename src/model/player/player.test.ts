@@ -1,10 +1,10 @@
 // TODO: review test in detail for new architecture
-import express from "express";
+const request = require('supertest');
+
+import app from "../../server/app";
 
 import { DaoResult } from "../../common/generic.interfaces";
 import { OneMany } from '@rmstek/rms-ts-monad';
-
-const request = require('supertest');
 
 import { Utils } from "../../utils/utils";
 import tournamentDao from "../tournament/tournament.dao";
@@ -12,8 +12,6 @@ import userDao from "../user/user.dao";
 import {PLAYER_STATE, TOURNAMENT_TYPE} from "../../contants/contants";
 import {UserDto} from "../user/user.interfaces";
 import {AMongoDb, MongoInMemory} from "../../server/mongodb";
-import {ISwissPairingServers} from "../../server/swiss-pairings-interface";
-import {launchServers, stopServers} from "../../server/swiss-pairing";
 
 import {IConfig} from "../../config/config.interface";
 let config: IConfig = require('../../config/config.dev.json');
@@ -30,13 +28,20 @@ describe('Player Entity', () => {
 	let playerEntity: any;
 	let daoResult: DaoResult<UserDto, UserDto[]>;
 	let mongodb: AMongoDb;
-	let swissPairingServers: ISwissPairingServers;
-	let app: express.Application;
 
 	beforeAll(async done => {
 		mongodb = new MongoInMemory(config.mongoDbInMemoryURI, config.mongodbOptions)
-		swissPairingServers = launchServers(mongodb);
-		app = swissPairingServers.applicationServer;
+		mongodb.connect()
+			.then(() => {
+				console.log(`MongoDB Server running`);
+				app.listen(config.expressServerPort, () => {
+					console.log(`Express HTTP Server running`);
+				});
+				done();
+			})
+			.catch((err: any) => {
+				done (err);
+			})
 		done();
 	});
 
@@ -46,7 +51,7 @@ describe('Player Entity', () => {
 	});
 
 	afterAll(async done => {
-		stopServers(mongodb, swissPairingServers.httpServer);
+		await mongodb.close();
 		done();
 	});
 

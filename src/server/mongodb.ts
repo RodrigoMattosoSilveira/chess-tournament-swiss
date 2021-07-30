@@ -60,10 +60,10 @@ export class MongoInMemory extends AMongoDb {
     connect = async (): Promise<void> => {
         this.mongodb = await new MongoMemoryServer();
         this. uri = await this.mongodb.getUri();
-        await mongoose.connect(this.uri, this.options);
+        let state = await mongoose.connect(this.uri, this.options);
     };
     close = async (): Promise<void> => {
-        await mongoose.connection.dropDatabase();
+        // await mongoose.connection.dropDatabase();
         await mongoose.connection.close();
         await this.mongodb.stop();
     }
