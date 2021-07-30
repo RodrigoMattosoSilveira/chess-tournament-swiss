@@ -49,7 +49,7 @@ export const USER_CREATE_KEYS = keys<IUserCreate>();
 export interface IUserPatch {
 	email?: string;
 	firstName?: string;
-	id: string;
+	id?: string;
 	lastName?: string;
 	password?: string;
 	role?: string;

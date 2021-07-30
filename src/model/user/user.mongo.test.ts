@@ -1,12 +1,8 @@
-// Transform these into
-
-import express from "express";
 import {UserDto} from "./user.interfaces";
 import {UserMongo, IUserMongo, IUserMongoDoc} from "./user-mongo";
 import {USER_DEFAULT_CONSTANTS} from "./user.constants";
 import {AMongoDb, MongoInMemory} from "../../server/mongodb";
-import {ISwissPairingServers} from "../../server/swiss-pairings-interface";
-import {launchServers} from "../../server/swiss-pairing";
+import app from "../../server/app";
 
 import {IConfig} from "../../config/config.interface";
 let config: IConfig = require('../../config/config.dev.json');
@@ -54,13 +50,20 @@ describe('User MongoDB Unit Tests', () => {
 	let readEntities: IUserMongoDoc[];
 	let updatedEntity: UserMongoReadEntity;
 	let mongodb: AMongoDb;
-	let swissPairingServers: ISwissPairingServers;
-	let app: express.Application;
 
 	beforeAll(async done => {
 		mongodb = new MongoInMemory(config.mongoDbInMemoryURI, config.mongodbOptions)
-		swissPairingServers = launchServers(mongodb);
-		app = swissPairingServers.applicationServer;
+		mongodb.connect()
+			.then(() => {
+				console.log(`MongoDB Server running`);
+				app.listen(config.expressServerPort, () => {
+					console.log(`Express HTTP Server running`);
+				});
+				done();
+			})
+			.catch((err: any) => {
+				done (err);
+			})
 		done();
 	});
 

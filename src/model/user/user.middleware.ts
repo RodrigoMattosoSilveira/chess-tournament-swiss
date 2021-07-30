@@ -22,14 +22,16 @@ export class UserMiddleware {
 		if (await UserMiddleware.userUtil.lEntityExists(req.body.id)) {
 			next()
 		} else {
+			console.log(`UserMiddleware - entityExists failed: ${req.body.id}`)
 			res.status(400).send(`User id not found: ${req.body.id}`);
 		}
 	}
 	
 	// User create request has required user attributes
 	hasRequiredCreateAttributes(req: express.Request, res: express.Response, next: express.NextFunction) {
+		let missingAttributes: string = "";
 		if (req.body) {
-			let missingAttributes = utils.hasRequiredKeys(req.body, USER_CREATE_KEYS);
+			missingAttributes = utils.hasRequiredKeys(req.body, USER_CREATE_KEYS);
 			if (missingAttributes.length > 0) {
 				// console.log('\n' + 'UserMiddleware/hasRequiredCreateAttributes/message: ' + missingAttributes + '\n');
 				res.status(400).send(`User create request missing required attributes: ${missingAttributes}`);
@@ -38,14 +40,16 @@ export class UserMiddleware {
 				next()
 			}
 		}else {
+			console.log(`UserMiddleware - hasRequiredCreateAttributes failed: ${missingAttributes}`)
 			res.status(400).send(`User  create request does not include any attributes`);
 		}
 	}
 	
 	// User create request has only required attributes
 	async hasOnlyRequiredCreateAttributes(req: express.Request, res: express.Response, next: express.NextFunction) {
+		let errorMessage: string = ""
 		if (req.body) {
-			let errorMessage = utils.hasOnlyRequiredKeys(req.body, USER_CREATE_KEYS);
+			errorMessage = utils.hasOnlyRequiredKeys(req.body, USER_CREATE_KEYS);
 			if (errorMessage.length > 0) {
 				// console.log('\n' + 'UserMiddleware/hasOnlyRequiredCreateAttributes/message: ' + errorMessage + '\n');
 				res.status(400).send(`User create request has invalid attributes: ${errorMessage}`);
@@ -54,13 +58,15 @@ export class UserMiddleware {
 				next()
 			}
 		}else {
+			console.log(`UserMiddleware - hasOnlyRequiredCreateAttributes failed: ${errorMessage}`)
 			res.status(400).send(`User create request does not include any attributes`);
 		}
 	}
 
 	async hasOnlyValidPatchAttributes(req: express.Request, res: express.Response, next: express.NextFunction) {
+		let errorMessage: string = "";
 		if (req.body) {
-			let errorMessage = hasOnlyRequiredKeys(req.body, USER_PATCH_KEYS);
+			errorMessage = hasOnlyRequiredKeys(req.body, USER_PATCH_KEYS);
 			if (errorMessage.length > 0) {
 				// console.log('\n' + 'UserMiddleware/hasOnlyValidPatchAttributes/message: ' + errorMessage + '\n');
 				res.status(400).send(`User path request has invalid attributes:  ${errorMessage}`);
@@ -69,12 +75,14 @@ export class UserMiddleware {
 				next()
 			}
 		}else {
+			console.log(`UserMiddleware - hasOnlyValidPatchAttributes failed: ${errorMessage}`)
 			res.status(400).send(`User path request does not include any attributes`);
 		}
 	}
 	
 	async emailIsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
 		if (req.body.email && !utils.isValidEmail(req.body.email)) {
+			console.log(`UserMiddleware - emailIsValid failed: ${req.body.email}`)
 			res.status(400).send(`Invalid user email: ` + req.body.email);
 		} else {
 			next();
@@ -84,6 +92,7 @@ export class UserMiddleware {
 	async emailIsUnique(req: express.Request, res: express.Response, next: express.NextFunction) {
 		let exists = await UserMiddleware.userUtil.lEmailExists(req.body.email);
 		if (exists) {
+			console.log(`UserMiddleware - emailIsUnique failed: ${req.body.email}`)
 			res.status(400).send(`User email already exists:  ${req.body.email}`);
 		} else {
 			next();
@@ -95,6 +104,7 @@ export class UserMiddleware {
 			next();
 		} else {
 			if (false == await utils.isPasswordStrong(req.body.password)) {
+				console.log(`UserMiddleware - passwordIsStrong failed: ${req.body.password}`)
 				res.status(400).send(`User password is weak: ${req.body.password}`);
 			} else {
 				next();
@@ -104,10 +114,10 @@ export class UserMiddleware {
 	
 	async roleIsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
 		if (req.body.role) {
-			let errorMessage = UserMiddleware.userUtil.lRoleIsValid(req.body.role);
 			if(UserMiddleware.userUtil.lRoleIsValid(req.body.role)) {
 				next()
 			} else {
+				console.log(`UserMiddleware - roleIsValid failed: ${req.body.role}`)
 				res.status(400).send(`User role, ${req.body.role}, is not valid`);
 			}
 		} else {
@@ -121,6 +131,7 @@ export class UserMiddleware {
 			if(utils.isStringNumeric(req.body.rating)) {
 				next()
 			} else {
+				console.log(`UserMiddleware - ratingIsNumeric failed: ${req.body.rating}`)
 				res.status(400).send(`User rating, ${req.body.rating}, is not numeric`);
 			}
 		} else {
@@ -135,6 +146,7 @@ export class UserMiddleware {
 			if (errorMessage.length === 0) {
 				next()
 			} else {
+				console.log(`UserMiddleware - ratingIsValid failed: ${errorMessage}`)
 				res.status(400).send( errorMessage);
 			}
 		} else {
@@ -148,6 +160,7 @@ export class UserMiddleware {
 			if(UserMiddleware.userUtil.lRatingStateIsValid(req.body.ratingState)) {
 				next()
 			} else {
+				console.log(`UserMiddleware - ratingStateIsValid failed: ${req.body.ratingState}`)
 				res.status(400).send(`User rating state, ${req.body.ratingState}, is not valid`);
 			}
 		} else {
@@ -161,6 +174,7 @@ export class UserMiddleware {
 			if(UserMiddleware.userUtil.lStateIsValid(req.body.state)) {
 				next()
 			} else {
+				console.log(`UserMiddleware - stateIsValid failed: ${req.body.state}`)
 				res.status(400).send(`User state, ${req.body.state}, is not valid`);
 			}
 		} else {
