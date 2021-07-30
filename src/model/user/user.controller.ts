@@ -69,15 +69,20 @@ class UserController {
 			(result: OneMany<UserDto, UserDto[]>) => {
 				// res.status(daoResult.code).send(result.content.get());
 				result.fold(
-					/* ifOne */  () => {res.status(500).send("Should have received a record collection, got one record");},
-					/* ifMany */ () => {res.status(daoResult.code).send(result.get());})
+					/* ifOne */  () => {
+						res.status(500).send("Should have received a record collection, got one record");
+						},
+					/* ifMany */ () => {
+						res.status(daoResult.code).send(result.get());
+					}
+				);
 			},
 		);
 
 	}
 
 	async patch(req: express.Request, res: express.Response) {
-		// console.log('\n' + 'UserController/patch' + JSON.stringify(req.body) +'\n');
+		// console.log(`UserController/Patch: ${JSON.stringify(req.body)}`);
 		if(req.body.password){
 			req.body.password = await argon2.hash(req.body.password);
 		}

@@ -3,9 +3,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+## [0.0.12] - underway
+### Feature
+ * Implement the `mongoDB` capability for `tournament`;
+   * See the [Migrate the tournament entity to use mongo/monads](https://github.com/RodrigoMattosoSilveira/chess-tournament-swiss/milestone/1) milestone for the list of implemented issues; 
+   * See [this list](./TODO.md) for the issues yet to be created and implemented;
+    
 ## [0.0.11.1] - underway
 ### Feature
 * Use [ts-transformer-key](https://github.com/kimamula/ts-transformer-keys) to collect entity keys into a string array.
+* Integrated [OneMany](https://github.com/RodrigoMattosoSilveira/rms-ts-monads) monad;
+* Refactored some of the `middleware` methods to live in a generic file;
 
 ## [0.0.11] - 2021 06 20
 ### Feature

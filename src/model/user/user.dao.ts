@@ -5,7 +5,7 @@ const log: debug.IDebugger = debug('app:in-memory-dao');
 
 import { DaoResult } from "../../common/generic.interfaces";
 import { One, Many } from '@rmstek/rms-ts-monad';
-import { UserDto} from "./user.interfaces";
+import {IUserPatch, USER_PATCH_KEYS, UserDto} from "./user.interfaces";
 import { IUserMongoDoc, UserMongo} from "./user-mongo";
 import { UserUtil } from "./user.util";
 import { HttpResponseCode } from '../../contants/contants';
@@ -74,7 +74,7 @@ class UserDao {
 			let usersRead: IUserMongoDoc[] = await UserMongo.find({}).exec();
 			if (usersRead) {
 				// @ts-ignore
-				for (let userRead: IUserMongoDoc in usersRead) {
+				for (let userRead: IUserMongoDoc of usersRead) {
 					// @ts-ignore
 					let user: UserDto = this.userUtil.fromMongoToUser(userRead);
 					users.push(user);
@@ -103,7 +103,7 @@ class UserDao {
 		let daoResult: DaoResult<UserDto, UserDto[]>;
 		// Find one entity whose `id` is 'id', otherwise `null`
 		try {
-			let userRead = await UserMongo.findOne({id: userId}, `id firstName lastName email rating state`).exec();
+			let userRead = await UserMongo.findOne({id: userId}).exec();
 			if (userRead) {
 				// Found, 200 = Ok
 				let user: UserDto = this.userUtil.fromMongoToUser(userRead);
@@ -189,13 +189,13 @@ class UserDao {
 		return exists;
 	}
 
-	patchUserById(user: UserDto):  Promise< DaoResult<UserDto, UserDto[]>> {
+	patchUserById(user: IUserPatch):  Promise< DaoResult<UserDto, UserDto[]>> {
+		// console.log(`UserDao/Patch: ${JSON.stringify(user)}`);
 		let daoResult: DaoResult<UserDto, UserDto[]>;
 		// Do not use lean, so that we have the save method!
 		let conditions = {id: user.id};
 		let update = {}
-		const allowedPatchFields = ["email", "firstName", "lastName", "password", "permissionLevel", "rating", "state"];
-		for (let field of allowedPatchFields) {
+		for (let field of USER_PATCH_KEYS) {
 			if (field in user) {
 				// @ts-ignore
 				update[field] = user[field];
@@ -203,10 +203,11 @@ class UserDao {
 		}
 		let options = {new: true};
 		// https://mongoosejs.com/docs/tutorials/findoneandupdate.html
-		UserMongo.findOneAndUpdate(conditions, update, options).exec()
+		UserMongo.findOneAndUpdate(conditions, update, options)
 			.then((user: any) => {
 				if (user) {
 					// 200 Ok
+					delete user.password;
 					daoResult = {code: HttpResponseCode.ok, content: Ok(One(user))};
 				}
 				else {

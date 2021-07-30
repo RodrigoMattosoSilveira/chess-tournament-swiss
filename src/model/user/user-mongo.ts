@@ -61,6 +61,6 @@ const userSchema = new mongoose.Schema({
 userSchema.statics.build = (attr: UserDto) => {
 	return new UserMongo(attr);
 };
-const UserMongo = mongoose.model<IUserMongoDoc, IUserMongo>("UserMongo", userSchema);
+const UserMongo = mongoose.model<IUserMongoDoc, IUserMongo>("User", userSchema);
 
 export{ UserMongo }

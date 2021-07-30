@@ -1,7 +1,5 @@
 import {isValidEmail, isStringNumeric, isValidDate, isPasswordStrong, hasRequiredKeys, hasOnlyRequiredKeys} from "./utils";
-import * as testDb from "./test-db";
 import {keys} from "ts-transformer-keys";
-import {IUserCreate} from "../model/user/user.interfaces";
 
 describe('Util Unit Tests', () => {
 	let SOMETHING_KEYS: string[];

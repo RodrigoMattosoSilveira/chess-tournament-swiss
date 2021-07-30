@@ -1,21 +1,16 @@
-import {Utils} from "../../utils/utils";
-
+// TODO: review test in detail for new architecture
 const request = require('supertest');
+import app from "../../server/app";
 
 import {RoundDto} from "./round.model";
 import roundDao from './round.dao';
 import roundService from './round.service';
-import roundController from './round.controller';
 import {ROUND_STATE} from "./round.constants";
-import express from "express";
-import app from "../../index";
-import {PLAYER_STATE, TOURNAMENT_TYPE} from "../../contants/contants";
 
-// import { Utils } from "../../utils/utils";
-// import tournamentDao from "../tournament/tournament.dao";
-// import userDao from "../user/user.dao";
-// import {PLAYER_STATE, TOURNAMENT_TYPE} from "../../contants/contants";
-// import {start} from "repl";
+import {AMongoDb, MongoInMemory} from "../../server/mongodb";
+
+import {IConfig} from "../../config/config.interface";
+let config: IConfig = require('../../config/config.dev.json');
 
 describe('Round Entity', () => {
 	let entityDto: RoundDto;
@@ -25,10 +20,36 @@ describe('Round Entity', () => {
 	let roundEntity: any;
 	let patchedEntityDto: any;
 	let entityCollection: any;
-	const utils = new Utils();
 	let resource = '/round';
 	let response: any;
-	
+	let mongodb: AMongoDb;
+
+	beforeAll(async done => {
+		mongodb = new MongoInMemory(config.mongoDbInMemoryURI, config.mongodbOptions)
+		mongodb.connect()
+			.then(() => {
+				console.log(`MongoDB Server running`);
+				app.listen(config.expressServerPort, () => {
+					console.log(`Express HTTP Server running`);
+				});
+				done();
+			})
+			.catch((err: any) => {
+				done (err);
+			})
+		done();
+	});
+
+	afterEach(async done => {
+		await mongodb.clear();
+		done()
+	});
+
+	afterAll(async done => {
+		await mongodb.close();
+		done();
+	});
+
 	describe('DAO Operations', () => {
 		it('add', async done => {
 			entityDto = {

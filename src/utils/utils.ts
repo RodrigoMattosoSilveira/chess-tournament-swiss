@@ -1,5 +1,3 @@
-import {USER_CREATE_KEYS} from "../model/user/user.interfaces";
-
 export class Utils {
 	/**
 	 * Helper function to patch a USER and return the response object
@@ -102,7 +100,7 @@ export const isPasswordStrong = (password: string): boolean => {
 				strengthValue.NUMBERS = true;
 			} else if(!strengthValue.LOWERCASE && char >=97 && char <= 122){
 				strengthValue.LOWERCASE = true;
-			} else if(!strengthValue.SPECIAL && (char >=33 && char <= 47) || (char >=58 && char <= 64)) {
+			} else if(!strengthValue.SPECIAL && (char >=33 && char <= 47) || (char >=58 && char <= 64) || (char >=91 && char <= 96) || (char >= 123 && char <= 126)) {
 				strengthValue.SPECIAL = true;
 			}
 		}

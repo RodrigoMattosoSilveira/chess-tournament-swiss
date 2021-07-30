@@ -1,13 +1,46 @@
-import app from './../../index';
-import {server} from '../../index';
-import {TOURNAMENT_STATE, TOURNAMENT_TYPE} from "../../contants/contants";
+// TODO: review test in detail for new architecture
 const request = require('supertest');
+import app from "../../server/app";
+
+import {TOURNAMENT_STATE, TOURNAMENT_TYPE} from "../../contants/contants";
 import { Utils } from "../../utils/utils";
+
+import {AMongoDb, MongoInMemory} from "../../server/mongodb";
+
+import {IConfig} from "../../config/config.interface";
+let config: IConfig = require('../../config/config.dev.json');
 
 describe('Tournament Entity', () => {
 	const utils = new Utils();
 	let resource = '/tournament';
 	let response: any;
+	let mongodb: AMongoDb;
+
+	beforeAll(async done => {
+		mongodb = new MongoInMemory(config.mongoDbInMemoryURI, config.mongodbOptions)
+		mongodb.connect()
+			.then(() => {
+				console.log(`MongoDB Server running`);
+				app.listen(config.expressServerPort, () => {
+					console.log(`Express HTTP Server running`);
+				});
+				done();
+			})
+			.catch((err: any) => {
+				done (err);
+			})
+		done();
+	});
+
+	afterEach(async done => {
+		await mongodb.clear();
+		done();
+	});
+
+	afterAll(async done => {
+		await mongodb.close();
+		done();
+	});
 	it('GET /tournament', async done => {
 		response = await request(app)
 			.get(resource)
@@ -163,13 +196,4 @@ describe('Tournament Entity', () => {
 			done();
 		});
 	});
-
-	// Used https://github.com/visionmedia/supertest/issues/520
-	// https://github.com/visionmedia/supertest/issues/520
-	// to handle a combination of TCPSERVERWRAP and  EADDRINUSE: address already in use errors
-	afterAll(async (done) => {
-		await server.close() // CLOSE THE SERVER CONNECTION
-		await new Promise<void>(resolve => setTimeout(() => resolve(), 500)); // PLUS THE HACK PROVIDED BY @yss14
-		done()
-	})
 });

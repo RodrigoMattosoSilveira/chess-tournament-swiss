@@ -1,15 +1,20 @@
+// TODO: review test in detail for new architecture
+const request = require('supertest');
+
+import app from "../../server/app";
+
 import { DaoResult } from "../../common/generic.interfaces";
 import { OneMany } from '@rmstek/rms-ts-monad';
 
-const request = require('supertest');
-
-import app from './../../index';
 import { Utils } from "../../utils/utils";
 import tournamentDao from "../tournament/tournament.dao";
 import userDao from "../user/user.dao";
 import {PLAYER_STATE, TOURNAMENT_TYPE} from "../../contants/contants";
-import {DaoError} from "../../common/generic.interfaces";
 import {UserDto} from "../user/user.interfaces";
+import {AMongoDb, MongoInMemory} from "../../server/mongodb";
+
+import {IConfig} from "../../config/config.interface";
+let config: IConfig = require('../../config/config.dev.json');
 
 describe('Player Entity', () => {
 	const utils = new Utils();
@@ -22,7 +27,34 @@ describe('Player Entity', () => {
 	let tournamentEntity: any;
 	let playerEntity: any;
 	let daoResult: DaoResult<UserDto, UserDto[]>;
-	
+	let mongodb: AMongoDb;
+
+	beforeAll(async done => {
+		mongodb = new MongoInMemory(config.mongoDbInMemoryURI, config.mongodbOptions)
+		mongodb.connect()
+			.then(() => {
+				console.log(`MongoDB Server running`);
+				app.listen(config.expressServerPort, () => {
+					console.log(`Express HTTP Server running`);
+				});
+				done();
+			})
+			.catch((err: any) => {
+				done (err);
+			})
+		done();
+	});
+
+	afterEach(async done => {
+		await mongodb.clear();
+		done()
+	});
+
+	afterAll(async done => {
+		await mongodb.close();
+		done();
+	});
+
 	describe('GET /player', () => {
 		it('GET /player', async done => {
 			response = await request(app)
