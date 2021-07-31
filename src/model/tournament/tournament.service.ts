@@ -1,6 +1,6 @@
 import tournamentDao from './tournament.dao';
 import {CRUD} from "../../common/crud.interface";
-import {TournamentDto} from "./tournament.model";
+import {TournamentDto} from "./tournament.interfaces";
 
 class TournamentService implements CRUD {
 	private static instance: TournamentService;

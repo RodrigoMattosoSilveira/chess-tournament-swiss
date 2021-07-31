@@ -3,7 +3,7 @@ import shortid from 'shortid';
 import debug from 'debug';
 const log: debug.IDebugger = debug('app:in-memory-dao');
 
-import {TournamentDto} from "./tournament.model";
+import {TournamentDto} from "./tournament.interfaces";
 import {TOURNAMENT_PATCHABLE_ATTRIBUTES, TOURNAMENT_STATE} from "../../contants/contants";
 
 /**
