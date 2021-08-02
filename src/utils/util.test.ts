@@ -160,10 +160,17 @@ describe('Util Unit Tests', () => {
 		});
 	});
 	describe('Validate the city find method', () => {
-		it('finds a city', async done => {
-			let city: string = "Jakarta";
+		it('finds an existing city', async done => {
+			let city: string = "Tokyo";
 			let cityIsValid = isCityValid(city);
 			expect(cityIsValid).toBe(true);
+			done();
+		})
+		it('doe find a non existing city', async done => {
+			let city: string = "Tokyoo";
+			let cityIsValid = isCityValid(city);
+			expect(cityIsValid).toBe( false);
+			done();
 		})
 	});
 });

@@ -1,10 +1,6 @@
 import fs from "fs";
-// const csv = require("csv-parser");
-// import lineReader from "line-reader";
-// const lineReader = require('line-reader');
-// import * as Path from "path";
-// import {Readable} from 'stream';
-const readline = require('readline');
+import * as Path from "path";;
+const lineByLine = require('n-readlines');
 
 export class Utils {
 	/**
@@ -160,31 +156,20 @@ export const hasOnlyRequiredKeys = (body: any, requireKeys: string[]): string =>
 	}
 	return errorMessage
 }
-
 export function isCityValid (city: string): boolean {
 	let foundCity: boolean = false;
-	// try {
-	// 	// read contents of the file
-	// 	const data = fs.readFileSync('file.txt', 'UTF-8');
-	//
-	// 	// split the contents by new line
-	// 	const lines = data.split(/\r?\n/);
-	//
-	// 	// print all lines
-	// 	lines.forEach((line) => {
-	// 		console.log(line);
-	// 	});
-	// } catch (err) {
-	// 	console.error(err);
-	// }
-	const rl = readline.createInterface({
-		input: fs.createReadStream('worldcities_test.csv'),
-		output: process.stdout,
-		terminal: false
-	});
+	let fileName: string = Path.join(__dirname, "../seed-data/worldcities.csv");
+	// let fileName: string = Path.join(__dirname, "worldcities_test.csv");
 
-	rl.on('line', (line: string) => {
-		console.log(line);
-	});
+	const liner = new lineByLine(fileName);
+	let buffer: Buffer;
+
+	while (buffer = liner.next()) {
+		let data: string[] = buffer.toString('utf8').split(',')
+		if(data[1] === city) {
+			foundCity = true;
+			break;
+		}
+	}
 	return foundCity;
 }
