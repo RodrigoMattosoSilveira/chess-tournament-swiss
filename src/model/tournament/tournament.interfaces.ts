@@ -35,17 +35,6 @@ export const TOURNAMENT_DTO_KEYS = keys<TournamentDto>();
  */
 export interface ITournamentCreate {
 	name: string;					// Must be unique and at least 15 characters long
-	city?: string;          		// Must be in the cities table; Default is St. Louis, set by the controller
-	country?: string;       		// Must be in the countries table; Default is US, set by the controller
-	rounds?: number;        		// Must be a number less than 25; Default is 7, set by the controller
-	maxPlayers?: number;			// Must be a number less than 1025; default is 128, set by the controller
-	minRate?: number;        		// Must be a positive number; default is 0, set by the controller
-	maxRate?: number;        		// Must be a positive number; default is MaxiMUM NUMBER, set by the controller
-	type?: string; 					// Must be a TOURNAMENT_TYPE; default is swiss, set by the controller
-	winPoints?: number;     		// Must be a positive number; default is 1, set by the controller
-	tiePoints?: number; 			// Must be a positive number; default is 0.5, set by the controller
-	scheduledStartDate?: string; 	// Must be a valid date;
-	scheduledEndDate?: string; 		// Must be a valid date, younger than scheduledStartDate;
 }
 export const TOURNAMENT_CREATE_KEYS = keys<ITournamentCreate>();
 
@@ -56,7 +45,7 @@ export const TOURNAMENT_CREATE_KEYS = keys<ITournamentCreate>();
  */
 export interface ITournamentPatch {
 	id: string;						// must exist in the database
-	name: string;					// Must be unique and at least 15 characters long
+	name?: string;					// Must be unique and at least 15 characters long
 	city?: string;          		// Must be in the cities table;
 	country?: string;       		// Must be in the countries table;
 	rounds?: number;        		// Must be a number less than 25;
