@@ -12,7 +12,7 @@ export interface TournamentDto {
 	minRate: number;        		// Must be a positive number;
 	maxRate: number;        		// Must be a positive number;
 	type: string; 					// Must be a TOURNAMENT_TYPE;
-	players: Array<string>; 		//
+	players: string[]; 				// Must be empty to start
 	state: string; 					// Must be a TOURNAMENT_STATE;
 	winPoints: number;     			// Must be a positive number; default is 1
 	tiePoints: number; 				// Must be a positive number; default is 0.5

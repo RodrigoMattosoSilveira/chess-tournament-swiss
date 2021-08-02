@@ -1,11 +1,13 @@
-import {isValidEmail,
+import {
+	isValidEmail,
 	isStringNumeric,
 	isValidDate,
 	isPasswordStrong,
 	hasRequiredKeys,
 	hasOnlyRequiredKeys,
 	isCityValid,
-	isStringLongEnough} from "./utils";
+	isStringLongEnough, isCountryValid
+} from "./utils";
 import {keys} from "ts-transformer-keys";
 
 describe('Util Unit Tests', () => {
@@ -192,4 +194,18 @@ describe('Util Unit Tests', () => {
 			done();
 		})
 	})
+	describe('Validate the country find method', () => {
+		it('finds an existing country', async done => {
+			let country: string = "Austria";
+			let countryIsValid = isCountryValid(country);
+			expect(countryIsValid).toBe(true);
+			done();
+		})
+		it('doe find a non existing country', async done => {
+			let country: string = "Austriaaaa";
+			let countryIsValid = isCountryValid(country);
+			expect(countryIsValid).toBe(false);
+			done();
+		})
+	});
 });

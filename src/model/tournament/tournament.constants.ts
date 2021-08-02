@@ -1,5 +1,3 @@
-import {ITournamentPatch} from "./tournament.interfaces";
-
 export const TOURNAMENT_TYPE = {
     "ROUND-ROBIN": "ROUND-ROBIN",
     SWISS: "SWISS",
@@ -16,15 +14,27 @@ export const TOURNAMENT_STATE = {
 } as const
 
 export const TOURNAMENT_DEFAULTS = {
-    city: "St. Louis",
-    country:  "US",
-    rounds: 24,
+    city: "",
+    country:  "",
+    rounds: 6,
     minRate:  0,
+    maxPlayers: 1024,
     maxRate:  Number.MAX_VALUE,
     type:  TOURNAMENT_TYPE.SWISS,
+    tournamentPlayers: 8,
     players: [],
     state:  TOURNAMENT_STATE.PLANNED,
     winPoints:  1,
     tiePoints:  0.5,
+    scheduledStartDate: 0,
+    scheduledEndDate: 0,
+    actualStartDate: 0,
+    actualEndDate: 0
 } as const
 
+export const TOURNAMENT_LIMITS = {
+    rounds: 24,
+    maxTournamentPlayers: 1024,
+    minRate:  0,
+    maxRate:  Number.MAX_VALUE
+} as const

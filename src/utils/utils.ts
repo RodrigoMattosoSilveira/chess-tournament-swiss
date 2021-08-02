@@ -174,6 +174,23 @@ export const isCityValid = (city: string): boolean => {
 	return foundCity;
 }
 
+export const isCountryValid = (country: string): boolean => {
+	let found: boolean = false;
+	let fileName: string = Path.join(__dirname, "../seed-data/countries.csv");
+
+	const liner = new lineByLine(fileName);
+	let buffer: Buffer;
+
+	while (buffer = liner.next()) {
+		let data: string[] = buffer.toString('utf8').split(',')
+		if(data[0] === country) {
+			found = true;
+			break;
+		}
+	}
+	return found;
+}
+
 export const isStringLongEnough = (string: string, minimumLength: number): boolean => {
 	return string.length >= minimumLength;
 }

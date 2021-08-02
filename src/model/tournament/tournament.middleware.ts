@@ -1,13 +1,11 @@
 import express from 'express';
 
 // todo: apply this generalization to all other entities
-import service from './tournament.service';
 import tournamentService from "../tournament/tournament.service";
-import {tournament_types, tournament_states, TOURNAMENT_REQUIRED_ATTRIBUTES} from "../../contants/contants";
 import * as utils from "../../utils/utils";
 import {TOURNAMENT_CREATE_KEYS} from "./tournament.interfaces";
-import {TOURNAMENT_STATE, TOURNAMENT_TYPE} from "./tournament.constants";
-import {COUNTRIES} from "../../seed-data/countries";
+import {TOURNAMENT_STATE, TOURNAMENT_TYPE, TOURNAMENT_LIMITS} from "./tournament.constants";
+import {isCountryValid} from "../../utils/utils";
 
 class TournamentMiddleware {
 	private static instance: TournamentMiddleware;
@@ -71,7 +69,7 @@ class TournamentMiddleware {
 		} else {
 			let subject = req.body.city
 			let subjectText = "city"
-			if (false == await utils.isCityValid(subject)) {
+			if (!utils.isCityValid(subject)) {
 				console.log(`TournamentMiddleware -  ${subjectText} is not valid: ${subject}`)
 				res.status(400).send(`Tournament ${subjectText} is not valid: ${subject}`);
 			} else {
@@ -86,7 +84,7 @@ class TournamentMiddleware {
 		} else {
 			let subject = req.body.country;
 			let subjectText = "COUNTRY"
-			if (subject in COUNTRIES) {
+			if (isCountryValid(subject)) {
 				next();
 			}
 			else {
@@ -102,15 +100,15 @@ class TournamentMiddleware {
 		} else {
 			let subject = req.body.rounds
 			let subjectText = "rounds"
-			if (false == await utils.isStringNumeric("" +subject)) {
+			if (!utils.isStringNumeric("" +subject)) {
 				console.log(`TournamentMiddleware - ${subjectText} is not numeric: subject}`)
 				res.status(400).send(`Tournament  ${subjectText} is not valid: ${subject}`);
 			} else {
-				if (req.body.rounds < 25) {
+				if (req.body.rounds <= TOURNAMENT_LIMITS.rounds) {
 					next();
 				}
 				else {
-					console.log(`TournamentMiddleware -  ${subjectText} is greater than 24: ${subject}`)
+					console.log(`TournamentMiddleware -  ${subjectText} is greater than ${TOURNAMENT_LIMITS.rounds}: ${subject}`)
 					res.status(400).send(`Tournament  ${subjectText} is greater than 24: ${subject}`);
 				}
 			}
@@ -123,17 +121,16 @@ class TournamentMiddleware {
 		} else {
 			let subject = req.body.maxPlayers
 			let subjectText = "maxPlayers"
-			if (false == await utils.isStringNumeric("" + subject)) {
+			if (!utils.isStringNumeric("" + subject)) {
 				console.log(`TournamentMiddleware - ${subjectText} is not numeric: ${subject}`)
 				res.status(400).send(`Tournament ${subjectText} is not valid: ${subject}`);
 			} else {
-				let maxPlayersLimit = 1025;
-				if (subject < maxPlayersLimit) {
+				if (subject <  TOURNAMENT_LIMITS.maxTournamentPlayers) {
 					next();
 				}
 				else {
-					console.log(`TournamentMiddleware - ${subjectText} is greater than ${maxPlayersLimit}: ${subject}`)
-					res.status(400).send(`Tournament ${subjectText} is greater than ${maxPlayersLimit}: ${subject}`);
+					console.log(`TournamentMiddleware - ${subjectText} is greater than ${ TOURNAMENT_LIMITS.maxTournamentPlayers}: ${subject}`)
+					res.status(400).send(`Tournament ${subjectText} is greater than ${ TOURNAMENT_LIMITS.maxTournamentPlayers}: ${subject}`);
 				}
 			}
 		}
@@ -178,7 +175,7 @@ class TournamentMiddleware {
 		} else {
 			let subject = req.body.minRate;
 			let subjectText = "minRate"
-			if (false == await utils.isStringNumeric("" + subject)) {
+			if (!utils.isStringNumeric("" + subject)) {
 				console.log(`TournamentMiddleware - ${subjectText} is not numeric: ${subject}`)
 				res.status(400).send(`Tournament ${subjectText} is not numeric: ${subject}`);
 			} else {
@@ -199,7 +196,7 @@ class TournamentMiddleware {
 		} else {
 			let subject = req.body.maxRate;
 			let subjectText = "maxRate"
-			if (false == await utils.isStringNumeric("" + subject)) {
+			if (!utils.isStringNumeric("" + subject)) {
 				console.log(`TournamentMiddleware - ${subjectText} is not numeric: ${subject}`)
 				res.status(400).send(`Tournament ${subjectText} is not numeric: ${subject}`);
 			} else {
@@ -223,7 +220,7 @@ class TournamentMiddleware {
 		} else {
 			let subject = req.body.winPoints;
 			let subjectText = "winPoints"
-			if (false == await utils.isStringNumeric("" + subject)) {
+			if (!utils.isStringNumeric("" + subject)) {
 				console.log(`TournamentMiddleware - ${subjectText} is not numeric: ${subject}`)
 				res.status(400).send(`Tournament ${subjectText} is not valid: ${subject}`);
 			} else {
@@ -238,7 +235,7 @@ class TournamentMiddleware {
 		} else {
 			let subject = req.body.tiePoints;
 			let subjectText = "tiePoints"
-			if (false == await utils.isStringNumeric("" + subject)) {
+			if (!utils.isStringNumeric("" + subject)) {
 				console.log(`TournamentMiddleware - ${subjectText} is not numeric: ${subject}`)
 				res.status(400).send(`Tournament ${subjectText} is not numeric: ${subject}`);
 			} else {
@@ -256,7 +253,7 @@ class TournamentMiddleware {
 		} else {
 			let subject = req.body.scheduledStartDate
 			let subjectText = "scheduledStartDate"
-			if (false == await utils.isValidDate("" + subject)) {
+			if (!utils.isValidDate("" + subject)) {
 				console.log(`TournamentMiddleware - ${subjectText} is not valid: ${subject}`)
 				res.status(400).send(`Tournament ${subjectText} is not valid: ${subject}`);
 			} else {
@@ -271,7 +268,7 @@ class TournamentMiddleware {
 		} else {
 			let subject = req.body.scheduledEndDate
 			let subjectText = "scheduledEndDate"
-			if (false == await utils.isValidDate("" + subject)) {
+			if (!utils.isValidDate("" + subject)) {
 				console.log(`TournamentMiddleware - ${subjectText} is not valid: ${subject}`)
 				res.status(400).send(`Tournament ${subjectText} is not valid: ${subject}`);
 			} else {
@@ -289,7 +286,7 @@ class TournamentMiddleware {
 		} else {
 			let subject = req.body.actualStartDate
 			let subjectText = "actualStartDate"
-			if (false == await utils.isValidDate("" + subject)) {
+			if (!utils.isValidDate("" + subject)) {
 				console.log(`TournamentMiddleware - ${subjectText} is not valid: ${subject}`)
 				res.status(400).send(`Tournament ${subjectText} is not valid: ${subject}`);
 			} else {
@@ -304,7 +301,7 @@ class TournamentMiddleware {
 		} else {
 			let subject = req.body.actualEndDate
 			let subjectText = "actualEndDate"
-			if (false == await utils.isValidDate("" + subject)) {
+			if (!utils.isValidDate("" + subject)) {
 				console.log(`TournamentMiddleware - ${subjectText} is not valid: ${subject}`)
 				res.status(400).send(`Tournament ${subjectText} is not valid: ${subject}`);
 			} else {
@@ -316,25 +313,25 @@ class TournamentMiddleware {
 	// TODO add validation for when actualStartDate and actualEndDate are supplied, actualStartDate is less than actualEndDate
 	// TODO add validation for when actualStartDate or actualEndDate are supplied, and patching, to ensure they are compatible with the existing values
 	
-	async entityExists(req: express.Request, res: express.Response, next: express.NextFunction) {
-		// console.log('\n' + 'TournamentMiddleware/validateNameIsUnique : User exists' + '\n');
-		let subject = req.params.id
-		let subjectText = "Entity"
-		const entity = await service.readById(subject);
-		if (entity) {
-			next();
-		} else {
-			res.status(400).send({error: `Tournament ${subjectText} not found: ${subject}`});
-		}
-	}
-
-	async serviceDoesNotSupportPut(req: express.Request, res: express.Response) {
-		res.status(404).send(`This service does not support PUT`);
-	}
-
-	async serviceDoesNotSupportDelete(req: express.Request, res: express.Response) {
-		res.status(404).send(`This service does not support DELETE`);
-	}
+	// async entityExists(req: express.Request, res: express.Response, next: express.NextFunction) {
+	// 	// console.log('\n' + 'TournamentMiddleware/validateNameIsUnique : User exists' + '\n');
+	// 	let subject = req.params.id
+	// 	let subjectText = "Entity"
+	// 	const entity = await service.readById(subject);
+	// 	if (entity) {
+	// 		next();
+	// 	} else {
+	// 		res.status(400).send({error: `Tournament ${subjectText} not found: ${subject}`});
+	// 	}
+	// }
+	//
+	// async serviceDoesNotSupportPut(req: express.Request, res: express.Response) {
+	// 	res.status(404).send(`This service does not support PUT`);
+	// }
+	//
+	// async serviceDoesNotSupportDelete(req: express.Request, res: express.Response) {
+	// 	res.status(404).send(`This service does not support DELETE`);
+	// }
 
 	async extractId(req: express.Request, res: express.Response, next: express.NextFunction) {
 		// console.log('\n' + 'TournamentMiddleware/extractId/id: ' + req.params.id + '\n');
