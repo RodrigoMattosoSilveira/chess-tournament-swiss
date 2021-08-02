@@ -1,4 +1,4 @@
-import {isValidEmail, isStringNumeric, isValidDate, isPasswordStrong, hasRequiredKeys, hasOnlyRequiredKeys} from "./utils";
+import {isValidEmail, isStringNumeric, isValidDate, isPasswordStrong, hasRequiredKeys, hasOnlyRequiredKeys, isCityValid} from "./utils";
 import {keys} from "ts-transformer-keys";
 
 describe('Util Unit Tests', () => {
@@ -158,5 +158,12 @@ describe('Util Unit Tests', () => {
 			expect(hasOnlyRequiredKeys(body, SOMETHING_KEYS)).toEqual("unexpected, anotherUnexpected")
 			done();
 		});
+	});
+	describe('Validate the city find method', () => {
+		it('finds a city', async done => {
+			let city: string = "Jakarta";
+			let cityIsValid = isCityValid(city);
+			expect(cityIsValid).toBe(true);
+		})
 	});
 });
