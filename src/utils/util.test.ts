@@ -1,4 +1,11 @@
-import {isValidEmail, isStringNumeric, isValidDate, isPasswordStrong, hasRequiredKeys, hasOnlyRequiredKeys, isCityValid} from "./utils";
+import {isValidEmail,
+	isStringNumeric,
+	isValidDate,
+	isPasswordStrong,
+	hasRequiredKeys,
+	hasOnlyRequiredKeys,
+	isCityValid,
+	isStringLongEnough} from "./utils";
 import {keys} from "ts-transformer-keys";
 
 describe('Util Unit Tests', () => {
@@ -173,4 +180,16 @@ describe('Util Unit Tests', () => {
 			done();
 		})
 	});
+	describe('Validate string length validator', () => {
+		it('valid length', async done => {
+			let myString: string = "A very long string with many characters";
+			expect(isStringLongEnough(myString, 15)).toBe(true);
+			done();
+		})
+		it('valid length', async done => {
+			let myString: string = "A  string";
+			expect(isStringLongEnough(myString, 15)).toBe(false);
+			done();
+		})
+	})
 });

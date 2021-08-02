@@ -156,7 +156,7 @@ export const hasOnlyRequiredKeys = (body: any, requireKeys: string[]): string =>
 	}
 	return errorMessage
 }
-export function isCityValid (city: string): boolean {
+export const isCityValid = (city: string): boolean => {
 	let foundCity: boolean = false;
 	let fileName: string = Path.join(__dirname, "../seed-data/worldcities.csv");
 	// let fileName: string = Path.join(__dirname, "worldcities_test.csv");
@@ -172,4 +172,8 @@ export function isCityValid (city: string): boolean {
 		}
 	}
 	return foundCity;
+}
+
+export const isStringLongEnough = (string: string, minimumLength: number): boolean => {
+	return string.length >= minimumLength;
 }
