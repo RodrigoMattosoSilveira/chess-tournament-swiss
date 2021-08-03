@@ -30,31 +30,35 @@ class TournamentController {
 		res.status(201).send({id: id});
 	}
 
-	async list(req: express.Request, res: express.Response) {
-		const entities = await tournamentService.list(/* 100, 0 */); // add it when working with DB
+	async read(req: express.Request, res: express.Response) {
+		const entities = await tournamentService.read(/* 100, 0 */); // add it when working with DB
 		res.status(200).send(entities);
 	}
-	
-	async getById(req: express.Request, res: express.Response) {
+
+	async patch(req: express.Request, res: express.Response) {
+		log(await tournamentService.patch(req.body));
+		const tournament = await tournamentService.readById(req.params.id);
+		res.status(200).send(tournament);
+	}
+
+	async readById(req: express.Request, res: express.Response) {
 		// console.log('TournamentController/getById/id' + req.params.id);
 		const entity = await tournamentService.readById(req.params.id);
 		res.status(200).send(entity);
 	}
 
-	async patch(req: express.Request, res: express.Response) {
-		log(await tournamentService.patchById(req.body));
-		const tournament = await tournamentService.readById(req.params.id);
-		res.status(200).send(tournament);
+	async readByName(req: express.Request, res: express.Response) {
+		// console.log('TournamentController/getById/id' + req.params.id);
+		const entity = await tournamentService.readById(req.params.id);
+		res.status(200).send(entity);
 	}
-	
-	async put(req: express.Request, res: express.Response) {
-		res.status(405).send(`You cannot PUT a TOURNAMENT. Consider patching it instead`);
+
+	async nameExists(req: express.Request, res: express.Response) {
+		// console.log('TournamentController/getById/id' + req.params.id);
+		const entity = await tournamentService.readById(req.params.id);
+		res.status(200).send(entity);
 	}
-	
-	async delete(req: express.Request, res: express.Response) {
-		res.status(405).send(`You cannot DELETE a TOURNAMENT. Consider patching its state to INACTIVE`);
-	}
-	
+
 }
 
 export default TournamentController.getInstance();

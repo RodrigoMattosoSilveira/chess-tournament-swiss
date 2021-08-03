@@ -33,7 +33,7 @@ class TournamentDao {
 		return TournamentDao.instance;
 	}
 	
-	async add(entity: TournamentDto) {
+	async create(entity: TournamentDto) {
 		// console.log("TournamentDao/add: " + JSON.stringify(entity) +"\n");
 		// Set defaults
 		entity.id = shortid.generate();
@@ -50,21 +50,15 @@ class TournamentDao {
 		return entity.id;
 	}
 	
-	async getAll() {
+	async read() {
 		return TournamentDao.collection;
 	}
 	
-	async getById(id: string) {
+	async readById(id: string) {
 		return TournamentDao.collection.find((user: { id: string; }) => user.id === id);
 	}
-	
-	async putById(entity: TournamentDto) {
-		const objIndex = TournamentDao.collection.findIndex((obj: { id: string; }) => obj.id === entity.id);
-		TournamentDao.collection.splice(objIndex, 1, entity);
-		return `${entity.id} updated via put`;
-	}
-	
-	async patchById(entity: TournamentDto) {
+
+	async patch(entity: TournamentDto) {
 		const objIndex = TournamentDao.collection.findIndex((obj: { id: string; }) => obj.id === entity.id);
 		let currentEntity = TournamentDao.collection[objIndex];
 		for (let field of TOURNAMENT_PATCHABLE_ATTRIBUTES) {
@@ -76,15 +70,8 @@ class TournamentDao {
 		TournamentDao.collection.splice(objIndex, 1, currentEntity);
 		return `${entity.id} patched`;
 	}
-	
-	async removeById(id: string) {
-		// Note that we do not remove tournaments; we
-		const objIndex = TournamentDao.collection.findIndex((obj: { id: string; }) => obj.id === id);
-		TournamentDao.collection.splice(objIndex, 1);
-		return `${id} removed`;
-	}
-	
-	async getByName(name: string) {
+
+	async readByName(name: string) {
 		// console.log('TournamentDao/getByName: ' + name)
 		// console.log('TournamentDao/getByName: ' + JSON.stringify(TournamentDao.collection))
 		const objIndex = TournamentDao.collection.findIndex((obj: { name: string; }) => obj.name === name);
@@ -95,7 +82,6 @@ class TournamentDao {
 			return null;
 		}
 	}
-	
 }
 
 export default TournamentDao.getInstance();
