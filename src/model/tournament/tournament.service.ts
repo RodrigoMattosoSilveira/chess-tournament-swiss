@@ -17,11 +17,7 @@ class TournamentService implements CRUD {
 		// console.log("TournamentService/created id: " + id +"\n");
 		return  await tournamentDao.add(resource);
 	}
-	
-	async deleteById(resourceId: string) {
-		return await tournamentDao.removeById(resourceId);
-	};
-	
+
 	async list(/* limit: number, page: number */) { // limit and page are ignored until we upgrade our DAO
 		return await tournamentDao.getAll();
 	};
@@ -33,16 +29,10 @@ class TournamentService implements CRUD {
 	async readById(resourceId: string) {
 		return await tournamentDao.getById(resourceId);
 	};
-	
-	async updateById(resource: TournamentDto) {
-		return await tournamentDao.putById(resource);
-	};
-	
+
 	async getByName(name: string) {
 		return tournamentDao.getByName(name);
-		
 	}
-	
 }
 
 export default TournamentService.getInstance();

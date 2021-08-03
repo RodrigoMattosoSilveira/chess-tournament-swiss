@@ -6,11 +6,13 @@ import tournamentService from './tournament.service';
 
 // we use debug with a custom context as described in Part 1
 import debug from 'debug';
+import {TournamentUtil} from "./tournament.utils";
 
 const log: debug.IDebugger = debug('app:tournament-controller');
 
 class TournamentController {
 	private static instance: TournamentController;
+	private static tournamentUtil: TournamentUtil = TournamentUtil.getInstance();
 	
 	// this will be a controller singleton (same pattern as before)
 	static getInstance(): TournamentController {
@@ -19,8 +21,16 @@ class TournamentController {
 		}
 		return TournamentController.instance;
 	}
-	
-	async getAll(req: express.Request, res: express.Response) {
+
+	async create(req: express.Request, res: express.Response) {
+		// console.log("TournamentController/create: " + JSON.stringify(req.body) +"\n");
+		TournamentController.tournamentUtil.lAddAttributeDefaults(req.body);
+		const id = await tournamentService.create(req.body);
+		// console.log("TournamentController/create id: " + id +"\n");
+		res.status(201).send({id: id});
+	}
+
+	async list(req: express.Request, res: express.Response) {
 		const entities = await tournamentService.list(/* 100, 0 */); // add it when working with DB
 		res.status(200).send(entities);
 	}
@@ -30,14 +40,7 @@ class TournamentController {
 		const entity = await tournamentService.readById(req.params.id);
 		res.status(200).send(entity);
 	}
-	
-	async create(req: express.Request, res: express.Response) {
-		// console.log("TournamentController/create: " + JSON.stringify(req.body) +"\n");
-		const id = await tournamentService.create(req.body);
-		// console.log("TournamentController/create id: " + id +"\n");
-		res.status(201).send({id: id});
-	}
-	
+
 	async patch(req: express.Request, res: express.Response) {
 		log(await tournamentService.patchById(req.body));
 		const tournament = await tournamentService.readById(req.params.id);

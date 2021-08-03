@@ -29,7 +29,7 @@ export class TournamentRoutes extends CommonRoutesConfig {
 	 */
 	configureRoutes() {
 		this.app.route(`/tournament`) //this.app.route(`/tournament`)
-			.get(TournamentController.getAll)
+			.get(TournamentController.list)
 			.post(
 				TournamentMiddleware.hasRequiredCreateAttributes,
 				TournamentMiddleware.hasOnlyRequiredCreateAttributes,

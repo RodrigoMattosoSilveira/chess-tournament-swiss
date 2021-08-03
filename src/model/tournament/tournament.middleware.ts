@@ -125,12 +125,12 @@ class TournamentMiddleware {
 				console.log(`TournamentMiddleware - ${subjectText} is not numeric: ${subject}`)
 				res.status(400).send(`Tournament ${subjectText} is not valid: ${subject}`);
 			} else {
-				if (subject <  TOURNAMENT_LIMITS.maxTournamentPlayers) {
+				if (subject <  TOURNAMENT_LIMITS.maxPlayers) {
 					next();
 				}
 				else {
-					console.log(`TournamentMiddleware - ${subjectText} is greater than ${ TOURNAMENT_LIMITS.maxTournamentPlayers}: ${subject}`)
-					res.status(400).send(`Tournament ${subjectText} is greater than ${ TOURNAMENT_LIMITS.maxTournamentPlayers}: ${subject}`);
+					console.log(`TournamentMiddleware - ${subjectText} is greater than ${ TOURNAMENT_LIMITS.maxPlayers}: ${subject}`)
+					res.status(400).send(`Tournament ${subjectText} is greater than ${ TOURNAMENT_LIMITS.maxPlayers}: ${subject}`);
 				}
 			}
 		}

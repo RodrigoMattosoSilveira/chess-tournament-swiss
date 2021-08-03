@@ -17,11 +17,10 @@ export const TOURNAMENT_DEFAULTS = {
     city: "",
     country:  "",
     rounds: 6,
+    maxPlayers: 8,
     minRate:  0,
-    maxPlayers: 1024,
     maxRate:  Number.MAX_VALUE,
     type:  TOURNAMENT_TYPE.SWISS,
-    tournamentPlayers: 8,
     players: [],
     state:  TOURNAMENT_STATE.PLANNED,
     winPoints:  1,
@@ -34,7 +33,7 @@ export const TOURNAMENT_DEFAULTS = {
 
 export const TOURNAMENT_LIMITS = {
     rounds: 24,
-    maxTournamentPlayers: 1024,
+    maxPlayers: 1024,
     minRate:  0,
     maxRate:  Number.MAX_VALUE
 } as const
