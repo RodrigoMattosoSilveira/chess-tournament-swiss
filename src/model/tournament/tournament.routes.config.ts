@@ -16,6 +16,7 @@ import TournamentController from './tournament.controller';
 import TournamentMiddleware from './tournament.middleware';
 import express from 'express';
 
+
 export class TournamentRoutes extends CommonRoutesConfig {
 	constructor(app: express.Application) {
 		super(app, 'TournamentRoutes');
@@ -27,36 +28,56 @@ export class TournamentRoutes extends CommonRoutesConfig {
 	 */
 	configureRoutes() {
 		this.app.route(`/tournament`) //this.app.route(`/tournament`)
-			.get(TournamentController.getAll)
+			.get(TournamentController.read)
 			.post(
-				TournamentMiddleware.validateRequiredBodyFields,
-				TournamentMiddleware.validateNameIsUnique,
-				TournamentMiddleware.validateType,
-				TournamentMiddleware.validateState,
-				TournamentMiddleware.validateWinPoints,
-				// TournamentMiddleware.validateTie,
+				TournamentMiddleware.hasRequiredCreateAttributes,
+				TournamentMiddleware.hasOnlyRequiredCreateAttributes,
+				TournamentMiddleware.isNameUnique,
+				TournamentMiddleware.isCityValid,
+				TournamentMiddleware.isCountryValid,
+				TournamentMiddleware.isRoundsValid,
+				TournamentMiddleware.isMaxPlayersValid,
+				TournamentMiddleware.isMinRateValid,
+				TournamentMiddleware.isMaxRateValid,
+				TournamentMiddleware.isTypeValid,
+				TournamentMiddleware.isStateValid,
+				TournamentMiddleware.isWinPointsValid,
+				TournamentMiddleware.isTiePointsValid,
+				TournamentMiddleware.isScheduledStartDateValid,
+				TournamentMiddleware.isScheduledSEndDateValid,
 				TournamentController.create);
-		
+
+		// This service does not support PUT / DELETE
+		this.app.put(`/user/:userId`,[
+			TournamentMiddleware.serviceDoesNotSupportPut,
+		]);
+		this.app.delete(`/user/:userId`,[
+			TournamentMiddleware.serviceDoesNotSupportDelete,
+		]);
+
 		this.app.param(`id`, TournamentMiddleware.extractId);
 		this.app.route(`/tournament/:id`)
-			.all(TournamentMiddleware.validateExists)
-			.get(TournamentController.getById)
-			.delete(TournamentController.delete); // this service does not support delete
-		
-		// This service does not support put
-		this.app.put(`/tournament/:id`,[
-			// TournamentMiddleware.validateExists,
-			// TournamentMiddleware.validateRequiredBodyFields,
-			// TournamentMiddleware.validateType,
-			TournamentController.put
-		]);
-		
-		this.app.patch(`/tournament/:id`, [
-			TournamentMiddleware.validateExists,
-			TournamentMiddleware.validateType,
-			TournamentMiddleware.validateState,
-			TournamentMiddleware.validateWinPoints,
-			TournamentMiddleware.validateTiePoints,
+			.all(TournamentMiddleware.idExists)
+			.get(TournamentController.readById);
+
+		this.app.patch(`/user/:userId`, [
+			TournamentMiddleware.hasRequiredCreateAttributes,
+			TournamentMiddleware.hasOnlyRequiredCreateAttributes,
+			TournamentMiddleware.isNameUnique,
+			TournamentMiddleware.isCityValid,
+			TournamentMiddleware.isCountryValid,
+			TournamentMiddleware.isRoundsValid,
+			TournamentMiddleware.isMaxPlayersValid,
+			TournamentMiddleware.isMinRateValid,
+			TournamentMiddleware.isMaxRateValid,
+			TournamentMiddleware.isTypeValid,
+			TournamentMiddleware.isStateValid,
+			TournamentMiddleware.isWinPointsValid,
+			TournamentMiddleware.isTiePointsValid,
+			TournamentMiddleware.isScheduledStartDateValid,
+			TournamentMiddleware.isScheduledSEndDateValid,
+			TournamentMiddleware.isActualStartDateValid,
+			TournamentMiddleware.isActualSEndDateValid,
 			TournamentController.patch
 		]);
 		

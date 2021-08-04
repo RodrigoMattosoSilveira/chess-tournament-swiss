@@ -1,3 +1,7 @@
+import fs from "fs";
+import * as Path from "path";;
+const lineByLine = require('n-readlines');
+
 export class Utils {
 	/**
 	 * Helper function to patch a USER and return the response object
@@ -151,4 +155,42 @@ export const hasOnlyRequiredKeys = (body: any, requireKeys: string[]): string =>
 		}
 	}
 	return errorMessage
+}
+export const isCityValid = (city: string): boolean => {
+	let foundCity: boolean = false;
+	let fileName: string = Path.join(__dirname, "../seed-data/worldcities.csv");
+	// let fileName: string = Path.join(__dirname, "worldcities_test.csv");
+
+	const liner = new lineByLine(fileName);
+	let buffer: Buffer;
+
+	while (buffer = liner.next()) {
+		let data: string[] = buffer.toString('utf8').split(',')
+		if(data[1] === city) {
+			foundCity = true;
+			break;
+		}
+	}
+	return foundCity;
+}
+
+export const isCountryValid = (country: string): boolean => {
+	let found: boolean = false;
+	let fileName: string = Path.join(__dirname, "../seed-data/countries.csv");
+
+	const liner = new lineByLine(fileName);
+	let buffer: Buffer;
+
+	while (buffer = liner.next()) {
+		let data: string[] = buffer.toString('utf8').split(',')
+		if(data[0] === country) {
+			found = true;
+			break;
+		}
+	}
+	return found;
+}
+
+export const isStringLongEnough = (string: string, minimumLength: number): boolean => {
+	return string.length >= minimumLength;
 }

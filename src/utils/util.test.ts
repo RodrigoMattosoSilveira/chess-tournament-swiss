@@ -1,4 +1,13 @@
-import {isValidEmail, isStringNumeric, isValidDate, isPasswordStrong, hasRequiredKeys, hasOnlyRequiredKeys} from "./utils";
+import {
+	isValidEmail,
+	isStringNumeric,
+	isValidDate,
+	isPasswordStrong,
+	hasRequiredKeys,
+	hasOnlyRequiredKeys,
+	isCityValid,
+	isStringLongEnough, isCountryValid
+} from "./utils";
 import {keys} from "ts-transformer-keys";
 
 describe('Util Unit Tests', () => {
@@ -158,5 +167,45 @@ describe('Util Unit Tests', () => {
 			expect(hasOnlyRequiredKeys(body, SOMETHING_KEYS)).toEqual("unexpected, anotherUnexpected")
 			done();
 		});
+	});
+	describe('Validate the city find method', () => {
+		it('finds an existing city', async done => {
+			let city: string = "Tokyo";
+			let cityIsValid = isCityValid(city);
+			expect(cityIsValid).toBe(true);
+			done();
+		})
+		it('doe find a non existing city', async done => {
+			let city: string = "Tokyoo";
+			let cityIsValid = isCityValid(city);
+			expect(cityIsValid).toBe( false);
+			done();
+		})
+	});
+	describe('Validate string length validator', () => {
+		it('valid length', async done => {
+			let myString: string = "A very long string with many characters";
+			expect(isStringLongEnough(myString, 15)).toBe(true);
+			done();
+		})
+		it('valid length', async done => {
+			let myString: string = "A  string";
+			expect(isStringLongEnough(myString, 15)).toBe(false);
+			done();
+		})
+	})
+	describe('Validate the country find method', () => {
+		it('finds an existing country', async done => {
+			let country: string = "Austria";
+			let countryIsValid = isCountryValid(country);
+			expect(countryIsValid).toBe(true);
+			done();
+		})
+		it('doe find a non existing country', async done => {
+			let country: string = "Austriaaaa";
+			let countryIsValid = isCountryValid(country);
+			expect(countryIsValid).toBe(false);
+			done();
+		})
 	});
 });

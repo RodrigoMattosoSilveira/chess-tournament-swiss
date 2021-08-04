@@ -104,7 +104,7 @@ describe('Player Entity', () => {
 								rounds: 6,
 								type: TOURNAMENT_TYPE.SWISS
 							}
-							tournamentDao.add(tournamentEntity)
+							tournamentDao.create(tournamentEntity)
 								.then((id: string) => {
 									tournamentId = id;
 									// console.log('\nCreated tournament to help POST a player: ' + tournamentId + '\n');

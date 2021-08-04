@@ -1,8 +1,9 @@
 import tournamentDao from './tournament.dao';
 import {CRUD} from "../../common/crud.interface";
-import {TournamentDto} from "./tournament.model";
+import {TournamentDto} from "./tournament.interfaces";
 
-class TournamentService implements CRUD {
+//TODO I remove the implements CRUD clause; replace it with generics
+class TournamentService {
 	private static instance: TournamentService;
 	
 	static getInstance(): TournamentService {
@@ -15,34 +16,38 @@ class TournamentService implements CRUD {
 	async create(resource: TournamentDto) {
 		// console.log("TournamentService/create: " + JSON.stringify(resource) +"\n");
 		// console.log("TournamentService/created id: " + id +"\n");
-		return  await tournamentDao.add(resource);
+		return  await tournamentDao.create(resource);
 	}
-	
-	async deleteById(resourceId: string) {
-		return await tournamentDao.removeById(resourceId);
+
+	//TODO integrate limit and page
+	async read(/* limit: number, page: number */) { // limit and page are ignored until we upgrade our DAO
+		return await tournamentDao.read();
 	};
 	
-	async list(/* limit: number, page: number */) { // limit and page are ignored until we upgrade our DAO
-		return await tournamentDao.getAll();
-	};
-	
-	async patchById(resource: TournamentDto) {
-		return await tournamentDao.patchById(resource)
+	async patch(resource: TournamentDto) {
+		return await tournamentDao.patch(resource)
 	};
 	
 	async readById(resourceId: string) {
-		return await tournamentDao.getById(resourceId);
+		return await tournamentDao.readById(resourceId);
 	};
-	
-	async updateById(resource: TournamentDto) {
-		return await tournamentDao.putById(resource);
+
+	//TODO Add logic to return a boolean, true if exists, false otherwise
+	async idExists(resourceId: string): Promise<boolean> {
+		let result = await tournamentDao.readById(resourceId);
+		return true;
 	};
-	
-	async getByName(name: string) {
-		return tournamentDao.getByName(name);
-		
+
+	async readByName(name: string) {
+		return tournamentDao.readByName(name);
 	}
-	
+
+	//TODO Add logic to return a boolean, true if exists, false otherwise
+	async nameExists(name: string): Promise<boolean> {
+		let result = await tournamentDao.readByName(name);
+		return true;
+	}
+
 }
 
 export default TournamentService.getInstance();

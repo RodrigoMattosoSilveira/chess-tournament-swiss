@@ -1,9 +1,12 @@
 import express from 'express';
 
 // todo: apply this generalization to all other entities
-import service from './tournament.service';
+import tournamentController from "../tournament/tournament.controller";
 import tournamentService from "../tournament/tournament.service";
-import {tournament_types, tournament_states, TOURNAMENT_REQUIRED_ATTRIBUTES} from "../../contants/contants";
+import * as utils from "../../utils/utils";
+import {TOURNAMENT_CREATE_KEYS} from "./tournament.interfaces";
+import {TOURNAMENT_STATE, TOURNAMENT_TYPE, TOURNAMENT_LIMITS} from "./tournament.constants";
+import {isCountryValid} from "../../utils/utils";
 
 class TournamentMiddleware {
 	private static instance: TournamentMiddleware;
@@ -15,34 +18,43 @@ class TournamentMiddleware {
 		return TournamentMiddleware.instance;
 	}
 	
-	async validateRequiredBodyFields(req: express.Request, res: express.Response, next: express.NextFunction) {
-		// console.log('\n' + 'TournamentMiddleware/validateRequiredBodyFields/body: ' + JSON.stringify(req.body) + '\n');
-		let missingAttributes = "";
+	async hasRequiredCreateAttributes(req: express.Request, res: express.Response, next: express.NextFunction) {
+		let missingAttributes: string = "";
 		if (req.body) {
-			for (let i = 0; i < TOURNAMENT_REQUIRED_ATTRIBUTES.length; i < i++) {
-				let requiredAttribute = TOURNAMENT_REQUIRED_ATTRIBUTES[i];
-				// @ts-ignore
-				if (!req[requiredAttribute]) {
-					if (missingAttributes.length > 0) {
-						missingAttributes += ', ';
-					}
-					missingAttributes += missingAttributes;
-				}
-			}
+			missingAttributes = utils.hasRequiredKeys(req.body,  TOURNAMENT_CREATE_KEYS);
 			if (missingAttributes.length > 0) {
-				// console.log('\n' + 'TournamentMiddleware/validateRequiredBodyFields/message: ' + missingAttributes + '\n');
-				res.status(400).send({error: "Missing required tournament attributes: "} + missingAttributes);
+				// console.log('\n' + 'TournamentMiddleware/hasRequiredCreateAttributes/message: ' + missingAttributes + '\n');
+				res.status(400).send(`Tournament create request missing required attributes: ${missingAttributes}`);
 			} else {
-				// console.log('\n' + 'TournamentMiddleware/validateRequiredBodyFields/message: All required attributes present' + '\n');
+				// console.log('\n' + 'Tournament/hasRequiredCreateAttributes/message: All required attributes present' + '\n');
 				next()
 			}
-		} else {
-			res.status(400).send({error: `Tournament body is missing`});
+		}else {
+			console.log(`TournamentMiddleware - hasRequiredCreateAttributes failed: ${missingAttributes}`)
+			res.status(400).send(`Tournament create request does not include any attributes`);
 		}
 	}
-	
-	async validateNameIsUnique(req: express.Request, res: express.Response, next: express.NextFunction) {
-		const tournament = await tournamentService.getByName(req.body.name);
+
+	// User create request has only required attributes
+	async hasOnlyRequiredCreateAttributes(req: express.Request, res: express.Response, next: express.NextFunction) {
+		let errorMessage: string = ""
+		if (req.body) {
+			errorMessage = utils.hasOnlyRequiredKeys(req.body, TOURNAMENT_CREATE_KEYS);
+			if (errorMessage.length > 0) {
+				// console.log('\n' + 'UserMiddleware/hasOnlyRequiredCreateAttributes/message: ' + errorMessage + '\n');
+				res.status(400).send(`Tournament create request has invalid attributes: ${errorMessage}`);
+			} else {
+				// console.log('\n' + 'TournamentMiddleware/hasOnlyRequiredCreateAttributes/message: All required attributes present' + '\n');
+				next()
+			}
+		}else {
+			console.log(`TournamentMiddleware - hasOnlyRequiredCreateAttributes failed: ${errorMessage}`)
+			res.status(400).send(`User create request does not include any attributes`);
+		}
+	}
+
+	async isNameUnique(req: express.Request, res: express.Response, next: express.NextFunction) {
+		const tournament = await tournamentService.readByName(req.body.name);
 		if (tournament) {
 			// console.log('\n' + 'TournamentMiddleware/validateNameIsUnique/message: Name already exists' + '\n');
 			res.status(400).send({error: `Tournament name already exists: ` + req.body.name});
@@ -52,123 +64,298 @@ class TournamentMiddleware {
 		}
 	}
 
-	async validateExists(req: express.Request, res: express.Response, next: express.NextFunction) {
-		// console.log('\n' + 'TournamentMiddleware/validateNameIsUnique : User exists' + '\n');
-		const entity = await service.readById(req.params.id);
-		if (entity) {
+	async isCityValid(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if (!req.body.city) {
 			next();
 		} else {
-			res.status(400).send({error: `entity ${req.params.id} not found`});
+			let subject = req.body.city
+			let subjectText = "city"
+			if (!utils.isCityValid(subject)) {
+				console.log(`TournamentMiddleware -  ${subjectText} is not valid: ${subject}`)
+				res.status(400).send(`Tournament ${subjectText} is not valid: ${subject}`);
+			} else {
+				next();
+			}
 		}
 	}
-	
-	async validateType(req: express.Request, res: express.Response, next: express.NextFunction) {
-		// console.log('\n' + 'TournamentMiddleware/validateTypeIfPresent/type: ' + req.body.type + '\n');
-		// Validate type only if present
-		if (!req.body.type) {
-			next()
+
+	async isCountryValid(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if (!req.body.country) {
+			next();
 		} else {
-			// it is present, hence must be valid
-			if (!isTypeSupported(req.body.type)) {
-				res.status(400).send({error: `type ${req.params.type} is invalid`});
+			let subject = req.body.country;
+			let subjectText = "COUNTRY"
+			if (isCountryValid(subject)) {
+				next();
 			}
 			else {
-				next();
+				console.log(`TournamentMiddleware - ${subjectText} is not in  ${subject}`)
+				res.status(400).send(`Tournament  ${subjectText} is not in  ${subject}`);
 			}
 		}
 	}
-	
-	async validateState(req: express.Request, res: express.Response, next: express.NextFunction) {
-		// console.log('\n' + 'TournamentMiddleware/validateState\n');
-		// Validate type only if present
+
+	async isRoundsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if (!req.body.rounds) {
+			next();
+		} else {
+			let subject = req.body.rounds
+			let subjectText = "rounds"
+			if (!utils.isStringNumeric("" +subject)) {
+				console.log(`TournamentMiddleware - ${subjectText} is not numeric: subject}`)
+				res.status(400).send(`Tournament  ${subjectText} is not valid: ${subject}`);
+			} else {
+				if (req.body.rounds <= TOURNAMENT_LIMITS.rounds) {
+					next();
+				}
+				else {
+					console.log(`TournamentMiddleware -  ${subjectText} is greater than ${TOURNAMENT_LIMITS.rounds}: ${subject}`)
+					res.status(400).send(`Tournament  ${subjectText} is greater than 24: ${subject}`);
+				}
+			}
+		}
+	}
+
+	async isMaxPlayersValid(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if (!req.body.maxPlayers) {
+			next();
+		} else {
+			let subject = req.body.maxPlayers
+			let subjectText = "maxPlayers"
+			if (!utils.isStringNumeric("" + subject)) {
+				console.log(`TournamentMiddleware - ${subjectText} is not numeric: ${subject}`)
+				res.status(400).send(`Tournament ${subjectText} is not valid: ${subject}`);
+			} else {
+				if (subject <  TOURNAMENT_LIMITS.maxPlayers) {
+					next();
+				}
+				else {
+					console.log(`TournamentMiddleware - ${subjectText} is greater than ${ TOURNAMENT_LIMITS.maxPlayers}: ${subject}`)
+					res.status(400).send(`Tournament ${subjectText} is greater than ${ TOURNAMENT_LIMITS.maxPlayers}: ${subject}`);
+				}
+			}
+		}
+	}
+
+	async isTypeValid(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if (!req.body.type) {
+			next();
+		} else {
+			let subject = req.body.type;
+			let subjectText = "TOURNAMENT_TYPE"
+			if (subject in TOURNAMENT_TYPE) {
+				next();
+			}
+			else {
+				console.log(`TournamentMiddleware - ${subjectText} is not a valid  ${subject}`)
+				res.status(400).send(`Tournament  ${subjectText} is not valid: ${subject}`);
+			}
+		}
+	}
+
+	async isStateValid(req: express.Request, res: express.Response, next: express.NextFunction) {
 		if (!req.body.state) {
-			// console.log('\n' + 'TournamentMiddleware/validateState: not present\n');
-			next()
+			next();
 		} else {
-			// it is present, hence must be valid
-			// console.log('\n' + 'TournamentMiddleware/validateState:  ' + req.body.state + '\n');
-			if (!isStateSupported(req.body.state)) {
-				// console.log('\n' + 'TournamentMiddleware/validateState:  Invalid' + req.body.state + '\n');
-				res.status(400).send({error: `type ${req.params.type} is invalid`});
-			} else {
-				// console.log('\n' + 'TournamentMiddleware/validateState:  Valid' + req.body.state + '\n');
+			let subject = req.body.type;
+			let subjectText = "TOURNAMENT_STATE"
+			if (subject in TOURNAMENT_STATE) {
 				next();
 			}
+			else {
+				console.log(`TournamentMiddleware - ${subjectText} is not a valid  ${subject}`)
+				res.status(400).send(`Tournament  ${subjectText} is not valid: ${subject}`);
+			}
 		}
-		// console.log('\n' + 'TournamentMiddleware/validateState/state: ' + req.body.state + '\n');
 	}
-	
-	async validateWinPoints(req: express.Request, res: express.Response, next: express.NextFunction) {
-		// console.log('\n' + 'TournamentMiddleware/validateWinPoints\n');
-		// Validate type only if present
+
+
+	async isMinRateValid(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if (!req.body.minRate) {
+			next();
+		} else {
+			let subject = req.body.minRate;
+			let subjectText = "minRate"
+			if (!utils.isStringNumeric("" + subject)) {
+				console.log(`TournamentMiddleware - ${subjectText} is not numeric: ${subject}`)
+				res.status(400).send(`Tournament ${subjectText} is not numeric: ${subject}`);
+			} else {
+				if (subject > -1) {
+					next();
+				}
+				else {
+					console.log(`TournamentMiddleware - ${subjectText} is less than 0: ${subject}`)
+					res.status(400).send(`Tournament ${subjectText} is less than 0: ${subject}`);
+				}
+			}
+		}
+	}
+
+	async isMaxRateValid(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if (!req.body.maxRate) {
+			next();
+		} else {
+			let subject = req.body.maxRate;
+			let subjectText = "maxRate"
+			if (!utils.isStringNumeric("" + subject)) {
+				console.log(`TournamentMiddleware - ${subjectText} is not numeric: ${subject}`)
+				res.status(400).send(`Tournament ${subjectText} is not numeric: ${subject}`);
+			} else {
+				if (subject > -1) {
+					next();
+				}
+				else {
+					console.log(`TournamentMiddleware - ${subjectText} is less than 0: ${subject}`)
+					res.status(400).send(`Tournament ${subjectText} is less than 0: ${subject}`);
+				}
+			}
+		}
+	}
+
+	// TODO add validation for when minRate and maxRate are supplied
+	// TODO add validation for when minRate or maxRate are supplied, and patching, to ensure they are compatible with the existing rates
+
+	async isWinPointsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
 		if (!req.body.winPoints) {
-			// console.log('\n' + 'TournamentMiddleware/validateWinPoints: not present\n');
-			req.body.win = 1;
-			next()
+			next();
 		} else {
-			// it is present, hence must be valid
-			// console.log('\n' + 'TournamentMiddleware/validateWinPoints:  ' + req.body.win + '\n');
-			if (!isStringNumeric(req.body.winPoints)) {
-				// console.log('\n' + 'TournamentMiddleware/validateWinPoints:  Invalid' + req.body.win + '\n');
-				res.status(400).send({error: `TournamentMiddleware/validateWinPoints winPoints ${req.params.winPoints} is invalid`});
+			let subject = req.body.winPoints;
+			let subjectText = "winPoints"
+			if (!utils.isStringNumeric("" + subject)) {
+				console.log(`TournamentMiddleware - ${subjectText} is not numeric: ${subject}`)
+				res.status(400).send(`Tournament ${subjectText} is not valid: ${subject}`);
 			} else {
-				// console.log('\n' + 'TournamentMiddleware/validateWinPoints:  Valid' + req.body.win + '\n');
 				next();
 			}
 		}
 	}
-	
-	async validateTiePoints(req: express.Request, res: express.Response, next: express.NextFunction) {
-		// console.log('\n' + 'TournamentMiddleware/validateTiePoints\n');
-		// Validate type only if present
+
+	async isTiePointsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
 		if (!req.body.tiePoints) {
-			// console.log('\n' + 'TournamentMiddleware/validateTiePoints: not present\n');
-			req.body.tiePoints = 1;
-			next()
+			next();
 		} else {
-			// it is present, hence must be valid
-			// console.log('\n' + 'TournamentMiddleware/validateTiePoints:  ' + req.body.win + '\n');
-			if (!isStringNumeric(req.body.tiePoints)) {
-				// console.log('\n' + 'TournamentMiddleware/validateTiePoints:  Invalid' + req.body.win + '\n');
-				res.status(400).send({error: `TournamentMiddleware/validateTiePoints tiePoints ${req.params.tiePoints} is invalid`});
+			let subject = req.body.tiePoints;
+			let subjectText = "tiePoints"
+			if (!utils.isStringNumeric("" + subject)) {
+				console.log(`TournamentMiddleware - ${subjectText} is not numeric: ${subject}`)
+				res.status(400).send(`Tournament ${subjectText} is not numeric: ${subject}`);
 			} else {
-				// console.log('\n' + 'TournamentMiddleware/validateTiePoints:  Valid' + req.body.win + '\n');
 				next();
 			}
 		}
 	}
+
+	// TODO add validation for when winPoints and tiePoints are supplied, winPoints is higher than tiePoints
+	// TODO add validation for when winPoints or tiePoints are supplied, and patching, to ensure they are compatible with the existing values
+
+	async isScheduledStartDateValid(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if (!req.body.scheduledStartDate) {
+			next();
+		} else {
+			let subject = req.body.scheduledStartDate
+			let subjectText = "scheduledStartDate"
+			if (!utils.isValidDate("" + subject)) {
+				console.log(`TournamentMiddleware - ${subjectText} is not valid: ${subject}`)
+				res.status(400).send(`Tournament ${subjectText} is not valid: ${subject}`);
+			} else {
+				next();
+			}
+		}
+	}
+
+	async isScheduledSEndDateValid(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if (!req.body.scheduledEndDate) {
+			next();
+		} else {
+			let subject = req.body.scheduledEndDate
+			let subjectText = "scheduledEndDate"
+			if (!utils.isValidDate("" + subject)) {
+				console.log(`TournamentMiddleware - ${subjectText} is not valid: ${subject}`)
+				res.status(400).send(`Tournament ${subjectText} is not valid: ${subject}`);
+			} else {
+				next();
+			}
+		}
+	}
+
+	// TODO add validation for when scheduledStartDate and scheduledEndDate are supplied, scheduledStartDate is less than scheduledEndDate
+	// TODO add validation for when scheduledStartDate or scheduledEndDate are supplied, and patching, to ensure they are compatible with the existing values
+
+	async isActualStartDateValid(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if (!req.body.scheduledStartDate) {
+			next();
+		} else {
+			let subject = req.body.actualStartDate
+			let subjectText = "actualStartDate"
+			if (!utils.isValidDate("" + subject)) {
+				console.log(`TournamentMiddleware - ${subjectText} is not valid: ${subject}`)
+				res.status(400).send(`Tournament ${subjectText} is not valid: ${subject}`);
+			} else {
+				next();
+			}
+		}
+	}
+
+	async isActualSEndDateValid(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if (!req.body.actualEndDate) {
+			next();
+		} else {
+			let subject = req.body.actualEndDate
+			let subjectText = "actualEndDate"
+			if (!utils.isValidDate("" + subject)) {
+				console.log(`TournamentMiddleware - ${subjectText} is not valid: ${subject}`)
+				res.status(400).send(`Tournament ${subjectText} is not valid: ${subject}`);
+			} else {
+				next();
+			}
+		}
+	}
+
+	// TODO add validation for when actualStartDate and actualEndDate are supplied, actualStartDate is less than actualEndDate
+	// TODO add validation for when actualStartDate or actualEndDate are supplied, and patching, to ensure they are compatible with the existing values
 	
+	// async entityExists(req: express.Request, res: express.Response, next: express.NextFunction) {
+	// 	// console.log('\n' + 'TournamentMiddleware/validateNameIsUnique : User exists' + '\n');
+	// 	let subject = req.params.id
+	// 	let subjectText = "Entity"
+	// 	const entity = await service.readById(subject);
+	// 	if (entity) {
+	// 		next();
+	// 	} else {
+	// 		res.status(400).send({error: `Tournament ${subjectText} not found: ${subject}`});
+	// 	}
+	// }
+	//
+	// async serviceDoesNotSupportPut(req: express.Request, res: express.Response) {
+	// 	res.status(404).send(`This service does not support PUT`);
+	// }
+	//
+	// async serviceDoesNotSupportDelete(req: express.Request, res: express.Response) {
+	// 	res.status(404).send(`This service does not support DELETE`);
+	// }
+
 	async extractId(req: express.Request, res: express.Response, next: express.NextFunction) {
 		// console.log('\n' + 'TournamentMiddleware/extractId/id: ' + req.params.id + '\n');
 		req.body.id = req.params.id;
 		next();
 	}
+
+	async idExists(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if (await tournamentController.idExists(req.body.id)) {
+			next()
+		} else {
+			console.log(`TournamentMiddleware - entityExists failed: ${req.body.id}`)
+			res.status(400).send(`User id not found: ${req.body.id}`);
+		}
+	}
+
+	async serviceDoesNotSupportPut(req: express.Request, res: express.Response) {
+		res.status(404).send(`This service does not support PUT`);
+	}
+
+	async serviceDoesNotSupportDelete(req: express.Request, res: express.Response) {
+		res.status(404).send(`This service does not support DELETE`);
+	}
 }
 
 export default TournamentMiddleware.getInstance();
-
-/**
- * Asserts whether type is a supported tournament type
- * @param type
- * @return -1 if type is not a supported tournament type, non-negative value if so.
- */
-const isTypeSupported = (type: string): boolean => {
-	let requestType  = type.toLowerCase();
-	// console.log('\n' + 'TournamentMiddleware/isTypeSupported/type: ' + requestType + '\n');
-	return tournament_types.findIndex((aValidType: string) => aValidType === requestType) !== -1;
-}
-
-const isStateSupported = (state: string): boolean => {
-	let requestState  = state.toLowerCase();
-	// console.log('\n' + 'TournamentMiddleware/isStateSupported/type: ' + requestType + '\n');
-	return tournament_states.findIndex((aValidState: string) => aValidState === requestState) !== -1;
-}
-
-/**
- * Returns true is points is numberic, false otherwise
- * @param points
- * @return boolean
- */
-const isStringNumeric = (points: string): boolean => {
-	return !isNaN(Number(points))
-}
