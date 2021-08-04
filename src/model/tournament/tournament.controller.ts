@@ -47,16 +47,24 @@ class TournamentController {
 		res.status(200).send(entity);
 	}
 
+	//TODO Add logic to return a boolean, true if exists, false otherwise
+	async idExists(id: string): Promise<boolean> {
+		// console.log('TournamentController/getById/id' + req.params.id);
+		const entity = await tournamentService.idExists(id);
+		return true
+	}
+
 	async readByName(req: express.Request, res: express.Response) {
 		// console.log('TournamentController/getById/id' + req.params.id);
 		const entity = await tournamentService.readById(req.params.id);
 		res.status(200).send(entity);
 	}
 
-	async nameExists(req: express.Request, res: express.Response) {
+	//TODO Add logic to return a boolean, true if exists, false otherwise
+	async nameExists(name: string): Promise<boolean> {
 		// console.log('TournamentController/getById/id' + req.params.id);
-		const entity = await tournamentService.readById(req.params.id);
-		res.status(200).send(entity);
+		const entity = await tournamentService.readByName(name);
+		return true
 	}
 
 }

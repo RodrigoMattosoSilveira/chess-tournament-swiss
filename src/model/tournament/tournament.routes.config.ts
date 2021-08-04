@@ -15,8 +15,7 @@ import {CommonRoutesConfig} from '../../common/common.routes.config';
 import TournamentController from './tournament.controller';
 import TournamentMiddleware from './tournament.middleware';
 import express from 'express';
-import UserMiddleware from "../user/user.middleware";
-import UserController from "../user/user.controller";
+
 
 export class TournamentRoutes extends CommonRoutesConfig {
 	constructor(app: express.Application) {
@@ -29,7 +28,7 @@ export class TournamentRoutes extends CommonRoutesConfig {
 	 */
 	configureRoutes() {
 		this.app.route(`/tournament`) //this.app.route(`/tournament`)
-			.get(TournamentController.list)
+			.get(TournamentController.read)
 			.post(
 				TournamentMiddleware.hasRequiredCreateAttributes,
 				TournamentMiddleware.hasOnlyRequiredCreateAttributes,
@@ -56,10 +55,10 @@ export class TournamentRoutes extends CommonRoutesConfig {
 			TournamentMiddleware.serviceDoesNotSupportDelete,
 		]);
 
-		this.app.param(`userId`, UserMiddleware.extractUserId);
-		this.app.route(`/user/:userId`)
-			.all(TournamentMiddleware.entityExists)
-			.get(TournamentController.getById);
+		this.app.param(`id`, TournamentMiddleware.extractId);
+		this.app.route(`/tournament/:id`)
+			.all(TournamentMiddleware.idExists)
+			.get(TournamentController.readById);
 
 		this.app.patch(`/user/:userId`, [
 			TournamentMiddleware.hasRequiredCreateAttributes,
@@ -79,7 +78,7 @@ export class TournamentRoutes extends CommonRoutesConfig {
 			TournamentMiddleware.isScheduledSEndDateValid,
 			TournamentMiddleware.isActualStartDateValid,
 			TournamentMiddleware.isActualSEndDateValid,
-			UserController.patch
+			TournamentController.patch
 		]);
 		
 		return this.app;

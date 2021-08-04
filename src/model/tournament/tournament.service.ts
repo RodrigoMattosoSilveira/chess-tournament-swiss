@@ -32,9 +32,22 @@ class TournamentService {
 		return await tournamentDao.readById(resourceId);
 	};
 
+	//TODO Add logic to return a boolean, true if exists, false otherwise
+	async idExists(resourceId: string): Promise<boolean> {
+		let result = await tournamentDao.readById(resourceId);
+		return true;
+	};
+
 	async readByName(name: string) {
 		return tournamentDao.readByName(name);
 	}
+
+	//TODO Add logic to return a boolean, true if exists, false otherwise
+	async nameExists(name: string): Promise<boolean> {
+		let result = await tournamentDao.readByName(name);
+		return true;
+	}
+
 }
 
 export default TournamentService.getInstance();

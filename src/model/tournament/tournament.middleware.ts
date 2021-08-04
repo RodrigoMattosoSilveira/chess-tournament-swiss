@@ -1,6 +1,7 @@
 import express from 'express';
 
 // todo: apply this generalization to all other entities
+import tournamentController from "../tournament/tournament.controller";
 import tournamentService from "../tournament/tournament.service";
 import * as utils from "../../utils/utils";
 import {TOURNAMENT_CREATE_KEYS} from "./tournament.interfaces";
@@ -53,7 +54,7 @@ class TournamentMiddleware {
 	}
 
 	async isNameUnique(req: express.Request, res: express.Response, next: express.NextFunction) {
-		const tournament = await tournamentService.getByName(req.body.name);
+		const tournament = await tournamentService.readByName(req.body.name);
 		if (tournament) {
 			// console.log('\n' + 'TournamentMiddleware/validateNameIsUnique/message: Name already exists' + '\n');
 			res.status(400).send({error: `Tournament name already exists: ` + req.body.name});
@@ -337,6 +338,23 @@ class TournamentMiddleware {
 		// console.log('\n' + 'TournamentMiddleware/extractId/id: ' + req.params.id + '\n');
 		req.body.id = req.params.id;
 		next();
+	}
+
+	async idExists(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if (await tournamentController.idExists(req.body.id)) {
+			next()
+		} else {
+			console.log(`TournamentMiddleware - entityExists failed: ${req.body.id}`)
+			res.status(400).send(`User id not found: ${req.body.id}`);
+		}
+	}
+
+	async serviceDoesNotSupportPut(req: express.Request, res: express.Response) {
+		res.status(404).send(`This service does not support PUT`);
+	}
+
+	async serviceDoesNotSupportDelete(req: express.Request, res: express.Response) {
+		res.status(404).send(`This service does not support DELETE`);
 	}
 }
 
