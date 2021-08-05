@@ -54,13 +54,18 @@ class TournamentMiddleware {
 	}
 
 	async isNameUnique(req: express.Request, res: express.Response, next: express.NextFunction) {
-		const tournament = await tournamentService.readByName(req.body.name);
-		if (tournament) {
-			// console.log('\n' + 'TournamentMiddleware/validateNameIsUnique/message: Name already exists' + '\n');
-			res.status(400).send({error: `Tournament name already exists: ` + req.body.name});
-		} else {
-			// console.log('\n' + 'TournamentMiddleware/validateNameIsUnique/message: Name is unique' + '\n');
-			next();
+		if (!req.body.name) {
+			next()
+		}
+		else {
+			const nameExists: boolean = await tournamentController.nameExists(req.body.name);
+			if (nameExists) {
+				// console.log('\n' + 'TournamentMiddleware/validateNameIsUnique/message: Name already exists' + '\n');
+				res.status(400).send({error: `Tournament name already exists: ${req.body.name}`});
+			} else {
+				// console.log('\n' + 'TournamentMiddleware/validateNameIsUnique/message: Name is unique' + '\n');
+				next();
+			}
 		}
 	}
 
@@ -313,26 +318,6 @@ class TournamentMiddleware {
 
 	// TODO add validation for when actualStartDate and actualEndDate are supplied, actualStartDate is less than actualEndDate
 	// TODO add validation for when actualStartDate or actualEndDate are supplied, and patching, to ensure they are compatible with the existing values
-	
-	// async entityExists(req: express.Request, res: express.Response, next: express.NextFunction) {
-	// 	// console.log('\n' + 'TournamentMiddleware/validateNameIsUnique : User exists' + '\n');
-	// 	let subject = req.params.id
-	// 	let subjectText = "Entity"
-	// 	const entity = await service.readById(subject);
-	// 	if (entity) {
-	// 		next();
-	// 	} else {
-	// 		res.status(400).send({error: `Tournament ${subjectText} not found: ${subject}`});
-	// 	}
-	// }
-	//
-	// async serviceDoesNotSupportPut(req: express.Request, res: express.Response) {
-	// 	res.status(404).send(`This service does not support PUT`);
-	// }
-	//
-	// async serviceDoesNotSupportDelete(req: express.Request, res: express.Response) {
-	// 	res.status(404).send(`This service does not support DELETE`);
-	// }
 
 	async extractId(req: express.Request, res: express.Response, next: express.NextFunction) {
 		// console.log('\n' + 'TournamentMiddleware/extractId/id: ' + req.params.id + '\n');
@@ -345,7 +330,7 @@ class TournamentMiddleware {
 			next()
 		} else {
 			console.log(`TournamentMiddleware - entityExists failed: ${req.body.id}`)
-			res.status(400).send(`User id not found: ${req.body.id}`);
+			res.status(400).send(`Tournament id not found: ${req.body.id}`);
 		}
 	}
 

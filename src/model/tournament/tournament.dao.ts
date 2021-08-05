@@ -1,18 +1,22 @@
-const fs = require('fs');
-import shortid from 'shortid';
+import {DaoResult} from "../../common/generic.interfaces";
+
 import debug from 'debug';
 const log: debug.IDebugger = debug('app:in-memory-dao');
+import {Err, Ok} from "space-monad";
 
-import {TournamentDto} from "./tournament.interfaces";
-import {TOURNAMENT_PATCHABLE_ATTRIBUTES, TOURNAMENT_STATE} from "../../contants/contants";
+import {ITournamentPatch, TOURNAMENT_PATCH_KEYS, TournamentDto} from "./tournament.interfaces";
+import {HttpResponseCode} from "../../contants/contants";
+import {ITournamentMongoDoc, TournamentMongo} from "./tournament.mongo";
+import {Many, One} from "@rmstek/rms-ts-monad";
+import {TournamentUtil} from "./tournament.utils";
 
 /**
  * Using the singleton pattern, this class will always provide the same instance.
  */
 class TournamentDao {
 	private static instance: TournamentDao;
-	private static collection: Array<TournamentDto> = [];
-	
+	util: TournamentUtil = TournamentUtil.getInstance();
+
 	constructor() {
 		log('Created new instance of TournamentDao');
 	}
@@ -22,8 +26,8 @@ class TournamentDao {
 			TournamentDao.instance = new TournamentDao();
 			if (process.env.NODE_DATA === 'generated') {
 				try {
-					const data = fs.readFileSync('./generated-data/tournament.generated.json', 'utf8')
-					TournamentDao.collection = JSON.parse(data)
+					// const data = fs.readFileSync('./generated-data/tournament.generated.json', 'utf8')
+					// TournamentDao.collection = JSON.parse(data)
 					// console.log(`TournamentDao.getInstance - Read generated tournaments: ` + JSON.stringify(TournamentDao.collection));
 				} catch (err) {
 					console.error(err)
@@ -33,54 +37,134 @@ class TournamentDao {
 		return TournamentDao.instance;
 	}
 	
-	async create(entity: TournamentDto) {
+	async create(entity: TournamentDto): Promise< DaoResult<TournamentDto, TournamentDto[]>> {
 		// console.log("TournamentDao/add: " + JSON.stringify(entity) +"\n");
-		// Set defaults
-		entity.id = shortid.generate();
-		entity.state = TOURNAMENT_STATE.SCHEDULED;
-		entity.players = [];
-		if (!entity.winPoints) {
-			entity.winPoints = 1;
-		}
-		if (!entity.tiePoints) {
-			entity.tiePoints = 0.5;
-		}
-		TournamentDao.collection.push(entity);
-		// console.log("TournamentDao/add id: " +entity.id +"\n");
-		return entity.id;
-	}
-	
-	async read() {
-		return TournamentDao.collection;
-	}
-	
-	async readById(id: string) {
-		return TournamentDao.collection.find((user: { id: string; }) => user.id === id);
-	}
+		// Error handling
+		// https://stackoverflow.com/questions/50905750/error-handling-in-async-await
+		// https://blog.grossman.io/how-to-write-async-await-without-try-catch-blocks-in-javascript/
 
-	async patch(entity: TournamentDto) {
-		const objIndex = TournamentDao.collection.findIndex((obj: { id: string; }) => obj.id === entity.id);
-		let currentEntity = TournamentDao.collection[objIndex];
-		for (let field of TOURNAMENT_PATCHABLE_ATTRIBUTES) {
-			if (field in entity) {
+		let daoResult: DaoResult<TournamentDto, TournamentDto[]>;
+		const documentMongo = TournamentMongo.build({...entity})
+		try {
+			let tournamentSaved = await documentMongo.save();
+			let tournamentDto: TournamentDto = this.util.fromMongoToDto(tournamentSaved);
+			// 201 Created record
+			daoResult = {code: HttpResponseCode.created, content: Ok(One(tournamentDto))};
+		}
+		catch (error)  {
+			// 500 Internal Server Error
+			daoResult = {code: HttpResponseCode.internal_server_error, content: Err("TournamentDto /Create - Unable to create tournament entity")};
+		}
+		return daoResult;
+	}
+	
+	async read(): Promise< DaoResult<TournamentDto, TournamentDto[]>> {
+		let daoResult: DaoResult<TournamentDto, TournamentDto[]>;
+		let entities: TournamentDto[] = [];
+		try {
+			// Read all documents
+			let documents: ITournamentMongoDoc[] = await TournamentMongo.find({}).exec();
+			if (documents) {
 				// @ts-ignore
-				currentEntity[field] = entity[field];
+				for (let document: ITournamentMongoDoc of documents) {
+					// @ts-ignore
+					let entity: TournamentDto = this.util.fromMongoToDto(document);
+					entities.push(entity);
+				}
+				// 200 Ok
+				daoResult = {code: HttpResponseCode.ok, content: Ok(Many(entities))};
+			}
+			else {
+				// 404 Not Found
+				daoResult = {code: HttpResponseCode.not_found, content: Err("TournamentDto / Read - Did not find any tournaments")};
 			}
 		}
-		TournamentDao.collection.splice(objIndex, 1, currentEntity);
-		return `${entity.id} patched`;
+		catch (error) {
+			// 500 Internal Server Error
+			daoResult = {code: HttpResponseCode.internal_server_error, content: Err("TournamentDto / Read - Unable to read tournament entities")};
+		}
+		return daoResult;
+	}
+	
+	async readById(id: string): Promise< DaoResult<TournamentDto, TournamentDto[]>> {
+		let daoResult: DaoResult<TournamentDto, TournamentDto[]>;
+		// Find one entity whose `id` is 'id', otherwise `null`
+		try {
+			let document = await TournamentMongo.findOne({id: id}).exec();
+			if (document) {
+				// Found, 200 = Ok
+				let entity: TournamentDto = this.util.fromMongoToDto(document);
+				// 200 Ok
+				daoResult = {code: HttpResponseCode.ok, content: Ok(One(entity))};
+			}
+			else {
+				// 404 Not Found
+				daoResult = {code: HttpResponseCode.not_found, content: Err(`TournamentDto / ReadById - Did not find tournament id: ${id}`)};
+			}
+		}
+		catch (error) {
+			// 500 Internal Server Error
+			daoResult = {code: HttpResponseCode.internal_server_error, content: Err(`TournamentDto / ReadById - Unable to read tournament id: ${id}`)};
+		}
+		return daoResult;
+	}
+
+	async patch(entity: ITournamentPatch) {
+		// console.log(`UserDao/Patch: ${JSON.stringify(user)}`);
+		let daoResult: DaoResult<TournamentDto, TournamentDto[]>;
+		// Do not use lean, so that we have the save method!
+		let conditions = {id: entity.id};
+		let update = {}
+		for (let field of TOURNAMENT_PATCH_KEYS) {
+			if (field in entity) {
+				// @ts-ignore
+				update[field] = entity[field];
+			}
+		}
+		let options = {new: true};
+		// https://mongoosejs.com/docs/tutorials/findoneandupdate.html
+		TournamentMongo.findOneAndUpdate(conditions, update, options)
+			.then((document: any) => {
+				if (document) {
+					// 200 Ok
+					let entity: TournamentDto = this.util.fromMongoToDto(document);
+					daoResult = {code: HttpResponseCode.ok, content: Ok(One(entity))};
+				}
+				else {
+					// Did not find, 204 = No Content
+					// 404 Not Found
+					daoResult = {code: HttpResponseCode.not_found, content: Err(`TournamentDto / Patch - Did not find tournament id ${entity.id}, not patched`)};
+				}
+			})
+			.catch(() => {
+				// 500 Internal Server Error
+				daoResult = {code: HttpResponseCode.internal_server_error, content: Err(`TournamentDto / Patch - Patch to read tournament id: ${entity.id}`)};
+			})
+		// @ts-ignore
+		return daoResult;
 	}
 
 	async readByName(name: string) {
-		// console.log('TournamentDao/getByName: ' + name)
-		// console.log('TournamentDao/getByName: ' + JSON.stringify(TournamentDao.collection))
-		const objIndex = TournamentDao.collection.findIndex((obj: { name: string; }) => obj.name === name);
-		let currentEntity = TournamentDao.collection[objIndex];
-		if (currentEntity) {
-			return currentEntity;
-		} else {
-			return null;
+		let daoResult: DaoResult<TournamentDto, TournamentDto[]>;
+		// Find one entity whose `name` is 'name', otherwise `null`
+		try {
+			let document = await TournamentMongo.findOne({name: name}).exec();
+			if (document) {
+				// Found, 200 = Ok
+				let entity: TournamentDto = this.util.fromMongoToDto(document);
+				// 200 Ok
+				daoResult = {code: HttpResponseCode.ok, content: Ok(One(entity))};
+			}
+			else {
+				// 404 Not Found
+				daoResult = {code: HttpResponseCode.not_found, content: Err(`TournamentDto / readByName - Did not find tournament name: ${name}`)};
+			}
 		}
+		catch (error) {
+			// 500 Internal Server Error
+			daoResult = {code: HttpResponseCode.internal_server_error, content: Err(`TournamentDto / readByName - Unable to read tournament name: ${name}`)};
+		}
+		return daoResult;
 	}
 }
 
