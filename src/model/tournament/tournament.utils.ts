@@ -7,6 +7,8 @@ import {
 import {TOURNAMENT_PATCH_KEYS, TOURNAMENT_CREATE_KEYS, TOURNAMENT_DTO_KEYS} from "./tournament.interfaces";
 import tournamentDao from "./tournament.dao";
 import { TournamentDto } from "./tournament.interfaces";
+import {ITournamentMongoDoc} from "./tournament.mongo";
+import {USER_DTO_KEYS, UserDto} from "../user/user.interfaces";
 
 //TODO refactor all function names to remove their l prefix
 export class TournamentUtil {
@@ -62,4 +64,14 @@ export class TournamentUtil {
 		// return await tournamentDao.idExists(id);
 		return true;
 	}
+
+	fromMongoToDto(mongo: ITournamentMongoDoc): TournamentDto  {
+		let tournament: TournamentDto = {id: "", name: ""};
+		TOURNAMENT_DTO_KEYS.forEach(el => {
+			// @ts-ignore
+			tournament[el] = mongo[el];
+		})
+		return tournament;
+	}
+
 }

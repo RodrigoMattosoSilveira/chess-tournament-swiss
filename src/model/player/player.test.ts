@@ -1,19 +1,25 @@
 // TODO: review test in detail for new architecture
+import {TournamentDto} from "../tournament/tournament.interfaces";
+
 const request = require('supertest');
 
 import app from "../../server/app";
 
 import { DaoResult } from "../../common/generic.interfaces";
-import { OneMany } from '@rmstek/rms-ts-monad';
+import {One, OneMany} from '@rmstek/rms-ts-monad';
 
 import { Utils } from "../../utils/utils";
 import tournamentDao from "../tournament/tournament.dao";
 import userDao from "../user/user.dao";
-import {PLAYER_STATE, TOURNAMENT_TYPE} from "../../contants/contants";
+import {HttpResponseCode, PLAYER_STATE, TOURNAMENT_TYPE} from "../../contants/contants";
 import {UserDto} from "../user/user.interfaces";
 import {AMongoDb, MongoInMemory} from "../../server/mongodb";
 
 import {IConfig} from "../../config/config.interface";
+import tournamentService from "../tournament/tournament.service";
+import {ITournamentMongo, ITournamentMongoDoc, TournamentMongo} from "../tournament/tournament.mongo";
+import {Err, Ok} from "space-monad";
+import {TournamentUtil} from "../tournament/tournament.utils";
 let config: IConfig = require('../../config/config.dev.json');
 
 describe('Player Entity', () => {
@@ -28,6 +34,8 @@ describe('Player Entity', () => {
 	let playerEntity: any;
 	let daoResult: DaoResult<UserDto, UserDto[]>;
 	let mongodb: AMongoDb;
+	let util: TournamentUtil = TournamentUtil.getInstance();
+
 
 	beforeAll(async done => {
 		mongodb = new MongoInMemory(config.mongoDbInMemoryURI, config.mongodbOptions)
@@ -91,7 +99,7 @@ describe('Player Entity', () => {
 				},
 				(result: OneMany<UserDto, UserDto[]>) => {
 					result.fold(
-						/* ifOne */  () => {
+						/* ifOne */  async done => {
 							// @ts-ignore
 							let userDao: UserDto = result.get();
 							userId = userDao.id;
@@ -103,19 +111,17 @@ describe('Player Entity', () => {
 								maxPlayers: 32,
 								rounds: 6,
 								type: TOURNAMENT_TYPE.SWISS
+							};
+							const documentMongo = TournamentMongo.build({...tournamentEntity})
+							try {
+								let tournamentSaved: ITournamentMongoDoc = await documentMongo.save();
+								tournamentId = tournamentSaved.id;
 							}
-							tournamentDao.create(tournamentEntity)
-								.then((id: string) => {
-									tournamentId = id;
-									// console.log('\nCreated tournament to help POST a player: ' + tournamentId + '\n');
-									// console.log('\nCreated user and tournament to help POST a player: ' + userId + " " + tournamentId + '\n');
-								})
-								.catch((err: any) => {
-									// console.log('\nError creating a tournament to help POST a player: ' + err + '\n');
-									done(err)
-								});
+							catch (err)  {
+									throw(err)
+								}
 							},
-						/* ifMany */ () => {done("Should have received only record, got many");}
+						/* ifMany */ () => {throw("Should have received only record, got many");}
 					)
 
 				}
