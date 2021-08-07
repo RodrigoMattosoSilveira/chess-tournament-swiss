@@ -24,7 +24,7 @@ export class TournamentRoutes extends CommonRoutesConfig {
 	
 	/**
 	 * This logic lets any REST API client call our tournament endpoint with a POST or a GET request. Similarly, it lets a
-	 * client call our /tournament/:id endpoint with a GET, PUT, PATCH, or DELETE request.
+	 * client call our /tournament/:eid endpoint with a GET, PUT, PATCH, or DELETE request.
 	 */
 	configureRoutes() {
 		this.app.route(`/tournament`) //this.app.route(`/tournament`)
@@ -48,19 +48,19 @@ export class TournamentRoutes extends CommonRoutesConfig {
 				TournamentController.create);
 
 		// This service does not support PUT / DELETE
-		this.app.put(`/user/:userId`,[
+		this.app.put(`/tournament/:eid`,[
 			TournamentMiddleware.serviceDoesNotSupportPut,
 		]);
-		this.app.delete(`/user/:userId`,[
+		this.app.delete(`/tournament/:eid`,[
 			TournamentMiddleware.serviceDoesNotSupportDelete,
 		]);
 
-		this.app.param(`id`, TournamentMiddleware.extractId);
-		this.app.route(`/tournament/:id`)
-			.all(TournamentMiddleware.idExists)
-			.get(TournamentController.readById);
+		this.app.param(`id`, TournamentMiddleware.extractEid);
+		this.app.route(`/tournament/:eid`)
+			.all(TournamentMiddleware.eidExists)
+			.get(TournamentController.readByEid);
 
-		this.app.patch(`/user/:userId`, [
+		this.app.patch(`/tournament/:eid`, [
 			TournamentMiddleware.hasRequiredCreateAttributes,
 			TournamentMiddleware.hasOnlyRequiredCreateAttributes,
 			TournamentMiddleware.isNameUnique,

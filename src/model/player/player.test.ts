@@ -1,5 +1,5 @@
 // TODO: review test in detail for new architecture
-import {TournamentDto} from "../tournament/tournament.interfaces";
+import {ITournamentDto} from "../tournament/tournament.interfaces";
 
 const request = require('supertest');
 

@@ -6,7 +6,7 @@ import {
 } from "./tournament.constants";
 import {TOURNAMENT_PATCH_KEYS, TOURNAMENT_CREATE_KEYS, TOURNAMENT_DTO_KEYS} from "./tournament.interfaces";
 import tournamentDao from "./tournament.dao";
-import { TournamentDto } from "./tournament.interfaces";
+import { ITournamentDto } from "./tournament.interfaces";
 import {ITournamentMongoDoc} from "./tournament.mongo";
 import {USER_DTO_KEYS, UserDto} from "../user/user.interfaces";
 
@@ -25,7 +25,7 @@ export class TournamentUtil {
 	 * lAddAttributeDefaults Fills up default attributes
 	 * @param resource
 	 */
-	lAddAttributeDefaults = (resource: TournamentDto) => {
+	lAddAttributeDefaults = (resource: ITournamentDto) => {
 		resource.id =  shortid.generate();	// created by the controller
 		if (!resource.city) resource.city = TOURNAMENT_DEFAULTS.city;
 		if (!resource.country) resource.country = TOURNAMENT_DEFAULTS.country;
@@ -65,8 +65,8 @@ export class TournamentUtil {
 		return true;
 	}
 
-	fromMongoToDto(mongo: ITournamentMongoDoc): TournamentDto  {
-		let tournament: TournamentDto = {id: "", name: ""};
+	fromMongoToDto(mongo: ITournamentMongoDoc): ITournamentDto  {
+		let tournament: ITournamentDto = {id: "", name: ""};
 		TOURNAMENT_DTO_KEYS.forEach(el => {
 			// @ts-ignore
 			tournament[el] = mongo[el];

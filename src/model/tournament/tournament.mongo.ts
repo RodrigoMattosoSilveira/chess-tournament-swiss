@@ -4,23 +4,22 @@
  *
  */
 import mongoose from "mongoose";
-import { TournamentDto } from "./tournament.interfaces";
+import { ITournamentDto } from "./tournament.interfaces";
 
 /**
  * Extend the mongoose Document interface and use it as a Type on calls requiring the mongoose Document interface.
  *
  * merging interfaces: https://stackoverflow.com/questions/49723173/merge-two-interfaces
  */
-// @ts-ignore
-export interface ITournamentMongoDoc extends TournamentDto, mongoose.Document {
-}
+export interface ITournamentMongoDoc extends ITournamentDto, mongoose.Document {}
+// export type ITournamentMongoDoc = ITournamentDto &  mongoose.Document;
 
 export interface ITournamentMongo extends mongoose.Model<ITournamentMongoDoc> {
-	build(attr: TournamentDto): any
+	build(attr: ITournamentDto): any
 }
 
 const tournamentSchema = new mongoose.Schema({
-	id: {
+	eid: {
 		type: String,
 		required: true
 	},
@@ -34,6 +33,10 @@ const tournamentSchema = new mongoose.Schema({
 	},
 	country: {
 		type: String,
+		required: false
+	},
+	year: {
+		type: Number,
 		required: false
 	},
 	rounds: {
@@ -76,7 +79,7 @@ const tournamentSchema = new mongoose.Schema({
 		type: Number,
 		required: false
 	},
-	scheduledEndtDate: {
+	scheduledEndDate: {
 		type: Number,
 		required: false
 	},
@@ -90,7 +93,7 @@ const tournamentSchema = new mongoose.Schema({
 	},
 })
 
-tournamentSchema.statics.build = (attr: TournamentDto) => {
+tournamentSchema.statics.build = (attr: ITournamentDto) => {
 	return new TournamentMongo(attr);
 };
 const TournamentMongo = mongoose.model<ITournamentMongoDoc, ITournamentMongo>("Tournament", tournamentSchema);

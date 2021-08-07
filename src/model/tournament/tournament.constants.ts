@@ -16,6 +16,7 @@ export const TOURNAMENT_STATE = {
 export const TOURNAMENT_DEFAULTS = {
     city: "",
     country:  "",
+    year: new Date().getFullYear(),
     rounds: 6,
     maxPlayers: 8,
     minRate:  0,

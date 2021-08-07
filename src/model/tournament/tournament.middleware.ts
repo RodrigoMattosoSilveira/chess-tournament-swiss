@@ -319,18 +319,18 @@ class TournamentMiddleware {
 	// TODO add validation for when actualStartDate and actualEndDate are supplied, actualStartDate is less than actualEndDate
 	// TODO add validation for when actualStartDate or actualEndDate are supplied, and patching, to ensure they are compatible with the existing values
 
-	async extractId(req: express.Request, res: express.Response, next: express.NextFunction) {
-		// console.log('\n' + 'TournamentMiddleware/extractId/id: ' + req.params.id + '\n');
-		req.body.id = req.params.id;
+	async extractEid(req: express.Request, res: express.Response, next: express.NextFunction) {
+		// console.log('\n' + 'TournamentMiddleware/extractId/id: ' + req.params.eid + '\n');
+		req.body.eid = req.params.eid;
 		next();
 	}
 
-	async idExists(req: express.Request, res: express.Response, next: express.NextFunction) {
-		if (await tournamentController.idExists(req.body.id)) {
+	async eidExists(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if (await tournamentController.eidExists(req.body.eid)) {
 			next()
 		} else {
-			console.log(`TournamentMiddleware - entityExists failed: ${req.body.id}`)
-			res.status(400).send(`Tournament id not found: ${req.body.id}`);
+			console.log(`TournamentMiddleware - entityExists failed: ${req.body.eid}`)
+			res.status(400).send(`Tournament id not found: ${req.body.eid}`);
 		}
 	}
 

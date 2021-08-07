@@ -5,16 +5,10 @@ import express from 'express';
 import tournamentService from './tournament.service';
 
 // we use debug with a custom context as described in Part 1
-import debug from 'debug';
 import {TournamentUtil} from "./tournament.utils";
 import {DaoResult} from "../../common/generic.interfaces";
-import {UserDto} from "../user/user.interfaces";
-import userService from "../user/user.service";
 import {OneMany} from "@rmstek/rms-ts-monad";
-import {ITournamentPatch, TOURNAMENT_PATCH_KEYS, TournamentDto} from "./tournament.interfaces";
-import argon2 from "argon2";
-
-const log: debug.IDebugger = debug('app:tournament-controller');
+import {ITournamentPatch, TOURNAMENT_PATCH_KEYS, ITournamentDto} from "./tournament.interfaces";
 
 class TournamentController {
 	private static instance: TournamentController;
@@ -31,12 +25,12 @@ class TournamentController {
 	async create(req: express.Request, res: express.Response) {
 		// console.log("TournamentController/create: " + JSON.stringify(req.body) +"\n");
 		TournamentController.tournamentUtil.lAddAttributeDefaults(req.body);
-		const daoResult: DaoResult<TournamentDto, TournamentDto[]> = await tournamentService.create(req.body);
+		const daoResult: DaoResult<ITournamentDto, ITournamentDto[]> = await tournamentService.create(req.body);
 		daoResult.content.fold(
 			(err: string) => {
 				res.status(daoResult.code).send(err);
 			},
-			(result: OneMany<TournamentDto, TournamentDto[]>) => {
+			(result: OneMany<ITournamentDto, ITournamentDto[]>) => {
 				// res.status(daoResult.code).send(result.content.get());
 				result.fold(
 					/* ifOne */  () => {res.status(daoResult.code).send(result.get());},
@@ -47,12 +41,12 @@ class TournamentController {
 	}
 
 	async read(req: express.Request, res: express.Response) {
-		const daoResult: DaoResult<TournamentDto, TournamentDto[]> = await tournamentService.read(/* 100, 0 */);
+		const daoResult: DaoResult<ITournamentDto, ITournamentDto[]> = await tournamentService.read(/* 100, 0 */);
 		daoResult.content.fold(
 			(err: string) => {
 				res.status(daoResult.code).send(err);
 			},
-			(result: OneMany<TournamentDto, TournamentDto[]>) => {
+			(result: OneMany<ITournamentDto, ITournamentDto[]>) => {
 				// res.status(daoResult.code).send(result.content.get());
 				result.fold(
 					/* ifOne */  () => {
@@ -68,7 +62,7 @@ class TournamentController {
 
 	async patch(req: express.Request, res: express.Response) {
 		// console.log(`UserController/Patch: ${JSON.stringify(req.body)}`);
-		let update: ITournamentPatch = {id: ""}
+		let update: ITournamentPatch = {eid: ""};
 		for (let field of TOURNAMENT_PATCH_KEYS) {
 			if (field in req) {
 				// @ts-ignore
@@ -76,12 +70,12 @@ class TournamentController {
 			}
 		}
 
-		const daoResult: DaoResult<TournamentDto, TournamentDto[]> = await tournamentService.patch(update);
+		const daoResult: DaoResult<ITournamentDto, ITournamentDto[]> = await tournamentService.patch(update);
 		daoResult.content.fold(
 			(err: string) => {
 				res.status(daoResult.code).send(err);
 			},
-			(result: OneMany<TournamentDto, TournamentDto[]>) => {
+			(result: OneMany<ITournamentDto, ITournamentDto[]>) => {
 				// res.status(daoResult.code).send(result.content.get());
 				result.fold(
 					/* ifOne */  () => {res.status(daoResult.code).send(result.get());},
@@ -90,13 +84,13 @@ class TournamentController {
 		);
 	}
 
-	async readById(req: express.Request, res: express.Response) {
-		const daoResult: DaoResult<TournamentDto, TournamentDto[]> = await tournamentService.readByName(req.params.id);
+	async readByEid(req: express.Request, res: express.Response) {
+		const daoResult: DaoResult<ITournamentDto, ITournamentDto[]> = await tournamentService.readByEid(req.params.eid);
 		daoResult.content.fold(
 			(err: string) => {
 				res.status(daoResult.code).send(err);
 			},
-			(result: OneMany<TournamentDto, TournamentDto[]>) => {
+			(result: OneMany<ITournamentDto, ITournamentDto[]>) => {
 				// res.status(daoResult.code).send(result.content.get());
 				result.fold(
 					/* ifOne */  () => {res.status(daoResult.code).send(result.get());},
@@ -106,14 +100,14 @@ class TournamentController {
 	}
 
 	//TODO Add logic to return a boolean, true if exists, false otherwise
-	async idExists(id: string): Promise<boolean> {
+	async eidExists(eid: string): Promise<boolean> {
 		let idExists: boolean = false;
-		const daoResult: DaoResult<TournamentDto, TournamentDto[]> = await tournamentService.readById(id);
+		const daoResult: DaoResult<ITournamentDto, ITournamentDto[]> = await tournamentService.readByEid(eid);
 		daoResult.content.fold(
 			(err: string) => {
 				idExists = false;
 			},
-			(result: OneMany<TournamentDto, TournamentDto[]>) => {
+			(result: OneMany<ITournamentDto, ITournamentDto[]>) => {
 				// res.status(daoResult.code).send(result.content.get());
 				result.fold(
 					/* ifOne */  () => {idExists = true;},
@@ -124,29 +118,31 @@ class TournamentController {
 		return idExists;
 	}
 
-	async readByName(req: express.Request, res: express.Response) {
-		const daoResult: DaoResult<TournamentDto, TournamentDto[]> = await tournamentService.readById(req.params.name);
-		daoResult.content.fold(
-			(err: string) => {
-				res.status(daoResult.code).send(err);
-			},
-			(result: OneMany<TournamentDto, TournamentDto[]>) => {
-				// res.status(daoResult.code).send(result.content.get());
-				result.fold(
-					/* ifOne */  () => {res.status(daoResult.code).send(result.get());},
-					/* ifMany */ () => {res.status(500).send(`Tournament/Controller - Should have received only record: ${req.params.id}, got many`);})
-			},
-		);
-	}
+	//TODO add logic to support parameter searches, as for instance, tournament name. Note that when changing the name
+	// we ensure the new name is unique
+	// async readByName(req: express.Request, res: express.Response) {
+	// 	const daoResult: DaoResult<ITournamentDto, ITournamentDto[]> = await tournamentService.readByName(req.params.name);
+	// 	daoResult.content.fold(
+	// 		(err: string) => {
+	// 			res.status(daoResult.code).send(err);
+	// 		},
+	// 		(result: OneMany<ITournamentDto, ITournamentDto[]>) => {
+	// 			// res.status(daoResult.code).send(result.content.get());
+	// 			result.fold(
+	// 				/* ifOne */  () => {res.status(daoResult.code).send(result.get());},
+	// 				/* ifMany */ () => {res.status(500).send(`Tournament/Controller - Should have received only record: ${req.params.eid}, got many`);})
+	// 		},
+	// 	);
+	// }
 
 	async nameExists(name: string): Promise<boolean> {
 		let nameExists: boolean = false;
-		const daoResult: DaoResult<TournamentDto, TournamentDto[]> = await tournamentService.readById(name);
+		const daoResult: DaoResult<ITournamentDto, ITournamentDto[]> = await tournamentService.readByName(name);
 		daoResult.content.fold(
 			(err: string) => {
 				nameExists = false;
 			},
-			(result: OneMany<TournamentDto, TournamentDto[]>) => {
+			(result: OneMany<ITournamentDto, ITournamentDto[]>) => {
 				// res.status(daoResult.code).send(result.content.get());
 				result.fold(
 					/* ifOne */  () => {nameExists = true;},
