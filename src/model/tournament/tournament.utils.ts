@@ -26,10 +26,12 @@ export class TournamentUtil {
 	 * @param resource
 	 */
 	lAddAttributeDefaults = (resource: ITournamentDto) => {
-		resource.id =  shortid.generate();	// created by the controller
+		resource.eid =  shortid.generate();	// created by the controller
 		if (!resource.city) resource.city = TOURNAMENT_DEFAULTS.city;
 		if (!resource.country) resource.country = TOURNAMENT_DEFAULTS.country;
+		if (!resource.country) resource.year = TOURNAMENT_DEFAULTS.year;
 		if (!resource.rounds) resource.rounds = TOURNAMENT_DEFAULTS.rounds;
+		if (!resource.maxPlayers) resource.maxPlayers = TOURNAMENT_DEFAULTS.maxPlayers;
 		if (!resource.minRate) resource.minRate = TOURNAMENT_DEFAULTS.minRate;
 		if (!resource.maxRate) resource.maxRate = TOURNAMENT_DEFAULTS.maxRate;
 		if (!resource.type) resource.type = TOURNAMENT_DEFAULTS.type;
@@ -66,7 +68,7 @@ export class TournamentUtil {
 	}
 
 	fromMongoToDto(mongo: ITournamentMongoDoc): ITournamentDto  {
-		let tournament: ITournamentDto = {id: "", name: ""};
+		let tournament: ITournamentDto = {eid: "", name: ""};
 		TOURNAMENT_DTO_KEYS.forEach(el => {
 			// @ts-ignore
 			tournament[el] = mongo[el];
