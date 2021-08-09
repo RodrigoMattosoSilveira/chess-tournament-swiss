@@ -6,7 +6,7 @@ import {
 	hasRequiredKeys,
 	hasOnlyRequiredKeys,
 	isCityValid,
-	isStringLongEnough, isCountryValid
+	isStringLongEnough, isCountryValid, isNumericIntervalValid
 } from "./utils";
 import {keys} from "ts-transformer-keys";
 
@@ -205,6 +205,50 @@ describe('Util Unit Tests', () => {
 			let country: string = "Austriaaaa";
 			let countryIsValid = isCountryValid(country);
 			expect(countryIsValid).toBe(false);
+			done();
+		})
+	});
+	describe('Validate the isNumericIntervalValid method', () => {
+		it('left less than right, they can match', async done => {
+			let leftSide: number = 1;
+			let rightSide: number = 2;
+			let lessOrEqual: boolean = true;
+			expect(isNumericIntervalValid(leftSide, rightSide, lessOrEqual)).toBe(true);
+			done();
+		})
+		it('left less than right, they cannot match', async done => {
+			let leftSide: number = 1;
+			let rightSide: number = 2;
+			let lessOrEqual: boolean = false;
+			expect(isNumericIntervalValid(leftSide, rightSide, lessOrEqual)).toBe(true);
+			done();
+		})
+		it('left equal than right, they can match', async done => {
+			let leftSide: number = 1;
+			let rightSide: number = 1;
+			let lessOrEqual: boolean = true;
+			expect(isNumericIntervalValid(leftSide, rightSide, lessOrEqual)).toBe(true);
+			done();
+		})
+		it('left equal than right, they cannot match', async done => {
+			let leftSide: number = 1;
+			let rightSide: number = 1;
+			let lessOrEqual: boolean = false;
+			expect(isNumericIntervalValid(leftSide, rightSide, lessOrEqual)).toBe(false);
+			done();
+		})
+		it('left greater than right, they cann match', async done => {
+			let leftSide: number = 2;
+			let rightSide: number = 1;
+			let lessOrEqual: boolean = true;
+			expect(isNumericIntervalValid(leftSide, rightSide, lessOrEqual)).toBe(false);
+			done();
+		})
+		it('left greater than right, they cannot match', async done => {
+			let leftSide: number = 2;
+			let rightSide: number = 1;
+			let lessOrEqual: boolean = false;
+			expect(isNumericIntervalValid(leftSide, rightSide, lessOrEqual)).toBe(false);
 			done();
 		})
 	});
