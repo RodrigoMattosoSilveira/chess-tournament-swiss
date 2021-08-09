@@ -25,6 +25,7 @@ class TournamentService {
 	};
 	
 	async patch(resource: ITournamentPatch): Promise<DaoResult<ITournamentDto, ITournamentDto[]>> {
+		console.log(`TournamentService/Patch: ${JSON.stringify(resource)}`);
 		return await tournamentDao.patch(resource)
 	};
 	

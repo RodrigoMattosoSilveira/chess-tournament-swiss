@@ -2,11 +2,10 @@ import express from 'express';
 
 // todo: apply this generalization to all other entities
 import tournamentController from "../tournament/tournament.controller";
-import tournamentService from "../tournament/tournament.service";
 import * as utils from "../../utils/utils";
-import {TOURNAMENT_CREATE_KEYS} from "./tournament.interfaces";
+import {TOURNAMENT_CREATE_KEYS, TOURNAMENT_PATCH_KEYS} from "./tournament.interfaces";
 import {TOURNAMENT_STATE, TOURNAMENT_TYPE, TOURNAMENT_LIMITS} from "./tournament.constants";
-import {isCountryValid} from "../../utils/utils";
+import {hasOnlyRequiredKeys, isCountryValid} from "../../utils/utils";
 
 class TournamentMiddleware {
 	private static instance: TournamentMiddleware;
@@ -50,6 +49,23 @@ class TournamentMiddleware {
 		}else {
 			console.log(`TournamentMiddleware - hasOnlyRequiredCreateAttributes failed: ${errorMessage}`)
 			res.status(400).send(`User create request does not include any attributes`);
+		}
+	}
+
+	async hasOnlyValidPatchAttributes(req: express.Request, res: express.Response, next: express.NextFunction) {
+		let errorMessage: string = "";
+		if (req.body) {
+			errorMessage = hasOnlyRequiredKeys(req.body, TOURNAMENT_PATCH_KEYS);
+			if (errorMessage.length > 0) {
+				// console.log('\n' + 'TournamentMiddleware/hasOnlyValidPatchAttributes/message: ' + errorMessage + '\n');
+				res.status(400).send(`TournamentMiddleware/hasOnlyValidPatchAttribute patch request has invalid attributes:  ${errorMessage}`);
+			} else {
+				// console.log('\n' + TournamentMiddleware/hasOnlyValidPatchAttribute patch: All patch attributes are valid' + '\n');
+				next()
+			}
+		}else {
+			console.log(`TournamentMiddleware/hasOnlyValidPatchAttribute failed: ${errorMessage}`)
+			res.status(400).send(`TournamentMiddleware/hasOnlyValidPatchAttribute failed: ${errorMessage}\``);
 		}
 	}
 
@@ -162,7 +178,7 @@ class TournamentMiddleware {
 		if (!req.body.state) {
 			next();
 		} else {
-			let subject = req.body.type;
+			let subject = req.body.state;
 			let subjectText = "TOURNAMENT_STATE"
 			if (subject in TOURNAMENT_STATE) {
 				next();
@@ -174,7 +190,9 @@ class TournamentMiddleware {
 		}
 	}
 
-
+	// TODO: 0 <= minRate < maxRate; minRate < maxRate <= Number.MaxInt
+	// When minRate = 0, there is no minumum rate;
+	// When maxRate = Number.MaxInt, there is no maximum rate
 	async isMinRateValid(req: express.Request, res: express.Response, next: express.NextFunction) {
 		if (!req.body.minRate) {
 			next();
@@ -217,9 +235,7 @@ class TournamentMiddleware {
 		}
 	}
 
-	// TODO add validation for when minRate and maxRate are supplied
-	// TODO add validation for when minRate or maxRate are supplied, and patching, to ensure they are compatible with the existing rates
-
+	// TODO add tie points must be lower than winPoints
 	async isWinPointsValid(req: express.Request, res: express.Response, next: express.NextFunction) {
 		if (!req.body.winPoints) {
 			next();
@@ -250,16 +266,33 @@ class TournamentMiddleware {
 		}
 	}
 
-	// TODO add validation for when winPoints and tiePoints are supplied, winPoints is higher than tiePoints
-	// TODO add validation for when winPoints or tiePoints are supplied, and patching, to ensure they are compatible with the existing values
+	async isTieWinIntervalValid(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if (!(req.body.tiePoints && req.body.winPoints)) {
+			next();
+		} else {
+			let subjectLeft = req.body.tiePoints;
+			let subjectRight = req.body.winPoints;
+			let subjectText = "tiePoints winPoints interval"
+			if (!utils.isNumericIntervalValid(subjectLeft, subjectRight, false)) {
+				let errorMsg = `TournamentMiddleware - ${subjectText} is not valid: ${subjectLeft}, ${subjectRight}`
+				console.log(errorMsg)
+				res.status(400).send(errorMsg);
+			} else {
+				next();
+			}
+		}
 
+	}
+
+	// Dates are stores as EPOCH time, start date must be lower or equal to end date
 	async isScheduledStartDateValid(req: express.Request, res: express.Response, next: express.NextFunction) {
 		if (!req.body.scheduledStartDate) {
 			next();
 		} else {
 			let subject = req.body.scheduledStartDate
 			let subjectText = "scheduledStartDate"
-			if (!utils.isValidDate("" + subject)) {
+			if (!utils.isStringNumeric("" + subject)) {
+			// if (!utils.isValidDate("" + subject)) {
 				console.log(`TournamentMiddleware - ${subjectText} is not valid: ${subject}`)
 				res.status(400).send(`Tournament ${subjectText} is not valid: ${subject}`);
 			} else {
@@ -274,7 +307,8 @@ class TournamentMiddleware {
 		} else {
 			let subject = req.body.scheduledEndDate
 			let subjectText = "scheduledEndDate"
-			if (!utils.isValidDate("" + subject)) {
+			if (!utils.isStringNumeric("" + subject)) {
+				// if (!utils.isValidDate("" + subject)) {
 				console.log(`TournamentMiddleware - ${subjectText} is not valid: ${subject}`)
 				res.status(400).send(`Tournament ${subjectText} is not valid: ${subject}`);
 			} else {
@@ -283,16 +317,33 @@ class TournamentMiddleware {
 		}
 	}
 
-	// TODO add validation for when scheduledStartDate and scheduledEndDate are supplied, scheduledStartDate is less than scheduledEndDate
-	// TODO add validation for when scheduledStartDate or scheduledEndDate are supplied, and patching, to ensure they are compatible with the existing values
+	async isScheduledDateIntervalValid(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if (!(req.body.scheduledStartDate && req.body.scheduledEndDate)) {
+			next();
+		} else {
+			let subjectLeft = req.body.scheduledStartDate;
+			let subjectRight = req.body.scheduledEndDate;
+			let subjectText = "scheduled Date interval"
+			if (!utils.isNumericIntervalValid(subjectLeft, subjectRight, true)) {
+				let errorMsg = `TournamentMiddleware - ${subjectText} is not valid: ${subjectLeft}, ${subjectRight}`
+				console.log(errorMsg)
+				res.status(400).send(errorMsg);
+			} else {
+				next();
+			}
+		}
 
+	}
+
+	// Dates are stores as EPOCH time, start date must be lower or equal to end date
 	async isActualStartDateValid(req: express.Request, res: express.Response, next: express.NextFunction) {
-		if (!req.body.scheduledStartDate) {
+		if (!req.body.actualStartDate) {
 			next();
 		} else {
 			let subject = req.body.actualStartDate
 			let subjectText = "actualStartDate"
-			if (!utils.isValidDate("" + subject)) {
+			if (!utils.isStringNumeric("" + subject)) {
+				// if (!utils.isValidDate("" + subject)) {
 				console.log(`TournamentMiddleware - ${subjectText} is not valid: ${subject}`)
 				res.status(400).send(`Tournament ${subjectText} is not valid: ${subject}`);
 			} else {
@@ -301,13 +352,14 @@ class TournamentMiddleware {
 		}
 	}
 
-	async isActualSEndDateValid(req: express.Request, res: express.Response, next: express.NextFunction) {
+	async isActualEndDateValid(req: express.Request, res: express.Response, next: express.NextFunction) {
 		if (!req.body.actualEndDate) {
 			next();
 		} else {
 			let subject = req.body.actualEndDate
 			let subjectText = "actualEndDate"
-			if (!utils.isValidDate("" + subject)) {
+			if (!utils.isStringNumeric("" + subject)) {
+				// if (!utils.isValidDate("" + subject)) {
 				console.log(`TournamentMiddleware - ${subjectText} is not valid: ${subject}`)
 				res.status(400).send(`Tournament ${subjectText} is not valid: ${subject}`);
 			} else {
@@ -316,8 +368,22 @@ class TournamentMiddleware {
 		}
 	}
 
-	// TODO add validation for when actualStartDate and actualEndDate are supplied, actualStartDate is less than actualEndDate
-	// TODO add validation for when actualStartDate or actualEndDate are supplied, and patching, to ensure they are compatible with the existing values
+	async isActualDateIntervalValid(req: express.Request, res: express.Response, next: express.NextFunction) {
+		if (!(req.body.actualStartDate && req.body.actualEndDate)) {
+			next();
+		} else {
+			let subjectLeft = req.body.actualStartDate;
+			let subjectRight = req.body.actualEndDate;
+			let subjectText = "actual Date interval"
+			if (!utils.isNumericIntervalValid(subjectLeft, subjectRight, true)) {
+				let errorMsg = `TournamentMiddleware - ${subjectText} is not valid: ${subjectLeft}, ${subjectRight}`
+				console.log(errorMsg)
+				res.status(400).send(errorMsg);
+			} else {
+				next();
+			}
+		}
+	}
 
 	async extractEid(req: express.Request, res: express.Response, next: express.NextFunction) {
 		// console.log('\n' + 'TournamentMiddleware/extractId/id: ' + req.params.eid + '\n');
@@ -330,7 +396,7 @@ class TournamentMiddleware {
 			next()
 		} else {
 			console.log(`TournamentMiddleware - entityExists failed: ${req.body.eid}`)
-			res.status(400).send(`Tournament id not found: ${req.body.eid}`);
+			res.status(400).send(`TournamentMiddleware.eidExists: eid not found: ${req.body.eid}`);
 		}
 	}
 

@@ -61,15 +61,9 @@ class TournamentController {
 	}
 
 	async patch(req: express.Request, res: express.Response) {
-		// console.log(`UserController/Patch: ${JSON.stringify(req.body)}`);
-		let update: ITournamentPatch = {eid: ""};
-		for (let field of TOURNAMENT_PATCH_KEYS) {
-			if (field in req) {
-				// @ts-ignore
-				update[field] = req[field];
-			}
-		}
-
+		console.log(`TournamentController/Patch: ${JSON.stringify(req.body)}`);
+		let update: ITournamentPatch = {...req.body}
+		console.log(`TournamentController/update: ${JSON.stringify(update)}`);
 		const daoResult: DaoResult<ITournamentDto, ITournamentDto[]> = await tournamentService.patch(update);
 		daoResult.content.fold(
 			(err: string) => {

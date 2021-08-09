@@ -22,6 +22,8 @@
     "test_utils": "NODE_ENV=UT jest  --detectOpenHandles -t 'Util Unit Tests'",
     "test_t": "NODE_ENV=UT NODE_DATA=generated jest --detectOpenHandles -t 'Tournament Entity'",
     "test_tmw": "jest  --detectOpenHandles -t 'Tournament Middleware Unit Tests'",
+    "test_tmg": "jest  --detectOpenHandles -t 'Tournament MongoDB Unit Tests'",
+    "test_t_urls": "jest --detectOpenHandles --runInBand -t 'Tournament URL Tests'",
     "test_p": "NODE_ENV=UT NODE_DATA=generated jest --detectOpenHandles -t 'Player Entity'",
     "test_g": "NODE_ENV=UT NODE_DATA=generated jest --detectOpenHandles -t 'Game Entity'",
     "test_r": "NODE_ENV=UT NODE_DATA=generated jest --detectOpenHandles -t 'Round Entity'",

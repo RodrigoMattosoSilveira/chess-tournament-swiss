@@ -21,7 +21,9 @@ export class MongoAtlas extends AMongoDb {
         super (uri, options);
     }
     connect = async (): Promise<void> => {
-        mongoose.set("useFindAndModify", false)
+        mongoose.set("useFindAndModify", false);
+        mongoose.set("returnOriginal", false);
+        mongoose.set('debug', true);
         mongoose
             .connect(this.uri, this.options)
             .then(() => {

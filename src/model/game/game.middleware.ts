@@ -61,7 +61,7 @@ class GameMiddleware {
 	
 	async validateTournament(req: express.Request, res: express.Response, next: express.NextFunction) {
 		// console.log('\n' + 'GameMiddleware/validateTournament' + '\n');
-		const entity = await tournamentService.readById(req.body.tournament);
+		const entity = await tournamentService.readByEid(req.body.tournament);
 		if (entity) {
 			next();
 		} else {

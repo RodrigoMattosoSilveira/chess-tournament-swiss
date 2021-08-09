@@ -63,6 +63,7 @@ class TournamentDao {
 		let entities: ITournamentDto[] = [];
 		try {
 			// Read all documents
+			//TODO experiment with using lean to retrieve only the POJo document (ITournamentDto in this case);
 			let documents: ITournamentMongoDoc[] = await TournamentMongo.find({}).exec();
 			if (documents) {
 				// @ts-ignore
@@ -90,6 +91,7 @@ class TournamentDao {
 		let daoResult: DaoResult<ITournamentDto, ITournamentDto[]>;
 		// Find one entity whose `id` is 'id', otherwise `null`
 		try {
+			//TODO experiment with using lean to retrieve only the POJo document (ITournamentDto in this case);
 			let document = await TournamentMongo.findOne({eid: eid}).exec();
 			if (document) {
 				// Found, 200 = Ok
@@ -99,48 +101,38 @@ class TournamentDao {
 			}
 			else {
 				// 404 Not Found
-				daoResult = {code: HttpResponseCode.not_found, content: Err(`TournamentDto / ReadById - Did not find tournament id: ${eid}`)};
+				daoResult = {code: HttpResponseCode.not_found, content: Err(`TournamentDto / ReadById - Did not find tournament eid: ${eid}`)};
 			}
 		}
 		catch (error) {
 			// 500 Internal Server Error
-			daoResult = {code: HttpResponseCode.internal_server_error, content: Err(`TournamentDto / ReadById - Unable to read tournament id: ${eid}`)};
+			daoResult = {code: HttpResponseCode.internal_server_error, content: Err(`TournamentDto / ReadById - Unable to read tournament eid: ${eid}`)};
 		}
 		return daoResult;
 	}
 
-	async patch(entity: ITournamentPatch) {
-		// console.log(`UserDao/Patch: ${JSON.stringify(user)}`);
+	async patch(entity: ITournamentPatch): Promise< DaoResult<ITournamentDto, ITournamentDto[]>> {
+		console.log(`TournamentDao/Patch entity: ${JSON.stringify(entity)}`);
 		let daoResult: DaoResult<ITournamentDto, ITournamentDto[]>;
-		// Do not use lean, so that we have the save method!
-		let conditions = {id: entity.eid};
-		let update = {}
-		for (let field of TOURNAMENT_PATCH_KEYS) {
-			if (field in entity) {
-				// @ts-ignore
-				update[field] = entity[field];
-			}
-		}
+
+		let conditions = {eid: entity.eid};
+
+		let update = {...entity}
+
+		// Mongoose returns the updated document when new is true, and the POJO document when lean is present;
 		let options = {new: true};
-		// https://mongoosejs.com/docs/tutorials/findoneandupdate.html
-		TournamentMongo.findOneAndUpdate(conditions, update, options)
-			.then((document: any) => {
-				if (document) {
-					// 200 Ok
-					let entity: ITournamentDto = this.util.fromMongoToDto(document);
-					daoResult = {code: HttpResponseCode.ok, content: Ok(One(entity))};
-				}
-				else {
-					// Did not find, 204 = No Content
-					// 404 Not Found
-					daoResult = {code: HttpResponseCode.not_found, content: Err(`TournamentDto / Patch - Did not find tournament id ${entity.eid}, not patched`)};
-				}
-			})
-			.catch(() => {
-				// 500 Internal Server Error
-				daoResult = {code: HttpResponseCode.internal_server_error, content: Err(`TournamentDto / Patch - Patch to read tournament id: ${entity.eid}`)};
-			})
-		// @ts-ignore
+
+		let document = await TournamentMongo.findOneAndUpdate(conditions, update, {new: true, lean: true});
+		if (document) {
+			// 200 Ok
+			let entity: ITournamentDto = this.util.fromMongoToDto(document);
+			daoResult = {code: HttpResponseCode.ok, content: Ok(One(entity))};
+		}
+		else {
+			// Did not find, 204 = No Content
+			// 404 Not Found
+			daoResult = {code: HttpResponseCode.not_found, content: Err(`TournamentDto / Patch - Did not find tournament id ${entity.eid}, not patched`)};
+		}
 		return daoResult;
 	}
 

@@ -48,7 +48,7 @@ class RoundMiddleware {
 	}
 	
 	async validateTournamentExist(req: express.Request, res: express.Response, next: express.NextFunction) {
-		const tournament = await tournamentService.readById(req.body.tournament);
+		const tournament = await tournamentService.readByEid(req.body.tournament);
 		if (!tournament) {
 			// console.log('\n' + 'RoundMiddleware/validateTournamentExist/message: tournament does not exist' + req.body.tournament + '\n');
 			res.status(400).send({error: `CREATE round tournament must exist: ` + req.body.tournament});

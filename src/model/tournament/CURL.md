@@ -19,12 +19,8 @@ Use the following `curl` command to create a tournament:
 curl --location --request POST 'localhost:3000/tournament' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-"name": "Tata Steel Chess",
-"city": "Wijk aan Zee",
-"year": 2021,
-"maxPlayers": 48,
-"rounds": 6,
-"type": "swiss"
+"eid": "",
+"name": "Tata Steel Chess"
 }'
 ````
 
@@ -36,7 +32,7 @@ The service returns the created tournament's id:
 }
 ````
 
-When experimenting with a particular tournment, the terminal to create an environment variable to help you:
+When experimenting with a particular tournament, the terminal to create an environment variable to help you:
 
 ````bash
 $ REST_API_TOURNAMENT_ID=v55YaUAmh

@@ -33,18 +33,6 @@ export class TournamentRoutes extends CommonRoutesConfig {
 				TournamentMiddleware.hasRequiredCreateAttributes,
 				TournamentMiddleware.hasOnlyRequiredCreateAttributes,
 				TournamentMiddleware.isNameUnique,
-				TournamentMiddleware.isCityValid,
-				TournamentMiddleware.isCountryValid,
-				TournamentMiddleware.isRoundsValid,
-				TournamentMiddleware.isMaxPlayersValid,
-				TournamentMiddleware.isMinRateValid,
-				TournamentMiddleware.isMaxRateValid,
-				TournamentMiddleware.isTypeValid,
-				TournamentMiddleware.isStateValid,
-				TournamentMiddleware.isWinPointsValid,
-				TournamentMiddleware.isTiePointsValid,
-				TournamentMiddleware.isScheduledStartDateValid,
-				TournamentMiddleware.isScheduledSEndDateValid,
 				TournamentController.create);
 
 		// This service does not support PUT / DELETE
@@ -55,14 +43,13 @@ export class TournamentRoutes extends CommonRoutesConfig {
 			TournamentMiddleware.serviceDoesNotSupportDelete,
 		]);
 
-		this.app.param(`id`, TournamentMiddleware.extractEid);
+		this.app.param(`eid`, TournamentMiddleware.extractEid);
 		this.app.route(`/tournament/:eid`)
 			.all(TournamentMiddleware.eidExists)
 			.get(TournamentController.readByEid);
 
 		this.app.patch(`/tournament/:eid`, [
-			TournamentMiddleware.hasRequiredCreateAttributes,
-			TournamentMiddleware.hasOnlyRequiredCreateAttributes,
+			TournamentMiddleware.hasOnlyValidPatchAttributes,
 			TournamentMiddleware.isNameUnique,
 			TournamentMiddleware.isCityValid,
 			TournamentMiddleware.isCountryValid,
@@ -74,10 +61,13 @@ export class TournamentRoutes extends CommonRoutesConfig {
 			TournamentMiddleware.isStateValid,
 			TournamentMiddleware.isWinPointsValid,
 			TournamentMiddleware.isTiePointsValid,
+			TournamentMiddleware.isTieWinIntervalValid,
 			TournamentMiddleware.isScheduledStartDateValid,
 			TournamentMiddleware.isScheduledSEndDateValid,
+			TournamentMiddleware.isScheduledDateIntervalValid,
 			TournamentMiddleware.isActualStartDateValid,
-			TournamentMiddleware.isActualSEndDateValid,
+			TournamentMiddleware.isActualEndDateValid,
+			TournamentMiddleware.isActualDateIntervalValid,
 			TournamentController.patch
 		]);
 		

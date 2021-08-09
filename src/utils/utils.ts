@@ -158,7 +158,7 @@ export const hasOnlyRequiredKeys = (body: any, requireKeys: string[]): string =>
 }
 export const isCityValid = (city: string): boolean => {
 	let foundCity: boolean = false;
-	let fileName: string = Path.join(__dirname, "../seed-data/worldcities.csv");
+	let fileName: string = Path.join(process.cwd(), "./seed-data/worldcities.csv");
 	// let fileName: string = Path.join(__dirname, "worldcities_test.csv");
 
 	const liner = new lineByLine(fileName);
@@ -176,7 +176,7 @@ export const isCityValid = (city: string): boolean => {
 
 export const isCountryValid = (country: string): boolean => {
 	let found: boolean = false;
-	let fileName: string = Path.join(__dirname, "../seed-data/countries.csv");
+	let fileName: string = Path.join(process.cwd(), "./seed-data/countries.csv");
 
 	const liner = new lineByLine(fileName);
 	let buffer: Buffer;
@@ -193,4 +193,8 @@ export const isCountryValid = (country: string): boolean => {
 
 export const isStringLongEnough = (string: string, minimumLength: number): boolean => {
 	return string.length >= minimumLength;
+}
+
+export const isNumericIntervalValid = (leftSide: number, rightSide: number, lessOrEqual: boolean): boolean => {
+	return lessOrEqual ? leftSide <= rightSide :  leftSide < rightSide;
 }

@@ -65,7 +65,7 @@ class PlayerMiddleware {
 	
 	async validateTournament(req: express.Request, res: express.Response, next: express.NextFunction) {
 		// console.log('\n' + 'PlayerMiddleware/validateTournament : Name is unique' + '\n');
-		const entity = await tournamentService.readById(req.params.tournament);
+		const entity = await tournamentService.readByEid(req.params.tournament);
 		if (entity) {
 			res.status(404).send({error: `Player tournament: ` + req.params.tournament + ` already exists`});
 		} else {
